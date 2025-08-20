@@ -49,13 +49,12 @@ class ScenarioTest {
             }
 
             val findCityPage = FindCityPage(composeTestRule = composeTestRule)
-            val weatherPage = WeatherPage(composeTestRule = composeTestRule)
-
-            findCityPage.input(text = "Moscow")
+            findCityPage.input(text = "Mos")
             findCityPage.assertCityFound(cityName = "Moscow")
             findCityPage.clickFoundCity(cityName = "Moscow")
 
-            weatherPage.assertCityName(cityName = "Moscow")
+            val weatherPage = WeatherPage(composeTestRule = composeTestRule)
+            weatherPage.assertCityName(cityName = "Moscow city")
             weatherPage.assertWeatherDisplayed(temp = "33°C")
         }
     }
@@ -63,19 +62,35 @@ class ScenarioTest {
 
 private class FakeFindCityRepository : FindCityRepository {
 
-    override suspend fun findCity(query: String): FoundCity = if (query == "Moscow")
-        FoundCity(
-            name = "Moscow",
-            latitude = 55.7504461,
-            longitude = 37.6174943,
-        )
-    else
+    override suspend fun findCity(query: String): FoundCity {
+        if (query == "Mos")
+            return FoundCity(
+                name = "Moscow",
+                latitude = 55.7504461,
+                longitude = 37.6174943,
+            )
+
         throw IllegalStateException("not supported for this test")
+    }
+
+    override suspend fun saveCity(foundCity: FoundCity) {
+        if (foundCity != FoundCity(
+                name = "Moscow",
+                latitude = 55.7504461,
+                longitude = 37.6174943,
+            )
+        )
+            throw IllegalStateException("save called with wrong argument $foundCity")
+    }
 
 }
 
 private class FakeWeatherRepository : WeatherRepository {
 
-
+    override suspend fun fetchWeather(): WeatherInCity =
+        WeatherInCity(
+            cityName = "Moscow city",
+            temperature = "33"
+        )
 
 }
