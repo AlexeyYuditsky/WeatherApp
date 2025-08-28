@@ -55,7 +55,7 @@ class ScenarioTest {
 
             val weatherPage = WeatherPage(composeTestRule = composeTestRule)
             weatherPage.assertCityName(cityName = "Moscow city")
-            weatherPage.assertWeatherDisplayed(temp = "33°C")
+            weatherPage.assertWeatherDisplayed(temperature = "33°C")
         }
     }
 }

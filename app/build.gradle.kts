@@ -48,12 +48,12 @@ dependencies {
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    /*implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-    androidTestImplementation(libs.androidx.room.testing)*/
+    androidTestImplementation(libs.androidx.room.testing)
 
-    /*implementation(libs.androidx.datastore.preferences)
-    implementation(libs.androidx.datastore.core)*/
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.core)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
