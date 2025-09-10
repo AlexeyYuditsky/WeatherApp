@@ -11,9 +11,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityScreen
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityScreenUi
+import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityViewModel
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FoundCityUi
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreen
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreenUi
+import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,14 +33,14 @@ class ScenarioTest {
         setContent {
             val navController: NavHostController = rememberNavController()
             NavHost(
-                navController = navController,
-                startDestination = "findCityScreen"
+                navController = navController, startDestination = "findCityScreen"
             ) {
                 composable(route = "findCityScreen") {
                     FindCityScreen(
-                        viewModel = findCityViewModel(
+                        viewModel = FindCityViewModel(
                             savedStateHandle = SavedStateHandle(),
-                            repository = FakeFindCityRepository()
+                            findCityRepository = FakeFindCityRepository(),
+                            runAsync = FakeRunAsync(),
                         ),
                         navigateToWeatherScreen = {
                             navController.navigate("weatherScreen")
@@ -48,7 +52,8 @@ class ScenarioTest {
                     WeatherScreen(
                         viewModel = WeatherViewModel(
                             savedStateHandle = SavedStateHandle(),
-                            repository = FakeWeatherRepository()
+                            weatherRepository = FakeWeatherRepository(),
+                            runAsync = FakeRunAsync(),
                         )
                     )
                 }
@@ -63,15 +68,13 @@ class ScenarioTest {
         setContent {
             val navController: NavHostController = rememberNavController()
             NavHost(
-                navController = navController,
-                startDestination = "findCityScreen"
+                navController = navController, startDestination = "findCityScreen"
             ) {
                 composable(route = "findCityScreen") {
                     val input = rememberSaveable { mutableStateOf("") }
 
                     FindCityScreenUi(
-                        input = input.value,
-                        onInputChange = { text: String ->
+                        input = input.value, onInputChange = { text: String ->
                             input.value = text
                         },
                         foundCityUi = if (input.value.isEmpty())
@@ -81,7 +84,7 @@ class ScenarioTest {
                                 foundCity = FoundCity(
                                     name = "Moscow",
                                     latitude = 55.75,
-                                    longitude = 37.61
+                                    longitude = 37.61,
                                 )
                             ),
                         onFoundCityClick = { foundCity: FoundCity ->
@@ -93,7 +96,7 @@ class ScenarioTest {
                 composable(route = "weatherScreen") {
                     WeatherScreenUi.Base(
                         cityName = "Moscow city",
-                        temperature = "33.1°C"
+                        temperature = "33.1°C",
                     ).Show()
                 }
             }
@@ -118,12 +121,11 @@ class ScenarioTest {
 private class FakeFindCityRepository : FindCityRepository {
 
     override suspend fun findCity(query: String): FoundCity {
-        if (query == "Mos")
-            return FoundCity(
-                name = "Moscow",
-                latitude = 55.75,
-                longitude = 37.61,
-            )
+        if (query == "Mos") return FoundCity(
+            name = "Moscow",
+            latitude = 55.75,
+            longitude = 37.61,
+        )
 
         throw IllegalStateException("not supported for this test")
     }
@@ -134,18 +136,29 @@ private class FakeFindCityRepository : FindCityRepository {
                 latitude = 55.75,
                 longitude = 37.61,
             )
-        )
-            throw IllegalStateException("save called with wrong argument $foundCity")
+        ) throw IllegalStateException("save called with wrong argument $foundCity")
     }
 
 }
 
 private class FakeWeatherRepository : WeatherRepository {
 
-    override suspend fun fetchWeather(): WeatherInCity =
-        WeatherInCity(
-            cityName = "Moscow city",
-            temperature = 33.1
-        )
+    override suspend fun fetchWeather(): WeatherInCity = WeatherInCity(
+        cityName = "Moscow city",
+        temperature = 33.1,
+    )
+
+}
+
+private class FakeRunAsync : RunAsync {
+
+    override suspend fun <T : Any> runAsync(
+        scope: CoroutineScope,
+        background: suspend () -> T,
+        ui: (T) -> Unit,
+    ) = runTest {
+        val result: T = background.invoke()
+        ui.invoke(result)
+    }
 
 }

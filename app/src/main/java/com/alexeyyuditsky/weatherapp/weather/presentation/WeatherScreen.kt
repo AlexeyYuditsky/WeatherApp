@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -24,6 +25,13 @@ interface WeatherScreenUi {
 
     @Composable
     fun Show()
+
+    data object Empty : WeatherScreenUi {
+
+        @Composable
+        override fun Show() = Unit
+
+    }
 
     data class Base(
         private val cityName: String,
@@ -58,3 +66,10 @@ interface WeatherScreenUi {
     }
 
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewWeatherScreenUi() = WeatherScreenUi.Base(
+    cityName = "Moscow city",
+    temperature = "33.1°C",
+).Show()
