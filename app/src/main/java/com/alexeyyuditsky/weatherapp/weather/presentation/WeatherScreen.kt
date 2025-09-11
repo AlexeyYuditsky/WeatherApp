@@ -12,6 +12,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.io.Serializable
 
 @Composable
 fun WeatherScreen(
@@ -21,12 +23,14 @@ fun WeatherScreen(
     weatherScreenUi.value.Show()
 }
 
-interface WeatherScreenUi {
+interface WeatherScreenUi : Serializable {
 
     @Composable
     fun Show()
 
     data object Empty : WeatherScreenUi {
+
+        private fun readResolve(): Any = Empty
 
         @Composable
         override fun Show() = Unit

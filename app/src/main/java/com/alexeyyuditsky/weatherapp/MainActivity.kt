@@ -16,9 +16,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityScreen
+import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityViewModel
 import com.alexeyyuditsky.weatherapp.ui.theme.WeatherAppTheme
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreen
+import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+//@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +47,7 @@ private fun MainContent(innerPadding: PaddingValues) {
         startDestination = "findCityScreen",
         modifier = Modifier.padding(paddingValues = innerPadding)
     ) {
-        composable(route = "findCityScreen") {
+        /*composable(route = "findCityScreen") {
             FindCityScreen(
                 viewModel = hiltViewModel<FindCityViewModel>(),
                 navigateToWeatherScreen = {
@@ -54,6 +58,6 @@ private fun MainContent(innerPadding: PaddingValues) {
 
         composable(route = "weatherScreen") {
             WeatherScreen(viewModel = hiltViewModel<WeatherViewModel>())
-        }
+        }*/
     }
 }

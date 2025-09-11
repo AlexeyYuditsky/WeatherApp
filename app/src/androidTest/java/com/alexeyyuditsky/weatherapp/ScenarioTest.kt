@@ -1,5 +1,6 @@
 package com.alexeyyuditsky.weatherapp
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -9,10 +10,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexeyyuditsky.weatherapp.core.RunAsync
+import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
+import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityScreen
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityScreenUi
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityViewModel
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FoundCityUi
+import com.alexeyyuditsky.weatherapp.weather.domain.WeatherInCity
+import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreen
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreenUi
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherViewModel
@@ -28,12 +34,14 @@ class ScenarioTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    @SuppressLint("ViewModelConstructorInComposable")
     @Test
     fun findCityAndShowWeather() = with(composeTestRule) {
         setContent {
             val navController: NavHostController = rememberNavController()
             NavHost(
-                navController = navController, startDestination = "findCityScreen"
+                navController = navController,
+                startDestination = "findCityScreen",
             ) {
                 composable(route = "findCityScreen") {
                     FindCityScreen(
@@ -58,9 +66,9 @@ class ScenarioTest {
                     )
                 }
             }
-
-            startUiTest()
         }
+
+        startUiTest()
     }
 
     @Test
@@ -68,7 +76,8 @@ class ScenarioTest {
         setContent {
             val navController: NavHostController = rememberNavController()
             NavHost(
-                navController = navController, startDestination = "findCityScreen"
+                navController = navController,
+                startDestination = "findCityScreen",
             ) {
                 composable(route = "findCityScreen") {
                     val input = rememberSaveable { mutableStateOf("") }
@@ -101,11 +110,11 @@ class ScenarioTest {
                 }
             }
 
-            startUiTest()
         }
+
+        startUiTest()
     }
 
-    @Test
     private fun startUiTest() {
         val findCityPage = FindCityPage(composeTestRule = composeTestRule)
         findCityPage.input(text = "Mos")
@@ -114,7 +123,7 @@ class ScenarioTest {
 
         val weatherPage = WeatherPage(composeTestRule = composeTestRule)
         weatherPage.assertCityName(cityName = "Moscow city")
-        weatherPage.assertWeatherDisplayed(temperature = "33°C")
+        weatherPage.assertWeatherDisplayed(temperature = "33.1°C")
     }
 }
 
@@ -152,7 +161,7 @@ private class FakeWeatherRepository : WeatherRepository {
 
 private class FakeRunAsync : RunAsync {
 
-    override suspend fun <T : Any> runAsync(
+    override fun <T : Any> invoke(
         scope: CoroutineScope,
         background: suspend () -> T,
         ui: (T) -> Unit,

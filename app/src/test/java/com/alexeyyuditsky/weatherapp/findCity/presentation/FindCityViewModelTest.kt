@@ -1,8 +1,9 @@
 package com.alexeyyuditsky.weatherapp.findCity.presentation
 
 import androidx.lifecycle.SavedStateHandle
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.runBlocking
+import com.alexeyyuditsky.weatherapp.core.FakeRunAsync
+import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
+import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -14,7 +15,7 @@ class FindCityViewModelTest {
     private val findCityViewModel = FindCityViewModel(
         savedStateHandle = savedStateHandle,
         findCityRepository = repository,
-        runAsync = runAsync
+        runAsync = runAsync,
     )
 
     @Test
@@ -62,24 +63,5 @@ private class FakeFindCityRepository : FindCityRepository {
 
     fun assertSaveCalled(expected: FoundCity) =
         assertEquals(expected, savedCity)
-
-}
-
-class FakeRunAsync : RunAsync {
-
-    private lateinit var resultCached: Any
-    private lateinit var uiCached: (Any) -> Unit
-
-    override suspend fun <T : Any> runAsync(
-        scope: CoroutineScope,
-        background: suspend () -> T,
-        ui: (T) -> Unit,
-    ) = runBlocking {
-        resultCached = background.invoke()
-        uiCached = ui as (Any) -> Unit
-    }
-
-    fun returnResult() =
-        uiCached.invoke(resultCached)
 
 }

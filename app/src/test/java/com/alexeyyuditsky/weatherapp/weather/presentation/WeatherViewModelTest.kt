@@ -1,7 +1,9 @@
 package com.alexeyyuditsky.weatherapp.weather.presentation
 
 import androidx.lifecycle.SavedStateHandle
-import com.alexeyyuditsky.weatherapp.findCity.presentation.FakeRunAsync
+import com.alexeyyuditsky.weatherapp.core.FakeRunAsync
+import com.alexeyyuditsky.weatherapp.weather.domain.WeatherInCity
+import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

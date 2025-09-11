@@ -10,6 +10,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import java.io.Serializable
 
 @Composable
@@ -23,16 +25,12 @@ fun FindCityScreen(
     FindCityScreenUi(
         input = input.value,
         onInputChange = { text ->
-            viewModel.findCity(
-                cityName = text,
-            )
+            viewModel.findCity(cityName = text)
             input.value = text
         },
         foundCityUi = foundCityUi.value,
         onFoundCityClick = { foundCity ->
-            viewModel.chooseCity(
-                foundCity = foundCity,
-            )
+            viewModel.chooseCity(foundCity = foundCity)
             navigateToWeatherScreen.invoke()
         },
     )
@@ -51,9 +49,7 @@ fun FindCityScreenUi(
             value = input,
             onValueChange = onInputChange
         )
-        foundCityUi.Show(
-            onFoundCityClick = onFoundCityClick
-        )
+        foundCityUi.Show(onFoundCityClick = onFoundCityClick)
     }
 }
 

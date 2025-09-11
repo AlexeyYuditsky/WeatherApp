@@ -10,8 +10,12 @@ class FindCityPage(
     composeTestRule: ComposeContentTestRule
 ) {
 
-    private val findCityInputField = composeTestRule.onNodeWithTag("findCityInputField")
-    private val foundCityUi = composeTestRule.onNodeWithTag("foundCityUi")
+    private val findCityInputField = composeTestRule.onNodeWithTag(testTag = "findCityInputField")
+
+    private val foundCityUi = composeTestRule.onNodeWithTag(
+        testTag = "foundCityUi",
+        useUnmergedTree = true
+    )
 
     fun input(text: String) =
         findCityInputField.performTextInput(text)
