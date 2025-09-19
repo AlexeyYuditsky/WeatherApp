@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,6 +7,8 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.hilt.android)
 }
+
+val apiKey = gradleLocalProperties(rootDir, providers).getProperty("API_KEY") ?: ""
 
 android {
     namespace = "com.alexeyyuditsky.weatherapp"
@@ -20,6 +24,9 @@ android {
     }
 
     buildTypes {
+        defaultConfig {
+            buildConfigField("String", "API_KEY", apiKey)
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -36,6 +43,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
@@ -54,6 +62,9 @@ dependencies {
 
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.datastore.core)
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

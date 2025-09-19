@@ -1,6 +1,5 @@
 package com.alexeyyuditsky.weatherapp
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -34,9 +33,18 @@ class ScenarioTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    @SuppressLint("ViewModelConstructorInComposable")
     @Test
     fun findCityAndShowWeather() = with(composeTestRule) {
+        val findCityViewModel = FindCityViewModel(
+            savedStateHandle = SavedStateHandle(),
+            findCityRepository = FakeFindCityRepository(),
+            runAsync = FakeRunAsync(),
+        )
+        val weatherViewModel = WeatherViewModel(
+            savedStateHandle = SavedStateHandle(),
+            weatherRepository = FakeWeatherRepository(),
+            runAsync = FakeRunAsync(),
+        )
         setContent {
             val navController: NavHostController = rememberNavController()
             NavHost(
@@ -45,11 +53,7 @@ class ScenarioTest {
             ) {
                 composable(route = "findCityScreen") {
                     FindCityScreen(
-                        viewModel = FindCityViewModel(
-                            savedStateHandle = SavedStateHandle(),
-                            findCityRepository = FakeFindCityRepository(),
-                            runAsync = FakeRunAsync(),
-                        ),
+                        viewModel = findCityViewModel,
                         navigateToWeatherScreen = {
                             navController.navigate("weatherScreen")
                         }
@@ -58,11 +62,7 @@ class ScenarioTest {
 
                 composable(route = "weatherScreen") {
                     WeatherScreen(
-                        viewModel = WeatherViewModel(
-                            savedStateHandle = SavedStateHandle(),
-                            weatherRepository = FakeWeatherRepository(),
-                            runAsync = FakeRunAsync(),
-                        )
+                        viewModel = weatherViewModel
                     )
                 }
             }
@@ -92,8 +92,8 @@ class ScenarioTest {
                             FoundCityUi.Base(
                                 foundCity = FoundCity(
                                     name = "Moscow",
-                                    latitude = 55.75,
-                                    longitude = 37.61,
+                                    latitude = 55.75f,
+                                    longitude = 37.61f,
                                 )
                             ),
                         onFoundCityClick = { foundCity: FoundCity ->
@@ -132,8 +132,8 @@ private class FakeFindCityRepository : FindCityRepository {
     override suspend fun findCity(query: String): FoundCity {
         if (query == "Mos") return FoundCity(
             name = "Moscow",
-            latitude = 55.75,
-            longitude = 37.61,
+            latitude = 55.75f,
+            longitude = 37.61f,
         )
 
         throw IllegalStateException("not supported for this test")
@@ -142,8 +142,8 @@ private class FakeFindCityRepository : FindCityRepository {
     override suspend fun saveCity(foundCity: FoundCity) {
         if (foundCity != FoundCity(
                 name = "Moscow",
-                latitude = 55.75,
-                longitude = 37.61,
+                latitude = 55.75f,
+                longitude = 37.61f,
             )
         ) throw IllegalStateException("save called with wrong argument $foundCity")
     }
@@ -154,7 +154,7 @@ private class FakeWeatherRepository : WeatherRepository {
 
     override suspend fun fetchWeather(): WeatherInCity = WeatherInCity(
         cityName = "Moscow city",
-        temperature = 33.1,
+        temperature = 33.1f,
     )
 
 }
