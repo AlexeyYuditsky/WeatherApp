@@ -9,7 +9,7 @@ import javax.inject.Singleton
 
 interface RunAsync {
 
-    operator fun <T : Any> invoke(
+    operator fun <T> invoke(
         scope: CoroutineScope,
         background: suspend () -> T,
         ui: (T) -> Unit = {},
@@ -18,7 +18,7 @@ interface RunAsync {
     @Singleton
     class Base @Inject constructor() : RunAsync {
 
-        override fun <T : Any> invoke(
+        override fun <T> invoke(
             scope: CoroutineScope,
             background: suspend () -> T,
             ui: (T) -> Unit,

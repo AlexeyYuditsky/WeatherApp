@@ -7,7 +7,6 @@ import com.alexeyyuditsky.weatherapp.core.RunAsync
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,7 +16,7 @@ class FindCityViewModel @Inject constructor(
     private val runAsync: RunAsync,
 ) : ViewModel() {
 
-    val state: StateFlow<FoundCityUi> = savedStateHandle.getStateFlow(KEY, FoundCityUi.Empty)
+    val state = savedStateHandle.getStateFlow(KEY, FoundCityUi.Empty)
 
     fun findCity(cityName: String) = runAsync.invoke(
         scope = viewModelScope,

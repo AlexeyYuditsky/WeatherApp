@@ -50,14 +50,14 @@ private fun MainContent(innerPadding: PaddingValues) {
         composable(route = "findCityScreen") {
             FindCityScreen(
                 viewModel = hiltViewModel<FindCityViewModel>(),
-                navigateToWeatherScreen = {
-                    navController.navigate("weatherScreen")
-                }
+                navigateToWeatherScreen = { navController.navigate("weatherScreen") },
             )
         }
 
         composable(route = "weatherScreen") {
-            WeatherScreen(viewModel = hiltViewModel<WeatherViewModel>())
+            WeatherScreen(
+                viewModel = hiltViewModel<WeatherViewModel>(),
+            )
         }
     }
 }

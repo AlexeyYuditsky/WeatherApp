@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.alexeyyuditsky.weatherapp.core.RunAsync
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -16,8 +15,7 @@ class WeatherViewModel @Inject constructor(
     runAsync: RunAsync,
 ) : ViewModel() {
 
-    val state: StateFlow<WeatherScreenUi> =
-        savedStateHandle.getStateFlow(KEY, WeatherScreenUi.Empty)
+    val state = savedStateHandle.getStateFlow(KEY, WeatherScreenUi.Empty)
 
     init {
         runAsync.invoke(

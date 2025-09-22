@@ -47,19 +47,17 @@ fun FindCityScreenUi(
     onInputChange: (String) -> Unit,
     foundCityUi: FoundCityUi,
     onFoundCityClick: (FoundCity) -> Unit,
-) {
-    Column {
-        OutlinedTextField(
-            label = { Text(text = stringResource(R.string.city)) },
-            value = input,
-            onValueChange = onInputChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .testTag("findCityInputField"),
-        )
-        foundCityUi.Show(onFoundCityClick = onFoundCityClick)
-    }
+) = Column {
+    OutlinedTextField(
+        label = { Text(text = stringResource(R.string.city)) },
+        value = input,
+        onValueChange = onInputChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .testTag("findCityInputField"),
+    )
+    foundCityUi.Show(onFoundCityClick = onFoundCityClick)
 }
 
 interface FoundCityUi : Serializable {
@@ -67,16 +65,11 @@ interface FoundCityUi : Serializable {
     @Composable
     fun Show(
         onFoundCityClick: (FoundCity) -> Unit,
-    )
+    ) = Unit
 
     data object Empty : FoundCityUi {
 
         private fun readResolve(): Any = Empty
-
-        @Composable
-        override fun Show(
-            onFoundCityClick: (FoundCity) -> Unit,
-        ) = Unit
 
     }
 
@@ -86,19 +79,18 @@ interface FoundCityUi : Serializable {
 
         @Composable
         override fun Show(
-            onFoundCityClick: (FoundCity) -> Unit
+            onFoundCityClick: (FoundCity) -> Unit,
         ) {
             Button(
+                onClick = { onFoundCityClick.invoke(foundCity) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                onClick = {
-                    onFoundCityClick.invoke(foundCity)
-                }
             ) {
                 Text(
-                    modifier = Modifier.testTag("foundCityUi"),
                     text = foundCity.name,
+                    modifier = Modifier
+                        .testTag("foundCityUi"),
                 )
             }
         }
@@ -109,18 +101,17 @@ interface FoundCityUi : Serializable {
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewEmptyFindCityScreenUi() {
+private fun PreviewEmptyFindCityScreenUi() =
     FindCityScreenUi(
         input = "",
         onInputChange = {},
         foundCityUi = FoundCityUi.Empty,
         onFoundCityClick = {},
     )
-}
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewNotEmptyFindCityScreenUi() {
+private fun PreviewNotEmptyFindCityScreenUi() =
     FindCityScreenUi(
         input = "Moscow",
         onInputChange = {},
@@ -133,4 +124,3 @@ private fun PreviewNotEmptyFindCityScreenUi() {
         ),
         onFoundCityClick = {},
     )
-}

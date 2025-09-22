@@ -26,14 +26,11 @@ fun WeatherScreen(
 interface WeatherScreenUi : Serializable {
 
     @Composable
-    fun Show()
+    fun Show() = Unit
 
     data object Empty : WeatherScreenUi {
 
         private fun readResolve(): Any = Empty
-
-        @Composable
-        override fun Show() = Unit
 
     }
 

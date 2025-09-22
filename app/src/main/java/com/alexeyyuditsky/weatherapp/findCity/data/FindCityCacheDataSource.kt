@@ -33,7 +33,6 @@ interface FindCityCacheDataSource {
             putFloat(LONGITUDE, longitude)
         }
 
-
         private companion object {
             const val NAME = "cityNameKey"
             const val LATITUDE = "latitudeKey"
