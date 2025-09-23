@@ -19,7 +19,7 @@ import com.alexeyyuditsky.weatherapp.findCity.presentation.FoundCityUi
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherInCity
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreen
-import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreenUi
+import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherUi
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.runTest
@@ -103,7 +103,7 @@ class ScenarioTest {
                 }
 
                 composable(route = "weatherScreen") {
-                    WeatherScreenUi.Base(
+                    WeatherUi.Base(
                         cityName = "Moscow city",
                         temperature = "33.1°C",
                     ).Show()

@@ -5,20 +5,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import javax.inject.Singleton
 
 interface RunAsync {
 
-    operator fun <T> invoke(
+    operator fun <T : Any> invoke(
         scope: CoroutineScope,
         background: suspend () -> T,
         ui: (T) -> Unit = {},
     )
 
-    @Singleton
     class Base @Inject constructor() : RunAsync {
 
-        override fun <T> invoke(
+        override fun <T : Any> invoke(
             scope: CoroutineScope,
             background: suspend () -> T,
             ui: (T) -> Unit,

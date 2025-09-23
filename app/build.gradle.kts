@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -6,9 +7,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.parcelize)
 }
-
-val apiKey = gradleLocalProperties(rootDir, providers).getProperty("API_KEY") ?: ""
 
 android {
     namespace = "com.alexeyyuditsky.weatherapp"
@@ -21,12 +21,14 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            type = "String",
+            name = "API_KEY",
+            value = gradleLocalProperties(rootDir, providers).getProperty("API_KEY")
+        )
     }
 
     buildTypes {
-        defaultConfig {
-            buildConfigField("String", "API_KEY", apiKey)
-        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -39,8 +41,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
     }
     buildFeatures {
         buildConfig = true
@@ -50,6 +54,8 @@ android {
 
 dependencies {
     implementation(libs.androidx.navigation.compose)
+
+    implementation(libs.logging.interceptor)
 
     implementation(libs.hilt.android)
     androidTestImplementation(libs.hilt.android.testing)

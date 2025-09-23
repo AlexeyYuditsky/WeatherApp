@@ -7,11 +7,11 @@ interface FindCityCloudDataSource {
     suspend fun findCity(query: String): FoundCityCloud
 
     class Base @Inject constructor(
-        private val service: FindCityService
+        private val findCityService: FindCityService,
     ) : FindCityCloudDataSource {
 
         override suspend fun findCity(query: String): FoundCityCloud {
-            val result = service.findCity(query = query)
+            val result = findCityService.findCity(query = query)
             return if (result.isEmpty())
                 FoundCityCloud(
                     name = "",
@@ -19,7 +19,7 @@ interface FindCityCloudDataSource {
                     longitude = 0f,
                 )
             else
-                result[0]
+                result.first()
         }
 
     }

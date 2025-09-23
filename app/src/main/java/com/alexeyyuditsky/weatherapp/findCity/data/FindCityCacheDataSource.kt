@@ -27,10 +27,12 @@ interface FindCityCacheDataSource {
             name: String,
             latitude: Float,
             longitude: Float
-        ) = sharedPreferences.edit {
-            putString(NAME, name)
-            putFloat(LATITUDE, latitude)
-            putFloat(LONGITUDE, longitude)
+        ) {
+            sharedPreferences.edit {
+                putString(NAME, name)
+                putFloat(LATITUDE, latitude)
+                putFloat(LONGITUDE, longitude)
+            }
         }
 
         private companion object {

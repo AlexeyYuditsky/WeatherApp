@@ -15,14 +15,14 @@ class WeatherViewModel @Inject constructor(
     runAsync: RunAsync,
 ) : ViewModel() {
 
-    val state = savedStateHandle.getStateFlow(KEY, WeatherScreenUi.Empty)
+    val state = savedStateHandle.getStateFlow<WeatherUi>(KEY, WeatherUi.Empty)
 
     init {
         runAsync.invoke(
             scope = viewModelScope,
             background = {
                 val weatherInCity = weatherRepository.fetchWeather()
-                WeatherScreenUi.Base(
+                WeatherUi.Base(
                     cityName = weatherInCity.cityName,
                     temperature = weatherInCity.temperature.toString() + "°C"
                 )

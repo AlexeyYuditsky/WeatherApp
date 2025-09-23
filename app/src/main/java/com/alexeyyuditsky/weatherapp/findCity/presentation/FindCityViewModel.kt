@@ -16,7 +16,7 @@ class FindCityViewModel @Inject constructor(
     private val runAsync: RunAsync,
 ) : ViewModel() {
 
-    val state = savedStateHandle.getStateFlow(KEY, FoundCityUi.Empty)
+    val state = savedStateHandle.getStateFlow<FoundCityUi>(KEY, FoundCityUi.Empty)
 
     fun findCity(cityName: String) = runAsync.invoke(
         scope = viewModelScope,

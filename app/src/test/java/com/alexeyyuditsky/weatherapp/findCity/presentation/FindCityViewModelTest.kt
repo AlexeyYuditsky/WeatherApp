@@ -30,8 +30,8 @@ class FindCityViewModelTest {
         runAsync.returnResult()
         val foundCity = FoundCity(
             name = "Moscow",
-            latitude = 55.75,
-            longitude = 37.61,
+            latitude = 55.75f,
+            longitude = 37.61f,
         )
         val expected2: FoundCityUi = FoundCityUi.Base(foundCity = foundCity)
         val actual2: FoundCityUi = findCityViewModel.state.value
@@ -50,8 +50,8 @@ private class FakeFindCityRepository : FindCityRepository {
     override suspend fun findCity(query: String): FoundCity {
         if (query == "Mos") return FoundCity(
             name = "Moscow",
-            latitude = 55.75,
-            longitude = 37.61,
+            latitude = 55.75f,
+            longitude = 37.61f,
         )
 
         throw IllegalStateException("not supported for this test")

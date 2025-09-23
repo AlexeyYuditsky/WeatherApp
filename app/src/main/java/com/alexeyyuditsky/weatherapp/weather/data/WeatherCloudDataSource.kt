@@ -16,10 +16,12 @@ interface WeatherCloudDataSource {
         override suspend fun temperature(
             latitude: Float,
             longitude: Float,
-        ): Float = weatherService.fetchWeather(
-            latitude = latitude,
-            longitude = longitude,
-        ).main.temperature
+        ): Float {
+           return weatherService.fetchWeather(
+                latitude = latitude,
+                longitude = longitude,
+            ).main.temperature
+        }
 
     }
 

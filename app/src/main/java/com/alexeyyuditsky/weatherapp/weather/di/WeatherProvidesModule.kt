@@ -13,7 +13,7 @@ import retrofit2.create
 class WeatherProvidesModule {
 
     @Provides
-    fun bindWeatherService(retrofit: Retrofit): WeatherService =
+    fun provideWeatherService(retrofit: Retrofit): WeatherService =
         retrofit.create()
 
 }
