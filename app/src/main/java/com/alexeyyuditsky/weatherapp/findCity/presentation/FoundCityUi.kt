@@ -41,7 +41,7 @@ interface FoundCityUi : Parcelable {
             Text(
                 text = foundCity.name,
                 modifier = Modifier
-                    .testTag("foundCityUi"),
+                    .testTag("foundCityButton"),
             )
         }
 

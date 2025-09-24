@@ -14,6 +14,7 @@ class FakeRunAsync : RunAsync {
         ui: (T) -> Unit,
     ) = runBlocking {
         resultCached = background.invoke()
+        @Suppress("UNCHECKED_CAST")
         uiCached = ui as (Any) -> Unit
     }
 

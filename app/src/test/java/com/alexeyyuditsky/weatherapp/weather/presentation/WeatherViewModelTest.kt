@@ -19,13 +19,12 @@ class WeatherViewModelTest {
     )
 
     @Test
-    fun getWeatherInCity() {
+    fun weatherInCity() {
         val expected = WeatherUi.Empty
         val actual = weatherViewModel.state.value
         assertEquals(expected, actual)
 
         fakeRunAsync.returnResult()
-
         val expected2 = WeatherUi.Base(
             cityName = "Moscow city",
             temperature = "33.1°C",

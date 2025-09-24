@@ -54,9 +54,7 @@ class ScenarioTest {
                 composable(route = "findCityScreen") {
                     FindCityScreen(
                         viewModel = findCityViewModel,
-                        navigateToWeatherScreen = {
-                            navController.navigate("weatherScreen")
-                        }
+                        navigateToWeatherScreen = { navController.navigate("weatherScreen") }
                     )
                 }
 
@@ -83,9 +81,8 @@ class ScenarioTest {
                     val input = rememberSaveable { mutableStateOf("") }
 
                     FindCityScreenUi(
-                        input = input.value, onInputChange = { text: String ->
-                            input.value = text
-                        },
+                        input = input.value,
+                        onInputChange = { text: String -> input.value = text },
                         foundCityUi = if (input.value.isEmpty())
                             FoundCityUi.Empty
                         else
@@ -109,7 +106,6 @@ class ScenarioTest {
                     ).Show()
                 }
             }
-
         }
 
         startUiTest()

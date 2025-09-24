@@ -28,7 +28,7 @@ fun FindCityScreenUi(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .testTag("findCityInputField"),
+            .testTag("findCityOutlinedTextField"),
     )
     foundCityUi.Show(onFoundCityClick = onFoundCityClick)
 }

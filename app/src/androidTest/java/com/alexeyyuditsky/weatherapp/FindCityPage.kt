@@ -7,23 +7,25 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 
 class FindCityPage(
-    composeTestRule: ComposeContentTestRule
+    composeTestRule: ComposeContentTestRule,
 ) {
 
-    private val findCityInputField = composeTestRule.onNodeWithTag(testTag = "findCityInputField")
+    private val findCityOutlinedTextField = composeTestRule.onNodeWithTag(
+        testTag = "findCityOutlinedTextField",
+    )
 
-    private val foundCityUi = composeTestRule.onNodeWithTag(
-        testTag = "foundCityUi",
-        useUnmergedTree = true
+    private val foundCityButton = composeTestRule.onNodeWithTag(
+        testTag = "foundCityButton",
+        useUnmergedTree = true,
     )
 
     fun input(text: String) =
-        findCityInputField.performTextInput(text)
+        findCityOutlinedTextField.performTextInput(text)
 
     fun assertCityFound(cityName: String) =
-        foundCityUi.assertTextEquals(cityName)
+        foundCityButton.assertTextEquals(cityName)
 
     fun clickFoundCity(cityName: String) =
-        foundCityUi.assertTextEquals(cityName).performClick()
+        foundCityButton.assertTextEquals(cityName).performClick()
 
 }
