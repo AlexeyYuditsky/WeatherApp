@@ -54,13 +54,13 @@ class ScenarioTest {
                 composable(route = "findCityScreen") {
                     FindCityScreen(
                         viewModel = findCityViewModel,
-                        navigateToWeatherScreen = { navController.navigate("weatherScreen") }
+                        navigateToWeatherScreen = { navController.navigate("weatherScreen") },
                     )
                 }
 
                 composable(route = "weatherScreen") {
                     WeatherScreen(
-                        viewModel = weatherViewModel
+                        viewModel = weatherViewModel,
                     )
                 }
             }
@@ -93,9 +93,7 @@ class ScenarioTest {
                                     longitude = 37.61f,
                                 )
                             ),
-                        onFoundCityClick = { foundCity: FoundCity ->
-                            navController.navigate("weatherScreen")
-                        }
+                        onFoundCityClick = { navController.navigate("weatherScreen") }
                     )
                 }
 

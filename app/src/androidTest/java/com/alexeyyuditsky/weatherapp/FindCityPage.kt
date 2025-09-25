@@ -14,8 +14,8 @@ class FindCityPage(
         testTag = "findCityOutlinedTextField",
     )
 
-    private val foundCityButton = composeTestRule.onNodeWithTag(
-        testTag = "foundCityButton",
+    private val foundCityText = composeTestRule.onNodeWithTag(
+        testTag = "foundCityText",
         useUnmergedTree = true,
     )
 
@@ -23,9 +23,9 @@ class FindCityPage(
         findCityOutlinedTextField.performTextInput(text)
 
     fun assertCityFound(cityName: String) =
-        foundCityButton.assertTextEquals(cityName)
+        foundCityText.assertTextEquals(cityName)
 
     fun clickFoundCity(cityName: String) =
-        foundCityButton.assertTextEquals(cityName).performClick()
+        foundCityText.assertTextEquals(cityName).performClick()
 
 }

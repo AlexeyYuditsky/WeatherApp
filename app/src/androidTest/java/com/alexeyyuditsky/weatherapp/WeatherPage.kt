@@ -8,13 +8,13 @@ class WeatherPage(
     composeTestRule: ComposeContentTestRule
 ) {
 
-    private val cityNameNode = composeTestRule.onNodeWithTag(testTag = "cityName")
-    private val weatherTemperature = composeTestRule.onNodeWithTag(testTag = "weatherTemperature")
+    private val cityNameText = composeTestRule.onNodeWithTag(testTag = "cityNameText")
+    private val temperatureText = composeTestRule.onNodeWithTag(testTag = "temperatureText")
 
     fun assertCityName(cityName: String) =
-        cityNameNode.assertTextEquals(cityName)
+        cityNameText.assertTextEquals(cityName)
 
     fun assertWeatherDisplayed(temperature: String) =
-        weatherTemperature.assertTextEquals(temperature)
+        temperatureText.assertTextEquals(temperature)
 
 }

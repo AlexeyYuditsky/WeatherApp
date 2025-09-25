@@ -38,7 +38,7 @@ interface WeatherUi : Parcelable {
                 textAlign = TextAlign.Companion.Center,
                 modifier = Modifier.Companion
                     .fillMaxWidth()
-                    .testTag("cityName"),
+                    .testTag("cityNameText"),
             )
             Spacer(modifier = Modifier.Companion.height(8.dp))
             Text(
@@ -47,7 +47,7 @@ interface WeatherUi : Parcelable {
                 textAlign = TextAlign.Companion.Center,
                 modifier = Modifier.Companion
                     .fillMaxWidth()
-                    .testTag("weatherTemperature"),
+                    .testTag("temperatureText"),
             )
         }
 
