@@ -35,15 +35,19 @@ class ScenarioTest {
 
     @Test
     fun findCityAndShowWeather() = with(composeTestRule) {
+        val findCityMapper: FindCityResult.Mapper<FoundCityUi> = FindCityUiMapper()
         val findCityViewModel = FindCityViewModel(
             savedStateHandle = SavedStateHandle(),
             findCityRepository = FakeFindCityRepository(),
             runAsync = FakeRunAsync(),
+            findCityMapper = findCityMapper,
         )
+        val weatherMapper: WeatherResult.Mapper<FoundCityUi> = WeatherUiMapper()
         val weatherViewModel = WeatherViewModel(
             savedStateHandle = SavedStateHandle(),
             weatherRepository = FakeWeatherRepository(),
             runAsync = FakeRunAsync(),
+            weatherMapper = weatherMapper,
         )
         setContent {
             val navController: NavHostController = rememberNavController()
@@ -79,12 +83,18 @@ class ScenarioTest {
             ) {
                 composable(route = "findCityScreen") {
                     val input = rememberSaveable { mutableStateOf("") }
+                    val shouldShowNoConnectionError = rememberSaveable { mutableStateOf(true) }
 
                     FindCityScreenUi(
                         input = input.value,
                         onInputChange = { text: String -> input.value = text },
                         foundCityUi = if (input.value.isEmpty())
                             FoundCityUi.Empty
+                        else if (input.value == "Mo")
+                            if (shouldShowNoConnectionError.value)
+                                FoundCityUi.NoConnection
+                            else
+                                FoundCityUi.Empty
                         else
                             FoundCityUi.Base(
                                 foundCity = FoundCity(
@@ -93,15 +103,25 @@ class ScenarioTest {
                                     longitude = 37.61f,
                                 )
                             ),
-                        onFoundCityClick = { navController.navigate("weatherScreen") }
+                        onFoundCityClick = { navController.navigate("weatherScreen") },
+                        onRetry = { shouldShowNoConnectionError.value = false },
                     )
                 }
 
                 composable(route = "weatherScreen") {
-                    WeatherUi.Base(
-                        cityName = "Moscow city",
-                        temperature = "33.1°C",
-                    ).Show()
+                    val shouldShowNoConnectionError = rememberSaveable { mutableStateOf(true) }
+
+                    if (shouldShowNoConnectionError.value)
+                        WeatherUi.NoConnetionError.Show(
+                            onRetryClick = {
+                                shouldShowNoConnectionError.value = false
+                            }
+                        )
+                    else
+                        WeatherUi.Base(
+                            cityName = "Moscow city",
+                            temperature = "33.1°C",
+                        ).Show()
                 }
             }
         }
@@ -111,11 +131,17 @@ class ScenarioTest {
 
     private fun startUiTest() {
         val findCityPage = FindCityPage(composeTestRule = composeTestRule)
+        findCityPage.input(text = "Mo")
+        findCityPage.assertNoConnectionIsDisplayed()
+        findCityPage.clickRetry()
+        findCityPage.assertEmptyIsDisplayed()
         findCityPage.input(text = "Mos")
         findCityPage.assertCityFound(cityName = "Moscow")
         findCityPage.clickFoundCity(cityName = "Moscow")
 
         val weatherPage = WeatherPage(composeTestRule = composeTestRule)
+        weatherPage.assertNoConnectionIsDisplayed()
+        weatherPage.clickRetry()
         weatherPage.assertCityName(cityName = "Moscow city")
         weatherPage.assertWeatherDisplayed(temperature = "33.1°C")
     }
@@ -123,14 +149,31 @@ class ScenarioTest {
 
 private class FakeFindCityRepository : FindCityRepository {
 
-    override suspend fun findCity(query: String): FoundCity {
-        if (query == "Mos") return FoundCity(
-            name = "Moscow",
-            latitude = 55.75f,
-            longitude = 37.61f,
-        )
+    private var shouldShowError = true
 
-        throw IllegalStateException("not supported for this test")
+    override suspend fun findCity(query: String): FoundCityResult = when {
+        query.isBlank() ->
+            error("repository should not accept empty query")
+
+        query == "Mo" -> {
+            if (shouldShowError)
+                FindCityResult.Failed(error = NoInternetException)
+                    .also { shouldShowError = false }
+            else
+                FindCityResult.Empty
+        }
+
+        query == "Mos" ->
+            FoundCityResult.Base(
+                foundCity = FoundCity(
+                    name = "Moscow",
+                    latitude = 55.75f,
+                    longitude = 37.61f,
+                )
+            )
+
+        else ->
+            error("not supported for this test")
     }
 
     override suspend fun saveCity(foundCity: FoundCity) {
@@ -146,10 +189,18 @@ private class FakeFindCityRepository : FindCityRepository {
 
 private class FakeWeatherRepository : WeatherRepository {
 
-    override suspend fun fetchWeather(): WeatherInCity = WeatherInCity(
-        cityName = "Moscow city",
-        temperature = 33.1f,
-    )
+    private var shouldShowError = true
+
+    override suspend fun fetchWeather(): WeatherResult = if (shouldShowError)
+        WeatherResult.Failed(error = NoInternetException)
+            .also { shouldShowError = false }
+    else
+        WeatherResult.Base(
+            weatherInCity = WeatherInCity(
+                cityName = "Moscow city",
+                temperature = 33.1f,
+            )
+        )
 
 }
 

@@ -17,7 +17,9 @@ import kotlinx.parcelize.Parcelize
 interface WeatherUi : Parcelable {
 
     @Composable
-    fun Show() = Unit
+    fun Show(
+        onRetryClick: () -> Unit = {},
+    ) = Unit
 
     @Parcelize
     data object Empty : WeatherUi {
@@ -31,7 +33,9 @@ interface WeatherUi : Parcelable {
     ) : WeatherUi {
 
         @Composable
-        override fun Show() = Column {
+        override fun Show(
+            onRetryClick: () -> Unit,
+        ) = Column {
             Text(
                 text = cityName,
                 style = MaterialTheme.typography.titleLarge,

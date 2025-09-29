@@ -4,7 +4,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 
 class FindCityPage(
     composeTestRule: ComposeContentTestRule,
@@ -20,7 +20,7 @@ class FindCityPage(
     )
 
     fun input(text: String) =
-        findCityOutlinedTextField.performTextInput(text)
+        findCityOutlinedTextField.performTextReplacement(text)
 
     fun assertCityFound(cityName: String) =
         foundCityText.assertTextEquals(cityName)
