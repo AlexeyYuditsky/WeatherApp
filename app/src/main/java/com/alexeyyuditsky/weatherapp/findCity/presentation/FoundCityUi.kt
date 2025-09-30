@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.alexeyyuditsky.weatherapp.core.presentation.NoConnectionErrorUi
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import kotlinx.parcelize.Parcelize
 
@@ -17,12 +18,11 @@ interface FoundCityUi : Parcelable {
     @Composable
     fun Show(
         onFoundCityClick: (FoundCity) -> Unit,
+        onRetryClick: () -> Unit,
     ) = Unit
 
     @Parcelize
-    data object Empty : FoundCityUi {
-        private fun readResolve(): Any = Empty
-    }
+    data object Empty : FoundCityUi
 
     @Parcelize
     data class Base(
@@ -32,6 +32,7 @@ interface FoundCityUi : Parcelable {
         @Composable
         override fun Show(
             onFoundCityClick: (FoundCity) -> Unit,
+            onRetryClick: () -> Unit,
         ) = Button(
             onClick = { onFoundCityClick.invoke(foundCity) },
             modifier = Modifier
@@ -40,10 +41,20 @@ interface FoundCityUi : Parcelable {
         ) {
             Text(
                 text = foundCity.name,
-                modifier = Modifier
-                    .testTag("foundCityText"),
+                modifier = Modifier.testTag("foundCityText"),
             )
         }
+
+    }
+
+    @Parcelize
+    data object NoConnectionError : FoundCityUi {
+
+        @Composable
+        override fun Show(
+            onFoundCityClick: (FoundCity) -> Unit,
+            onRetryClick: () -> Unit,
+        ) = NoConnectionErrorUi(onRetryClick = onRetryClick)
 
     }
 

@@ -9,37 +9,49 @@ import org.junit.Test
 
 class WeatherViewModelTest {
 
-    private val weatherRepository = FakeWeatherRepository()
+    private val repository = FakeWeatherRepository()
     private val fakeRunAsync = FakeRunAsync()
-    private val savedStateHandle = SavedStateHandle()
-    private val weatherViewModel = WeatherViewModel(
-        savedStateHandle = savedStateHandle,
-        weatherRepository = weatherRepository,
+    private val viewModel = WeatherViewModel(
+        savedStateHandle = SavedStateHandle(),
+        weatherRepository = repository,
         runAsync = fakeRunAsync,
     )
 
     @Test
-    fun weatherInCity() {
-        val expected = WeatherUi.Empty
-        val actual = weatherViewModel.state.value
-        assertEquals(expected, actual)
+    fun errorThenGetWeatherInCity() {
+        assertEquals(WeatherUi.Empty, viewModel.state.value)
 
         fakeRunAsync.returnResult()
-        val expected2 = WeatherUi.Base(
-            cityName = "Moscow city",
-            temperature = "33.1°C",
+        assertEquals(WeatherUi.NoConnectionError, viewModel.state.value)
+
+        viewModel.loadWeather()
+        assertEquals(WeatherUi.NoConnectionError, viewModel.state.value)
+
+        fakeRunAsync.returnResult()
+        assertEquals(
+            WeatherUi.Base(
+                cityName = "Moscow city",
+                temperature = "33.1°C",
+            ),
+            viewModel.state.value
         )
-        val actual2 = weatherViewModel.state.value
-        assertEquals(expected2, actual2)
     }
 
 }
 
 private class FakeWeatherRepository : WeatherRepository {
 
-    override suspend fun fetchWeather(): WeatherInCity = WeatherInCity(
-        cityName = "Moscow city",
-        temperature = 33.1f,
-    )
+    private var shouldShowError = true
+
+    override suspend fun fetchWeather(): WeatherResult = if (shouldShowError)
+        WeatherResult.Failed(error = NoInternetException)
+            .also { shouldShowError = false }
+    else
+        WeatherResult.Base(
+            weatherInCity = WeatherInCity(
+                cityName = "Moscow city",
+                temperature = 33.1f,
+            )
+        )
 
 }

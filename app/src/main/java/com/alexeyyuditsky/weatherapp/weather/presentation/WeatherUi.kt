@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.alexeyyuditsky.weatherapp.core.presentation.NoConnectionErrorUi
 import kotlinx.parcelize.Parcelize
 
 interface WeatherUi : Parcelable {
@@ -22,9 +23,7 @@ interface WeatherUi : Parcelable {
     ) = Unit
 
     @Parcelize
-    data object Empty : WeatherUi {
-        private fun readResolve(): Any = Empty
-    }
+    data object Empty : WeatherUi
 
     @Parcelize
     data class Base(
@@ -54,6 +53,16 @@ interface WeatherUi : Parcelable {
                     .testTag("temperatureText"),
             )
         }
+
+    }
+
+    @Parcelize
+    data object NoConnectionError : WeatherUi {
+
+        @Composable
+        override fun Show(
+            onRetryClick: () -> Unit,
+        ) = NoConnectionErrorUi(onRetryClick = onRetryClick)
 
     }
 

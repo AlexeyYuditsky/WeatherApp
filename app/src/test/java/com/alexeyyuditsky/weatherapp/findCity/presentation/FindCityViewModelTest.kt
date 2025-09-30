@@ -10,32 +10,56 @@ import org.junit.Test
 class FindCityViewModelTest {
 
     private val repository = FakeFindCityRepository()
-    private val savedStateHandle = SavedStateHandle()
     private val runAsync = FakeRunAsync()
-    private val findCityViewModel = FindCityViewModel(
-        savedStateHandle = savedStateHandle,
+    private val viewModel = FindCityViewModel(
+        savedStateHandle = SavedStateHandle(),
         findCityRepository = repository,
         runAsync = runAsync,
+        findCityMapper = FindCityUiMapper(),
     )
 
     @Test
-    fun findCityAndSaveIt() {
-        val expected: FoundCityUi = FoundCityUi.Empty
-        val actual: FoundCityUi = findCityViewModel.state.value
-        assertEquals(expected, actual)
+    fun errorThenFindCityThenSaveIt() {
+        assertEquals(FoundCityUi.Empty, viewModel.state.value)
 
-        findCityViewModel.findCity(cityName = "Mos")
+        viewModel.findCity(cityName = "")
+        repository.assertFindCityCalled(emptyList())
+        assertEquals(FoundCityUi.Empty, viewModel.state.value)
+
+        viewModel.findCity(cityName = " ")
+        repository.assertFindCityCalled(emptyList())
+        assertEquals(FoundCityUi.Empty, viewModel.state.value)
+
+        viewModel.findCity(cityName = "Mo")
+        repository.assertFindCityCalled(listOf("Mo"))
+        assertEquals(FoundCityUi.Empty, viewModel.state.value)
+
+        runAsync.returnResult()
+        assertEquals(FoundCityUi.NoConnectionError, viewModel.state.value)
+
+        viewModel.findCity(cityName = "Mo")
+        repository.assertFindCityCalled(listOf("Mo", "Mo"))
+        assertEquals(FoundCityUi.NoConnectionError, viewModel.state.value)
+
+        runAsync.returnResult()
+        assertEquals(FoundCityUi.Empty, viewModel.state.value)
+
+        viewModel.findCity(cityName = "Mos")
+        repository.assertFindCityCalled(listOf("Mo", "Mo", "Mos"))
+        assertEquals(FoundCityUi.Empty, viewModel.state.value)
+
         runAsync.returnResult()
         val foundCity = FoundCity(
             name = "Moscow",
             latitude = 55.75f,
             longitude = 37.61f,
         )
-        val expected2: FoundCityUi = FoundCityUi.Base(foundCity = foundCity)
-        val actual2: FoundCityUi = findCityViewModel.state.value
-        assertEquals(expected2, actual2)
+        assertEquals(
+            FoundCityUi.Base(foundCity = foundCity),
+            viewModel.state.value
+        )
 
-        findCityViewModel.chooseCity(foundCity = foundCity)
+        viewModel.chooseCity(foundCity = foundCity)
         repository.assertSaveCalled(expected = foundCity)
     }
 
@@ -43,20 +67,47 @@ class FindCityViewModelTest {
 
 private class FakeFindCityRepository : FindCityRepository {
 
+    private val findCityCalledList = mutableListOf<String>()
+    private var shouldShowError = true
     private lateinit var savedCity: FoundCity
 
-    override suspend fun findCity(query: String): FoundCity = if (query == "Mos")
-        FoundCity(
-            name = "Moscow",
-            latitude = 55.75f,
-            longitude = 37.61f,
-        ) else
-        throw IllegalStateException("not supported for this test")
+    override suspend fun findCity(query: String): FoundCityResult {
+        findCityCalledList += query
+
+        return when {
+            query.isBlank() ->
+                error("repository should not accept empty query")
+
+            query == "Mo" -> {
+                if (shouldShowError)
+                    FindCityResult.Failed(error = NoInternetException)
+                        .also { shouldShowError = false }
+                else
+                    FindCityResult.Empty
+            }
+
+            query == "Mos" ->
+                FoundCityResult.Base(
+                    foundCity = FoundCity(
+                        name = "Moscow",
+                        latitude = 55.75f,
+                        longitude = 37.61f,
+                    )
+                )
+
+            else ->
+                error("not supported for this test")
+        }
+    }
 
     override suspend fun saveCity(foundCity: FoundCity) {
         savedCity = foundCity
     }
 
-    fun assertSaveCalled(expected: FoundCity) = assertEquals(expected, savedCity)
+    fun assertSaveCalled(expected: FoundCity) =
+        assertEquals(expected, savedCity)
+
+    fun assertFindCityCalled(expected: List<String>) =
+        assertEquals(expected, findCityCalledList)
 
 }

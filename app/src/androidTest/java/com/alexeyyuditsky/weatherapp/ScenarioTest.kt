@@ -92,7 +92,7 @@ class ScenarioTest {
                             FoundCityUi.Empty
                         else if (input.value == "Mo")
                             if (shouldShowNoConnectionError.value)
-                                FoundCityUi.NoConnection
+                                FoundCityUi.NoConnectionError
                             else
                                 FoundCityUi.Empty
                         else
@@ -104,7 +104,7 @@ class ScenarioTest {
                                 )
                             ),
                         onFoundCityClick = { navController.navigate("weatherScreen") },
-                        onRetry = { shouldShowNoConnectionError.value = false },
+                        onRetryClick = { shouldShowNoConnectionError.value = false },
                     )
                 }
 
@@ -112,7 +112,7 @@ class ScenarioTest {
                     val shouldShowNoConnectionError = rememberSaveable { mutableStateOf(true) }
 
                     if (shouldShowNoConnectionError.value)
-                        WeatherUi.NoConnetionError.Show(
+                        WeatherUi.NoConnectionError.Show(
                             onRetryClick = {
                                 shouldShowNoConnectionError.value = false
                             }

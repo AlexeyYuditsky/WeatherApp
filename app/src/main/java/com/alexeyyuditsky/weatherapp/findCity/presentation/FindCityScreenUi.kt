@@ -20,6 +20,7 @@ fun FindCityScreenUi(
     onInputChange: (String) -> Unit,
     foundCityUi: FoundCityUi,
     onFoundCityClick: (FoundCity) -> Unit,
+    onRetryClick: () -> Unit,
 ) = Column {
     OutlinedTextField(
         label = { Text(text = stringResource(R.string.city)) },
@@ -28,9 +29,12 @@ fun FindCityScreenUi(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .testTag("findCityOutlinedTextField"),
+            .testTag("outlinedTextField"),
     )
-    foundCityUi.Show(onFoundCityClick = onFoundCityClick)
+    foundCityUi.Show(
+        onFoundCityClick = onFoundCityClick,
+        onRetryClick = onRetryClick
+    )
 }
 
 @Preview(showBackground = true)
@@ -40,6 +44,7 @@ private fun PreviewFindCityScreenUiEmpty() = FindCityScreenUi(
     onInputChange = {},
     foundCityUi = FoundCityUi.Empty,
     onFoundCityClick = {},
+    onRetryClick = {},
 )
 
 @Preview(showBackground = true)
@@ -55,4 +60,12 @@ private fun PreviewFindCityScreenUiBase() = FindCityScreenUi(
         )
     ),
     onFoundCityClick = {},
+    onRetryClick = {},
+)
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewFindCityScreenUiNoConnectionError() = FoundCityUi.NoConnectionError.Show(
+    onFoundCityClick = {},
+    onRetryClick = {},
 )

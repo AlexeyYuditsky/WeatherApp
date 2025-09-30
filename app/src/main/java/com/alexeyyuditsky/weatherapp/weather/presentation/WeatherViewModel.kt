@@ -12,7 +12,7 @@ import javax.inject.Inject
 class WeatherViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val weatherRepository: WeatherRepository,
-    runAsync: RunAsync,
+    private val runAsync: RunAsync,
 ) : ViewModel() {
 
     val state = savedStateHandle.getStateFlow<WeatherUi>(KEY, WeatherUi.Empty)
@@ -32,6 +32,20 @@ class WeatherViewModel @Inject constructor(
             }
         )
     }
+
+    fun loadWeather() = runAsync.invoke(
+        scope = viewModelScope,
+        background = {
+            val weatherInCity = weatherRepository.fetchWeather()
+            WeatherUi.Base(
+                cityName = weatherInCity.cityName,
+                temperature = weatherInCity.temperature.toString() + "°C"
+            )
+        },
+        ui = { weatherScreenUiBase ->
+            savedStateHandle[KEY] = weatherScreenUiBase
+        }
+    )
 
     private companion object {
         const val KEY = "WeatherScreenUiKey"

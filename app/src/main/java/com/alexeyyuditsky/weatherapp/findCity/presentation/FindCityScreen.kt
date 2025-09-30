@@ -24,5 +24,8 @@ fun FindCityScreen(
             viewModel.chooseCity(foundCity = foundCity)
             navigateToWeatherScreen.invoke()
         },
+        onRetryClick = {
+            viewModel.findCity(cityName = input.value)
+        }
     )
 }

@@ -9,7 +9,7 @@ fun WeatherScreen(
     viewModel: WeatherViewModel,
 ) {
     val weatherScreenUi = viewModel.state.collectAsStateWithLifecycle()
-    weatherScreenUi.value.Show()
+    weatherScreenUi.value.Show(onRetryClick = viewModel::loadWeather)
 }
 
 @Preview(showBackground = true)
@@ -18,3 +18,8 @@ fun PreviewWeatherScreenUi() = WeatherUi.Base(
     cityName = "Moscow city",
     temperature = "33.1°C",
 ).Show()
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewWeatherScreenUiNoConnectionError() =
+    WeatherUi.NoConnectionError.Show(onRetryClick = {})
