@@ -3,7 +3,9 @@ package com.alexeyyuditsky.weatherapp.findCity.presentation
 import androidx.lifecycle.SavedStateHandle
 import com.alexeyyuditsky.weatherapp.core.FakeRunAsync
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
+import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
+import com.alexeyyuditsky.weatherapp.findCity.domain.NoInternetException
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -13,13 +15,13 @@ class FindCityViewModelTest {
     private val runAsync = FakeRunAsync()
     private val viewModel = FindCityViewModel(
         savedStateHandle = SavedStateHandle(),
-        findCityRepository = repository,
+        repository = repository,
         runAsync = runAsync,
-        findCityMapper = FindCityUiMapper(),
+        mapper = FoundCityUiMapper(),
     )
 
     @Test
-    fun errorThenFindCityThenSaveIt() {
+    fun getErrorThenFindCityThenSaveIt() {
         assertEquals(FoundCityUi.Empty, viewModel.state.value)
 
         viewModel.findCity(cityName = "")
@@ -80,10 +82,10 @@ private class FakeFindCityRepository : FindCityRepository {
 
             query == "Mo" -> {
                 if (shouldShowError)
-                    FindCityResult.Failed(error = NoInternetException)
+                    FoundCityResult.Failed(error = NoInternetException)
                         .also { shouldShowError = false }
                 else
-                    FindCityResult.Empty
+                    FoundCityResult.Empty
             }
 
             query == "Mos" ->

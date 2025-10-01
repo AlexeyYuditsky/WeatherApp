@@ -12,14 +12,19 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexeyyuditsky.weatherapp.core.RunAsync
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
+import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
+import com.alexeyyuditsky.weatherapp.findCity.domain.NoInternetException
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityScreen
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityScreenUi
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityViewModel
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FoundCityUi
+import com.alexeyyuditsky.weatherapp.findCity.presentation.FoundCityUiMapper
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherInCity
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
+import com.alexeyyuditsky.weatherapp.weather.domain.WeatherResult
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreen
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherUi
+import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherUiMapper
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.runTest
@@ -35,19 +40,17 @@ class ScenarioTest {
 
     @Test
     fun findCityAndShowWeather() = with(composeTestRule) {
-        val findCityMapper: FindCityResult.Mapper<FoundCityUi> = FindCityUiMapper()
         val findCityViewModel = FindCityViewModel(
             savedStateHandle = SavedStateHandle(),
-            findCityRepository = FakeFindCityRepository(),
+            repository = FakeFindCityRepository(),
             runAsync = FakeRunAsync(),
-            findCityMapper = findCityMapper,
+            mapper = FoundCityUiMapper(),
         )
-        val weatherMapper: WeatherResult.Mapper<FoundCityUi> = WeatherUiMapper()
         val weatherViewModel = WeatherViewModel(
             savedStateHandle = SavedStateHandle(),
-            weatherRepository = FakeWeatherRepository(),
+            repository = FakeWeatherRepository(),
             runAsync = FakeRunAsync(),
-            weatherMapper = weatherMapper,
+            mapper = WeatherUiMapper(),
         )
         setContent {
             val navController: NavHostController = rememberNavController()
@@ -157,10 +160,10 @@ private class FakeFindCityRepository : FindCityRepository {
 
         query == "Mo" -> {
             if (shouldShowError)
-                FindCityResult.Failed(error = NoInternetException)
+                FoundCityResult.Failed(error = NoInternetException)
                     .also { shouldShowError = false }
             else
-                FindCityResult.Empty
+                FoundCityResult.Empty
         }
 
         query == "Mos" ->

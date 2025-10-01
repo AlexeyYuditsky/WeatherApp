@@ -2,8 +2,10 @@ package com.alexeyyuditsky.weatherapp.weather.presentation
 
 import androidx.lifecycle.SavedStateHandle
 import com.alexeyyuditsky.weatherapp.core.FakeRunAsync
+import com.alexeyyuditsky.weatherapp.findCity.domain.NoInternetException
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherInCity
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
+import com.alexeyyuditsky.weatherapp.weather.domain.WeatherResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -13,12 +15,13 @@ class WeatherViewModelTest {
     private val fakeRunAsync = FakeRunAsync()
     private val viewModel = WeatherViewModel(
         savedStateHandle = SavedStateHandle(),
-        weatherRepository = repository,
+        repository = repository,
         runAsync = fakeRunAsync,
+        mapper = WeatherUiMapper(),
     )
 
     @Test
-    fun errorThenGetWeatherInCity() {
+    fun getErrorThenGetWeatherInCity() {
         assertEquals(WeatherUi.Empty, viewModel.state.value)
 
         fakeRunAsync.returnResult()

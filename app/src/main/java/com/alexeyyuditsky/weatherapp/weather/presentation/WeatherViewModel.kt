@@ -5,42 +5,30 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexeyyuditsky.weatherapp.core.RunAsync
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
+import com.alexeyyuditsky.weatherapp.weather.domain.WeatherResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val weatherRepository: WeatherRepository,
+    private val repository: WeatherRepository,
     private val runAsync: RunAsync,
+    private val mapper: WeatherResult.Mapper<WeatherUi>,
 ) : ViewModel() {
 
-    val state = savedStateHandle.getStateFlow<WeatherUi>(KEY, WeatherUi.Empty)
+    val state = savedStateHandle.getStateFlow(KEY, mapper.mapEmpty())
 
     init {
-        runAsync.invoke(
-            scope = viewModelScope,
-            background = {
-                val weatherInCity = weatherRepository.fetchWeather()
-                WeatherUi.Base(
-                    cityName = weatherInCity.cityName,
-                    temperature = weatherInCity.temperature.toString() + "°C"
-                )
-            },
-            ui = { weatherScreenUiBase ->
-                savedStateHandle[KEY] = weatherScreenUiBase
-            }
-        )
+        loadWeather()
     }
 
     fun loadWeather() = runAsync.invoke(
         scope = viewModelScope,
         background = {
-            val weatherInCity = weatherRepository.fetchWeather()
-            WeatherUi.Base(
-                cityName = weatherInCity.cityName,
-                temperature = weatherInCity.temperature.toString() + "°C"
-            )
+            val weatherResult = repository.fetchWeather()
+            val weatherUi = weatherResult.map(mapper = mapper)
+            weatherUi
         },
         ui = { weatherScreenUiBase ->
             savedStateHandle[KEY] = weatherScreenUiBase
