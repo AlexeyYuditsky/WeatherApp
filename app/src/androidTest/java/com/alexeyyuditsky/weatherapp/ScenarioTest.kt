@@ -160,7 +160,7 @@ private class FakeFindCityRepository : FindCityRepository {
 
         query == "Mo" -> {
             if (shouldShowError)
-                FoundCityResult.Failed(error = NoInternetException)
+                FoundCityResult.Error(error = NoInternetException)
                     .also { shouldShowError = false }
             else
                 FoundCityResult.Empty
@@ -195,7 +195,7 @@ private class FakeWeatherRepository : WeatherRepository {
     private var shouldShowError = true
 
     override suspend fun fetchWeather(): WeatherResult = if (shouldShowError)
-        WeatherResult.Failed(error = NoInternetException)
+        WeatherResult.Error(error = NoInternetException)
             .also { shouldShowError = false }
     else
         WeatherResult.Base(

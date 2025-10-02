@@ -11,11 +11,11 @@ interface FindCityCacheDataSource {
     suspend fun save(
         name: String,
         latitude: Float,
-        longitude: Float
+        longitude: Float,
     )
 
     class Base @Inject constructor(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ) : FindCityCacheDataSource {
 
         private val sharedPreferences = context.getSharedPreferences(
@@ -26,13 +26,11 @@ interface FindCityCacheDataSource {
         override suspend fun save(
             name: String,
             latitude: Float,
-            longitude: Float
-        ) {
-            sharedPreferences.edit {
-                putString(NAME, name)
-                putFloat(LATITUDE, latitude)
-                putFloat(LONGITUDE, longitude)
-            }
+            longitude: Float,
+        ) = sharedPreferences.edit {
+            putString(NAME, name)
+            putFloat(LATITUDE, latitude)
+            putFloat(LONGITUDE, longitude)
         }
 
         private companion object {

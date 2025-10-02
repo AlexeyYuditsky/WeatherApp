@@ -31,7 +31,7 @@ interface FindCityRepository {
                 )
             }
         } catch (e: DomainException) {
-            FoundCityResult.Failed(error = e)
+            FoundCityResult.Error(error = e)
         }
 
         override suspend fun saveCity(foundCity: FoundCity) =

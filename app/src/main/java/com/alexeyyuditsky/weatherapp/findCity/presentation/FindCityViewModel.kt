@@ -20,22 +20,20 @@ class FindCityViewModel @Inject constructor(
 
     val state = savedStateHandle.getStateFlow(KEY, mapper.mapEmpty())
 
-    fun findCity(cityName: String) {
-        if (cityName.isBlank())
-            savedStateHandle[KEY] = mapper.mapEmpty()
-        else
-            runAsync.invoke(
-                scope = viewModelScope,
-                background = {
-                    val foundCityResult = repository.findCity(query = cityName)
-                    val foundCityUi = foundCityResult.map(mapper = mapper)
-                    foundCityUi
-                },
-                ui = { foundCityUiBase ->
-                    savedStateHandle[KEY] = foundCityUiBase
-                }
-            )
-    }
+    fun findCity(cityName: String) = if (cityName.isBlank())
+        savedStateHandle[KEY] = mapper.mapEmpty()
+    else
+        runAsync.invoke(
+            scope = viewModelScope,
+            background = {
+                val foundCityResult = repository.findCity(query = cityName)
+                val foundCityUi = foundCityResult.map(mapper = mapper)
+                foundCityUi
+            },
+            ui = { foundCityUiBase ->
+                savedStateHandle[KEY] = foundCityUiBase
+            }
+        )
 
     fun chooseCity(foundCity: FoundCity) = runAsync.invoke(
         scope = viewModelScope,

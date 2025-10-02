@@ -27,7 +27,7 @@ interface WeatherRepository {
                 )
             )
         } catch (e: DomainException) {
-            WeatherResult.Failed(error = e)
+            WeatherResult.Error(error = e)
         }
     }
 

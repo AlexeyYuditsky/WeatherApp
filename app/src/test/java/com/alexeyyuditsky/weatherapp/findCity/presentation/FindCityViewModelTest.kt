@@ -82,7 +82,7 @@ private class FakeFindCityRepository : FindCityRepository {
 
             query == "Mo" -> {
                 if (shouldShowError)
-                    FoundCityResult.Failed(error = NoInternetException)
+                    FoundCityResult.Error(error = NoInternetException)
                         .also { shouldShowError = false }
                 else
                     FoundCityResult.Empty

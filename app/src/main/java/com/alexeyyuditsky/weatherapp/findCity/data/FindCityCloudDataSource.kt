@@ -6,17 +6,13 @@ import javax.inject.Inject
 
 interface FindCityCloudDataSource {
 
-    suspend fun findCity(
-        query: String,
-    ): List<FoundCityCloud>
+    suspend fun findCity(query: String): List<FoundCityCloud>
 
     class Base @Inject constructor(
         private val findCityService: FindCityService,
     ) : FindCityCloudDataSource {
 
-        override suspend fun findCity(
-            query: String,
-        ): List<FoundCityCloud> = try {
+        override suspend fun findCity(query: String): List<FoundCityCloud> = try {
             findCityService.findCity(query = query)
         } catch (e: Exception) {
             if (e is IOException)

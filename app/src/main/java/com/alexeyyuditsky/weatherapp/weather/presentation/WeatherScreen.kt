@@ -14,7 +14,7 @@ fun WeatherScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewWeatherScreenUi() = WeatherUi.Base(
+fun PreviewWeatherScreenUiBase() = WeatherUi.Base(
     cityName = "Moscow city",
     temperature = "33.1°C",
 ).Show()
@@ -22,4 +22,4 @@ fun PreviewWeatherScreenUi() = WeatherUi.Base(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewWeatherScreenUiNoConnectionError() =
-    WeatherUi.NoConnectionError.Show(onRetryClick = {})
+    WeatherUi.NoConnectionError.Show {}

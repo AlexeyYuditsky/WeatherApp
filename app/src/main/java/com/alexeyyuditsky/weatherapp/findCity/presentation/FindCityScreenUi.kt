@@ -65,7 +65,10 @@ private fun PreviewFindCityScreenUiBase() = FindCityScreenUi(
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewFindCityScreenUiNoConnectionError() = FoundCityUi.NoConnectionError.Show(
+private fun PreviewFindCityScreenUiNoConnectionError() = FindCityScreenUi(
+    input = "Moscow",
+    onInputChange = {},
+    foundCityUi = FoundCityUi.NoConnectionError,
     onFoundCityClick = {},
     onRetryClick = {},
 )

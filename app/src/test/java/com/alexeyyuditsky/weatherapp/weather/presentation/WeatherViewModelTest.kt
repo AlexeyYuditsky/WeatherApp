@@ -47,7 +47,7 @@ private class FakeWeatherRepository : WeatherRepository {
     private var shouldShowError = true
 
     override suspend fun fetchWeather(): WeatherResult = if (shouldShowError)
-        WeatherResult.Failed(error = NoInternetException)
+        WeatherResult.Error(error = NoInternetException)
             .also { shouldShowError = false }
     else
         WeatherResult.Base(

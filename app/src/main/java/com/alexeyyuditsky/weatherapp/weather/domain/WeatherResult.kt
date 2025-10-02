@@ -1,37 +1,36 @@
 package com.alexeyyuditsky.weatherapp.weather.domain
 
-import android.os.Parcelable
 import com.alexeyyuditsky.weatherapp.findCity.domain.DomainException
 import com.alexeyyuditsky.weatherapp.findCity.domain.NoInternetException
 
 interface WeatherResult {
 
-    fun <T : Parcelable> map(mapper: Mapper<T>): T
+    fun <T> map(mapper: Mapper<T>): T
 
-    interface Mapper<T : Parcelable> {
+    interface Mapper<T> {
 
-        fun mapWeatherInCity(weatherInCity: WeatherInCity): T
-
-        fun mapNoConnection(): T
+        fun mapBase(weatherInCity: WeatherInCity): T
 
         fun mapEmpty(): T
+
+        fun mapNoConnectionError(): T
     }
 
     data class Base(
         private val weatherInCity: WeatherInCity,
     ) : WeatherResult {
 
-        override fun <T : Parcelable> map(mapper: Mapper<T>): T =
-            mapper.mapWeatherInCity(weatherInCity = weatherInCity)
+        override fun <T> map(mapper: Mapper<T>): T =
+            mapper.mapBase(weatherInCity = weatherInCity)
     }
 
-    data class Failed(
+    data class Error(
         private val error: DomainException,
     ) : WeatherResult {
 
-        override fun <T : Parcelable> map(mapper: Mapper<T>): T =
+        override fun <T> map(mapper: Mapper<T>): T =
             if (error is NoInternetException)
-                mapper.mapNoConnection()
+                mapper.mapNoConnectionError()
             else
                 TODO("later")
     }
