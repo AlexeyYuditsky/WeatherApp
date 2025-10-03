@@ -56,7 +56,6 @@ interface WeatherUi : Parcelable {
                     .testTag("temperatureText"),
             )
         }
-
     }
 
     @Parcelize
@@ -71,7 +70,5 @@ interface WeatherUi : Parcelable {
         ) {
             NoConnectionErrorUi(onRetryClick = onRetryClick)
         }
-
     }
-
 }

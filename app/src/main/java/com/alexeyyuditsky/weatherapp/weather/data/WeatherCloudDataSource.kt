@@ -29,7 +29,5 @@ interface WeatherCloudDataSource {
             else
                 throw e
         }
-
     }
-
 }

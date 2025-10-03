@@ -26,5 +26,4 @@ abstract class WeatherBindsModule {
 
     @Binds
     abstract fun bindWeatherUiMapper(mapper: WeatherUiMapper): WeatherResult.Mapper<WeatherUi>
-
 }

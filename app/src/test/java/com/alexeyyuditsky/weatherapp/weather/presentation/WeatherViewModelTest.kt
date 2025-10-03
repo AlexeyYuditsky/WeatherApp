@@ -39,7 +39,6 @@ class WeatherViewModelTest {
             viewModel.state.value
         )
     }
-
 }
 
 private class FakeWeatherRepository : WeatherRepository {
@@ -56,5 +55,4 @@ private class FakeWeatherRepository : WeatherRepository {
                 temperature = 33.1f,
             )
         )
-
 }

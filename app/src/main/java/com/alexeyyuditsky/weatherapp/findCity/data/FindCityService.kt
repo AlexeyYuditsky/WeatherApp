@@ -11,5 +11,4 @@ interface FindCityService {
         @Query(value = "q") query: String,
         @Query(value = "appid") apiKey: String = BuildConfig.API_KEY
     ) : List<FoundCityCloud>
-
 }

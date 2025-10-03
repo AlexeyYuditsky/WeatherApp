@@ -64,7 +64,6 @@ class FindCityViewModelTest {
         viewModel.chooseCity(foundCity = foundCity)
         repository.assertSaveCalled(expected = foundCity)
     }
-
 }
 
 private class FakeFindCityRepository : FindCityRepository {
@@ -111,5 +110,4 @@ private class FakeFindCityRepository : FindCityRepository {
 
     fun assertFindCityCalled(expected: List<String>) =
         assertEquals(expected, findCityCalledList)
-
 }

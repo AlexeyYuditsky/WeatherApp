@@ -29,5 +29,4 @@ class WeatherPage(
 
     fun clickRetry() =
         retryButton.performClick()
-
 }

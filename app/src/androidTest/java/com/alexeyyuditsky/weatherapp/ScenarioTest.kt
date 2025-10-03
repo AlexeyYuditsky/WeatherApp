@@ -187,7 +187,6 @@ private class FakeFindCityRepository : FindCityRepository {
             )
         ) throw IllegalStateException("save called with wrong argument $foundCity")
     }
-
 }
 
 private class FakeWeatherRepository : WeatherRepository {
@@ -204,7 +203,6 @@ private class FakeWeatherRepository : WeatherRepository {
                 temperature = 33.1f,
             )
         )
-
 }
 
 private class FakeRunAsync : RunAsync {
@@ -217,5 +215,4 @@ private class FakeRunAsync : RunAsync {
         val result: T = background.invoke()
         ui.invoke(result)
     }
-
 }

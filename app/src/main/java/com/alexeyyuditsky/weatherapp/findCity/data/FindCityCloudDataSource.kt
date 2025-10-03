@@ -20,7 +20,5 @@ interface FindCityCloudDataSource {
             else
                 throw e
         }
-
     }
-
 }

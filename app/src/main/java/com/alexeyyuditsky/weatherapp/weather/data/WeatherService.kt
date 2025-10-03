@@ -13,5 +13,4 @@ interface WeatherService {
         @Query("appid") apiKey: String = BuildConfig.API_KEY,
         @Query("units") units: String = "metric",
     ): WeatherCloud
-
 }

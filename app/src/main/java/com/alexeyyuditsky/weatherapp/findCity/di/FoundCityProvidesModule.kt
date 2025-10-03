@@ -15,5 +15,4 @@ class FoundCityProvidesModule {
     @Provides
     fun provideFoundCityService(retrofit: Retrofit): FindCityService =
         retrofit.create()
-
 }

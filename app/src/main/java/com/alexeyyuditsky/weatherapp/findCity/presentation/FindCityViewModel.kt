@@ -10,6 +10,10 @@ import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
+fun main() {
+    println("moscow ")
+}
+
 @HiltViewModel
 class FindCityViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
@@ -26,7 +30,7 @@ class FindCityViewModel @Inject constructor(
         runAsync.invoke(
             scope = viewModelScope,
             background = {
-                val foundCityResult = repository.findCity(query = cityName)
+                val foundCityResult = repository.findCity(query = cityName.trim())
                 val foundCityUi = foundCityResult.map(mapper = mapper)
                 foundCityUi
             },
@@ -45,5 +49,4 @@ class FindCityViewModel @Inject constructor(
     private companion object {
         const val KEY = "FoundCityUiKey"
     }
-
 }

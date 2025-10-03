@@ -30,7 +30,5 @@ interface WeatherCacheDataSource {
             const val LATITUDE = "latitudeKey"
             const val LONGITUDE = "longitudeKey"
         }
-
     }
-
 }

@@ -41,5 +41,4 @@ interface FindCityRepository {
                 longitude = foundCity.longitude,
             )
     }
-
 }

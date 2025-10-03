@@ -34,5 +34,4 @@ interface WeatherResult {
             else
                 TODO("later")
     }
-
 }

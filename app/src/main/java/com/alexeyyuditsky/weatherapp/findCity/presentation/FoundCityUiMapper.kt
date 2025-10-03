@@ -14,5 +14,4 @@ class FoundCityUiMapper @Inject constructor() : FoundCityResult.Mapper<FoundCity
 
     override fun mapNoConnectionError(): FoundCityUi =
         FoundCityUi.NoConnectionError
-
 }

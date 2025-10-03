@@ -38,5 +38,4 @@ class WeatherViewModel @Inject constructor(
     private companion object {
         const val KEY = "WeatherScreenUiKey"
     }
-
 }

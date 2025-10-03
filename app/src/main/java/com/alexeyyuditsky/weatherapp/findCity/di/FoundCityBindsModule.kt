@@ -26,5 +26,4 @@ abstract class FoundCityBindsModule {
 
     @Binds
     abstract fun bindFoundCityUiMapper(mapper: FoundCityUiMapper): FoundCityResult.Mapper<FoundCityUi>
-
 }

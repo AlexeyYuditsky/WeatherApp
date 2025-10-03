@@ -30,5 +30,4 @@ interface WeatherRepository {
             WeatherResult.Error(error = e)
         }
     }
-
 }

@@ -15,5 +15,4 @@ class WeatherProvidesModule {
     @Provides
     fun provideWeatherService(retrofit: Retrofit): WeatherService =
         retrofit.create()
-
 }

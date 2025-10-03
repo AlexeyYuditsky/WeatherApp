@@ -17,5 +17,4 @@ class WeatherUiMapper @Inject constructor() : WeatherResult.Mapper<WeatherUi> {
 
     override fun mapNoConnectionError(): WeatherUi =
         WeatherUi.NoConnectionError
-
 }

@@ -20,5 +20,4 @@ class FakeRunAsync : RunAsync {
 
     fun returnResult() =
         uiCached.invoke(resultCached)
-
 }

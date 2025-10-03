@@ -30,5 +30,4 @@ class CoreProvidesModule {
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-
 }

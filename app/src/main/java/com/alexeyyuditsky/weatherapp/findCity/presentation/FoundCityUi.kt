@@ -44,7 +44,6 @@ interface FoundCityUi : Parcelable {
                 modifier = Modifier.testTag("foundCityText"),
             )
         }
-
     }
 
     @Parcelize
@@ -55,7 +54,5 @@ interface FoundCityUi : Parcelable {
             onFoundCityClick: (FoundCity) -> Unit,
             onRetryClick: () -> Unit,
         ) = NoConnectionErrorUi(onRetryClick = onRetryClick)
-
     }
-
 }
