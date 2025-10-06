@@ -9,19 +9,21 @@ interface WeatherResult {
 
     interface Mapper<T> {
 
-        fun mapBase(weatherInCity: WeatherInCity): T
+        fun mapToSuccess(weatherInCity: WeatherInCity): T
 
-        fun mapEmpty(): T
+        fun mapToLoading(): T
 
-        fun mapNoConnectionError(): T
+        fun mapToEmpty(): T
+
+        fun mapToNoConnectionError(): T
     }
 
-    data class Base(
+    data class Success(
         private val weatherInCity: WeatherInCity,
     ) : WeatherResult {
 
         override fun <T> map(mapper: Mapper<T>): T =
-            mapper.mapBase(weatherInCity = weatherInCity)
+            mapper.mapToSuccess(weatherInCity = weatherInCity)
     }
 
     data class Error(
@@ -30,7 +32,7 @@ interface WeatherResult {
 
         override fun <T> map(mapper: Mapper<T>): T =
             if (error is NoInternetException)
-                mapper.mapNoConnectionError()
+                mapper.mapToNoConnectionError()
             else
                 TODO("later")
     }

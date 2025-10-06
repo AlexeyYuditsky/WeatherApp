@@ -3,6 +3,7 @@ package com.alexeyyuditsky.weatherapp.findCity.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alexeyyuditsky.weatherapp.core.QueryEvent
 import com.alexeyyuditsky.weatherapp.core.RunAsync
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
@@ -10,40 +11,41 @@ import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-fun main() {
-    println("moscow ")
-}
-
 @HiltViewModel
 class FindCityViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repository: FindCityRepository,
-    private val runAsync: RunAsync,
+    private val runAsync: RunAsync<QueryEvent>,
     private val mapper: FoundCityResult.Mapper<FoundCityUi>,
 ) : ViewModel() {
 
-    val state = savedStateHandle.getStateFlow(KEY, mapper.mapEmpty())
+    val state = savedStateHandle.getStateFlow(KEY, mapper.mapToEmpty())
 
-    fun findCity(cityName: String) = if (cityName.isBlank())
-        savedStateHandle[KEY] = mapper.mapEmpty()
-    else
-        runAsync.invoke(
+    init {
+        runAsync.debounce(
             scope = viewModelScope,
-            background = {
-                val foundCityResult = repository.findCity(query = cityName.trim())
-                val foundCityUi = foundCityResult.map(mapper = mapper)
-                foundCityUi
+            background = { latestQuery ->
+                val query = latestQuery.value
+                if (query.isBlank())
+                    mapper.mapToEmpty()
+                else {
+                    savedStateHandle[KEY] = mapper.mapToLoading()
+                    val foundCityResult = repository.findCity(latestQuery.value)
+                    foundCityResult.map(mapper)
+                }
             },
-            ui = { foundCityUiBase ->
-                savedStateHandle[KEY] = foundCityUiBase
+            ui = { foundCityUi ->
+                savedStateHandle[KEY] = foundCityUi
             }
         )
+    }
 
-    fun chooseCity(foundCity: FoundCity) = runAsync.invoke(
+    fun findCity(cityName: String) =
+        runAsync.emit(value = QueryEvent(cityName.trim()))
+
+    fun chooseCity(foundCity: FoundCity) = runAsync.run(
         scope = viewModelScope,
-        background = {
-            repository.saveCity(foundCity = foundCity)
-        }
+        background = { repository.saveCity(foundCity = foundCity) }
     )
 
     private companion object {

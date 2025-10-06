@@ -34,21 +34,21 @@ class FindCityViewModelTest {
 
         viewModel.findCity(cityName = "Mo")
         repository.assertFindCityCalled(listOf("Mo"))
-        assertEquals(FoundCityUi.Empty, viewModel.state.value)
+        assertEquals(FoundCityUi.Loading, viewModel.state.value)
 
         runAsync.returnResult()
         assertEquals(FoundCityUi.NoConnectionError, viewModel.state.value)
 
         viewModel.findCity(cityName = "Mo")
         repository.assertFindCityCalled(listOf("Mo", "Mo"))
-        assertEquals(FoundCityUi.NoConnectionError, viewModel.state.value)
+        assertEquals(FoundCityUi.Loading, viewModel.state.value)
 
         runAsync.returnResult()
         assertEquals(FoundCityUi.Empty, viewModel.state.value)
 
         viewModel.findCity(cityName = "Mos")
         repository.assertFindCityCalled(listOf("Mo", "Mo", "Mos"))
-        assertEquals(FoundCityUi.Empty, viewModel.state.value)
+        assertEquals(FoundCityUi.Loading, viewModel.state.value)
 
         runAsync.returnResult()
         val foundCity = FoundCity(
@@ -57,7 +57,7 @@ class FindCityViewModelTest {
             longitude = 37.61f,
         )
         assertEquals(
-            FoundCityUi.Base(foundCity = foundCity),
+            FoundCityUi.Success(foundCity = foundCity),
             viewModel.state.value
         )
 
@@ -88,7 +88,7 @@ private class FakeFindCityRepository : FindCityRepository {
             }
 
             query == "Mos" ->
-                FoundCityResult.Base(
+                FoundCityResult.Success(
                     foundCity = FoundCity(
                         name = "Moscow",
                         latitude = 55.75f,

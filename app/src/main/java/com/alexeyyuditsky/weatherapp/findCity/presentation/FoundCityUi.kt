@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.alexeyyuditsky.weatherapp.core.presentation.LoadingUi
 import com.alexeyyuditsky.weatherapp.core.presentation.NoConnectionErrorUi
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import kotlinx.parcelize.Parcelize
@@ -22,10 +23,7 @@ interface FoundCityUi : Parcelable {
     ) = Unit
 
     @Parcelize
-    data object Empty : FoundCityUi
-
-    @Parcelize
-    data class Base(
+    data class Success(
         private val foundCity: FoundCity,
     ) : FoundCityUi {
 
@@ -45,6 +43,19 @@ interface FoundCityUi : Parcelable {
             )
         }
     }
+
+    @Parcelize
+    data object Loading : FoundCityUi {
+
+        @Composable
+        override fun Show(
+            onFoundCityClick: (FoundCity) -> Unit,
+            onRetryClick: () -> Unit,
+        ) = LoadingUi()
+    }
+
+    @Parcelize
+    data object Empty : FoundCityUi
 
     @Parcelize
     data object NoConnectionError : FoundCityUi {

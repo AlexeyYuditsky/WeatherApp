@@ -6,34 +6,37 @@ interface FoundCityResult {
 
     interface Mapper<T> {
 
-        fun mapBase(fountCity: FoundCity): T
+        fun mapToSuccess(fountCity: FoundCity): T
 
-        fun mapEmpty(): T
+        fun mapToLoading(): T
 
-        fun mapNoConnectionError(): T
+        fun mapToEmpty(): T
+
+        fun mapToNoConnectionError(): T
     }
 
-    data class Base(
+    data class Success(
         private val foundCity: FoundCity,
     ) : FoundCityResult {
 
         override fun <T> map(mapper: Mapper<T>): T =
-            mapper.mapBase(fountCity = foundCity)
+            mapper.mapToSuccess(fountCity = foundCity)
     }
 
     data object Empty : FoundCityResult {
 
         override fun <T> map(mapper: Mapper<T>): T =
-            mapper.mapEmpty()
+            mapper.mapToEmpty()
     }
 
 
     data class Error(
         private val error: DomainException,
     ) : FoundCityResult {
+
         override fun <T> map(mapper: Mapper<T>): T =
             if (error is NoInternetException)
-                mapper.mapNoConnectionError()
+                mapper.mapToNoConnectionError()
             else
                 TODO("later")
     }

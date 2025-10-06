@@ -20,7 +20,7 @@ interface WeatherRepository {
                 latitude = latitude,
                 longitude = longitude
             )
-            WeatherResult.Base(
+            WeatherResult.Success(
                 weatherInCity = WeatherInCity(
                     cityName = cityName,
                     temperature = temperature

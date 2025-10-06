@@ -14,6 +14,7 @@ class WeatherPage(
     private val temperatureText = composeTestRule.onNodeWithTag("temperatureText")
     private val noInternetConnectionText = composeTestRule.onNodeWithTag("noInternetConnectionText")
     private val retryButton = composeTestRule.onNodeWithTag("retryButton")
+    private val circularProgress = composeTestRule.onNodeWithTag("circularProgress")
 
     fun assertCityName(cityName: String) =
         cityNameText.assertTextEquals(cityName)
@@ -29,4 +30,7 @@ class WeatherPage(
 
     fun clickRetry() =
         retryButton.performClick()
+
+    fun assertLoading() =
+        circularProgress.assertIsDisplayed()
 }

@@ -14,10 +14,15 @@ fun WeatherScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewWeatherScreenUiBase() = WeatherUi.Base(
+fun PreviewWeatherScreenUiSuccess() = WeatherUi.Success(
     cityName = "Moscow city",
     temperature = "33.1°C",
 ).Show()
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewWeatherScreenUiLoading() =
+    WeatherUi.Loading.Show {}
 
 @Preview(showBackground = true)
 @Composable

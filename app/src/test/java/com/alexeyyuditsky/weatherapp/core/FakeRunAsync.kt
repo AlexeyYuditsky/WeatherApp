@@ -3,12 +3,12 @@ package com.alexeyyuditsky.weatherapp.core
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 
-class FakeRunAsync : RunAsync {
+class FakeRunAsync : RunAsync<QueryEvent> {
 
-    private lateinit var resultCached: Any
-    private lateinit var uiCached: (Any) -> Unit
+    private var resultCached: Any? = null
+    private var uiCached: (Any) -> Unit = {}
 
-    override operator fun <T : Any> invoke(
+    override fun <T : Any> run(
         scope: CoroutineScope,
         background: suspend () -> T,
         ui: (T) -> Unit,
@@ -18,6 +18,32 @@ class FakeRunAsync : RunAsync {
         uiCached = ui as (Any) -> Unit
     }
 
-    fun returnResult() =
-        uiCached.invoke(resultCached)
+    private var backgroundDebounced: suspend (QueryEvent) -> Any = {}
+    private var uiDebounced: (Any) -> Unit = {}
+    private var debouncedResult: Any? = null
+
+    override fun <T : Any> debounce(
+        scope: CoroutineScope,
+        background: suspend (QueryEvent) -> T,
+        ui: (T) -> Unit,
+    ) {
+        backgroundDebounced = background
+        @Suppress("UNCHECKED_CAST")
+        uiDebounced = ui as (Any) -> Unit
+    }
+
+    override fun emit(value: QueryEvent) = runBlocking {
+        debouncedResult = backgroundDebounced.invoke(value)
+    }
+
+    fun returnResult() {
+        resultCached?.let {
+            uiCached.invoke(it)
+            resultCached = null
+        }
+        debouncedResult?.let {
+            uiDebounced.invoke(it)
+            debouncedResult = null
+        }
+    }
 }

@@ -49,10 +49,10 @@ private fun PreviewFindCityScreenUiEmpty() = FindCityScreenUi(
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewFindCityScreenUiBase() = FindCityScreenUi(
+private fun PreviewFindCityScreenUiSuccess() = FindCityScreenUi(
     input = "Moscow",
     onInputChange = {},
-    foundCityUi = FoundCityUi.Base(
+    foundCityUi = FoundCityUi.Success(
         foundCity = FoundCity(
             name = "Moscow",
             latitude = 55.75f,
@@ -69,6 +69,16 @@ private fun PreviewFindCityScreenUiNoConnectionError() = FindCityScreenUi(
     input = "Moscow",
     onInputChange = {},
     foundCityUi = FoundCityUi.NoConnectionError,
+    onFoundCityClick = {},
+    onRetryClick = {},
+)
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewFindCityScreenUiLoading() = FindCityScreenUi(
+    input = "Moscow",
+    onInputChange = {},
+    foundCityUi = FoundCityUi.Loading,
     onFoundCityClick = {},
     onRetryClick = {},
 )

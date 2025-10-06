@@ -37,4 +37,4 @@ fun NoConnectionErrorUi(
 
 @Preview(showBackground = true)
 @Composable
-fun ShowNoConnectionError() = NoConnectionErrorUi { }
+fun PreviewNoConnectionError() = NoConnectionErrorUi { }

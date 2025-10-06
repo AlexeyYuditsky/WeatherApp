@@ -22,7 +22,7 @@ interface FindCityRepository {
                 FoundCityResult.Empty
             else {
                 val foundCityCloud = foundCityCloudList.first()
-                FoundCityResult.Base(
+                FoundCityResult.Success(
                     foundCity = FoundCity(
                         name = foundCityCloud.name,
                         latitude = foundCityCloud.latitude,

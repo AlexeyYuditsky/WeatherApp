@@ -6,15 +6,18 @@ import javax.inject.Inject
 
 class WeatherUiMapper @Inject constructor() : WeatherResult.Mapper<WeatherUi> {
 
-    override fun mapBase(weatherInCity: WeatherInCity): WeatherUi =
-        WeatherUi.Base(
+    override fun mapToSuccess(weatherInCity: WeatherInCity): WeatherUi =
+        WeatherUi.Success(
             cityName = weatherInCity.cityName,
             temperature = weatherInCity.temperature.toString() + "°C"
         )
 
-    override fun mapEmpty(): WeatherUi =
+    override fun mapToLoading(): WeatherUi =
+        WeatherUi.Loading
+
+    override fun mapToEmpty(): WeatherUi =
         WeatherUi.Empty
 
-    override fun mapNoConnectionError(): WeatherUi =
+    override fun mapToNoConnectionError(): WeatherUi =
         WeatherUi.NoConnectionError
 }

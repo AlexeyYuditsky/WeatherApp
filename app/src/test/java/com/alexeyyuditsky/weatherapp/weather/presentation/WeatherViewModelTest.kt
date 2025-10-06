@@ -22,17 +22,17 @@ class WeatherViewModelTest {
 
     @Test
     fun getErrorThenGetWeatherInCity() {
-        assertEquals(WeatherUi.Empty, viewModel.state.value)
+        assertEquals(WeatherUi.Loading, viewModel.state.value)
 
         fakeRunAsync.returnResult()
         assertEquals(WeatherUi.NoConnectionError, viewModel.state.value)
 
         viewModel.loadWeather()
-        assertEquals(WeatherUi.NoConnectionError, viewModel.state.value)
+        assertEquals(WeatherUi.Loading, viewModel.state.value)
 
         fakeRunAsync.returnResult()
         assertEquals(
-            WeatherUi.Base(
+            WeatherUi.Success(
                 cityName = "Moscow city",
                 temperature = "33.1°C",
             ),
@@ -49,7 +49,7 @@ private class FakeWeatherRepository : WeatherRepository {
         WeatherResult.Error(error = NoInternetException)
             .also { shouldShowError = false }
     else
-        WeatherResult.Base(
+        WeatherResult.Success(
             weatherInCity = WeatherInCity(
                 cityName = "Moscow city",
                 temperature = 33.1f,

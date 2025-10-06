@@ -15,6 +15,7 @@ class FindCityPage(
     private val foundCityText = composeTestRule.onNodeWithTag("foundCityText", true)
     private val noInternetConnectionText = composeTestRule.onNodeWithTag("noInternetConnectionText")
     private val retryButton = composeTestRule.onNodeWithTag("retryButton")
+    private val circularProgress = composeTestRule.onNodeWithTag("circularProgress", true)
 
     fun input(text: String) =
         outlinedTextField.performTextReplacement(text)
@@ -36,4 +37,7 @@ class FindCityPage(
         retryButton.assertDoesNotExist()
         foundCityText.assertDoesNotExist()
     }
+
+    fun assertLoading() =
+        circularProgress.assertIsDisplayed()
 }
