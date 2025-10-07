@@ -25,8 +25,7 @@ class FindCityViewModel @Inject constructor(
         runAsync.debounce(
             scope = viewModelScope,
             background = { latestQuery ->
-                val query = latestQuery.value
-                if (query.isBlank())
+                if (latestQuery.value.isBlank())
                     mapper.mapToEmpty()
                 else {
                     savedStateHandle[KEY] = mapper.mapToLoading()

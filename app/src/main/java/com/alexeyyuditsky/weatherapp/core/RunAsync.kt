@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-interface RunAsync<R : Any> {
+interface RunAsync<R> {
 
     fun <T : Any> run(
         scope: CoroutineScope,

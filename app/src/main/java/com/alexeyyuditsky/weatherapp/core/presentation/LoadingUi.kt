@@ -14,8 +14,8 @@ import com.alexeyyuditsky.weatherapp.R
 
 @Composable
 fun LoadingUi() = Column(
-    modifier = Modifier.fillMaxSize(),
-    horizontalAlignment = Alignment.CenterHorizontally
+    horizontalAlignment = Alignment.CenterHorizontally,
+    modifier = Modifier.fillMaxSize()
 ) {
     CircularProgressIndicator()
     Text(
