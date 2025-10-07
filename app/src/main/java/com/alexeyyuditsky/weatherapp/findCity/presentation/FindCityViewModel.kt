@@ -9,6 +9,7 @@ import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,8 +40,9 @@ class FindCityViewModel @Inject constructor(
         )
     }
 
-    fun findCity(cityName: String) =
+    fun findCity(cityName: String) = viewModelScope.launch {
         runAsync.emit(value = QueryEvent(cityName.trim()))
+    }
 
     fun chooseCity(foundCity: FoundCity) = runAsync.run(
         scope = viewModelScope,

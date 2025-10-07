@@ -1,8 +1,10 @@
 package com.alexeyyuditsky.weatherapp.findCity.presentation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
@@ -10,22 +12,20 @@ fun FindCityScreen(
     viewModel: FindCityViewModel,
     navigateToWeatherScreen: () -> Unit,
 ) {
-    val input = rememberSaveable { mutableStateOf("") }
-    val foundCityUi = viewModel.state.collectAsStateWithLifecycle()
+    var input by rememberSaveable { mutableStateOf("") }
+    val foundCityUi by viewModel.state.collectAsStateWithLifecycle()
 
     FindCityScreenUi(
-        input = input.value,
+        input = input,
         onInputChange = { text ->
             viewModel.findCity(cityName = text)
-            input.value = text
+            input = text
         },
-        foundCityUi = foundCityUi.value,
+        foundCityUi = foundCityUi,
         onFoundCityClick = { foundCity ->
             viewModel.chooseCity(foundCity = foundCity)
             navigateToWeatherScreen.invoke()
         },
-        onRetryClick = {
-            viewModel.findCity(cityName = input.value)
-        }
+        onRetryClick = { viewModel.findCity(cityName = input) }
     )
 }

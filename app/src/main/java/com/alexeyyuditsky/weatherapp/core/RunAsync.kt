@@ -4,12 +4,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,7 +28,7 @@ interface RunAsync<R> {
         ui: (T) -> Unit,
     )
 
-    fun emit(value: R)
+    suspend fun emit(value: R)
 
     class Base @Inject constructor() : RunAsync<QueryEvent> {
 
@@ -46,7 +45,7 @@ interface RunAsync<R> {
             }
         }
 
-        private val inputFlow = MutableStateFlow(QueryEvent(""))
+        private val inputFlow = MutableSharedFlow<QueryEvent>()
 
         @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
         override fun <T : Any> debounce(
@@ -56,22 +55,14 @@ interface RunAsync<R> {
         ) {
             inputFlow
                 .debounce(500)
-                .flatMapLatest { latestQuery ->
-                    flow {
-                        emit(background.invoke(latestQuery))
-                    }
-                }
-                .onEach(ui)
+                .mapLatest { latestQuery -> background.invoke(latestQuery) }
                 .flowOn(Dispatchers.IO)
+                .onEach(ui)
                 .launchIn(scope)
         }
 
-        override fun emit(value: QueryEvent) {
-            inputFlow.value = value
+        override suspend fun emit(value: QueryEvent) {
+            inputFlow.emit(value)
         }
     }
 }
-
-class QueryEvent(
-    val value: String,
-)

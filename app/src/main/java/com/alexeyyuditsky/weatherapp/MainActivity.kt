@@ -11,10 +11,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.alexeyyuditsky.weatherapp.core.Routes.FIND_CITY
+import com.alexeyyuditsky.weatherapp.core.Routes.WEATHER
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityScreen
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityViewModel
 import com.alexeyyuditsky.weatherapp.ui.theme.WeatherAppTheme
@@ -36,25 +37,24 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 }
 
 @Composable
 private fun MainContent(innerPadding: PaddingValues) {
-    val navController: NavHostController = rememberNavController()
+    val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = "findCityScreen",
+        startDestination = FIND_CITY,
         modifier = Modifier.padding(paddingValues = innerPadding)
     ) {
-        composable(route = "findCityScreen") {
+        composable(route = FIND_CITY) {
             FindCityScreen(
                 viewModel = hiltViewModel<FindCityViewModel>(),
-                navigateToWeatherScreen = { navController.navigate("weatherScreen") },
+                navigateToWeatherScreen = { navController.navigate(WEATHER) },
             )
         }
 
-        composable(route = "weatherScreen") {
+        composable(route = WEATHER) {
             WeatherScreen(
                 viewModel = hiltViewModel<WeatherViewModel>(),
             )

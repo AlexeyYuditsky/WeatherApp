@@ -11,6 +11,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexeyyuditsky.weatherapp.core.QueryEvent
+import com.alexeyyuditsky.weatherapp.core.Routes.FIND_CITY
+import com.alexeyyuditsky.weatherapp.core.Routes.WEATHER
 import com.alexeyyuditsky.weatherapp.core.RunAsync
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
@@ -62,16 +64,16 @@ class ScenarioTest {
                 val navController: NavHostController = rememberNavController()
                 NavHost(
                     navController = navController,
-                    startDestination = "findCityScreen",
+                    startDestination = FIND_CITY,
                 ) {
-                    composable(route = "findCityScreen") {
+                    composable(route = FIND_CITY) {
                         FindCityScreen(
                             viewModel = findCityViewModel,
-                            navigateToWeatherScreen = { navController.navigate("weatherScreen") },
+                            navigateToWeatherScreen = { navController.navigate(WEATHER) },
                         )
                     }
 
-                    composable(route = "weatherScreen") {
+                    composable(route = WEATHER) {
                         WeatherScreen(
                             viewModel = weatherViewModel,
                         )
@@ -90,9 +92,9 @@ class ScenarioTest {
             val navController: NavHostController = rememberNavController()
             NavHost(
                 navController = navController,
-                startDestination = "findCityScreen",
+                startDestination = FIND_CITY,
             ) {
-                composable(route = "findCityScreen") {
+                composable(route = FIND_CITY) {
                     val input = rememberSaveable { mutableStateOf("") }
                     val shouldShowNoConnectionError = rememberSaveable { mutableStateOf(true) }
                     val showLoadingText =
@@ -125,12 +127,12 @@ class ScenarioTest {
                                 else ->
                                     FoundCityUi.Empty
                             },
-                        onFoundCityClick = { navController.navigate("weatherScreen") },
+                        onFoundCityClick = { navController.navigate(WEATHER) },
                         onRetryClick = { shouldShowNoConnectionError.value = false },
                     )
                 }
 
-                composable(route = "weatherScreen") {
+                composable(route = WEATHER) {
                     val shouldShowNoConnectionError = rememberSaveable { mutableStateOf(true) }
                     val showLoadingText =
                         fakeRunAsyncUi.stateFlow.collectAsStateWithLifecycle().value
@@ -304,7 +306,7 @@ class FakeRunAsync : RunAsync<QueryEvent> {
         uiDebounced = ui as (Any) -> Unit
     }
 
-    override fun emit(value: QueryEvent) = runBlocking {
+    override suspend fun emit(value: QueryEvent) = runBlocking {
         debouncedResult = backgroundDebounced.invoke(value)
     }
 
