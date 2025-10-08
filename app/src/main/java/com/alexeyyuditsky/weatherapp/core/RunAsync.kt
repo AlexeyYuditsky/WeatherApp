@@ -4,17 +4,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-interface RunAsync<R> {
+interface RunAsync {
 
     fun <T : Any> run(
         scope: CoroutineScope,
@@ -24,13 +28,15 @@ interface RunAsync<R> {
 
     fun <T : Any> debounce(
         scope: CoroutineScope,
-        background: suspend (R) -> T,
+        background: suspend (String) -> T,
         ui: (T) -> Unit,
     )
 
-    suspend fun emit(value: R)
+    fun emitInput(query: String)
 
-    class Base @Inject constructor() : RunAsync<QueryEvent> {
+    fun emitRetry(query: String)
+
+    class Base @Inject constructor() : RunAsync {
 
         override fun <T : Any> run(
             scope: CoroutineScope,
@@ -45,24 +51,39 @@ interface RunAsync<R> {
             }
         }
 
-        private val inputFlow = MutableSharedFlow<QueryEvent>()
+        private val inputFlow = MutableSharedFlow<String>(
+            extraBufferCapacity = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST
+        )
+        private val retryFlow = MutableSharedFlow<String>(
+            extraBufferCapacity = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST
+        )
 
         @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
         override fun <T : Any> debounce(
             scope: CoroutineScope,
-            background: suspend (QueryEvent) -> T,
+            background: suspend (String) -> T,
             ui: (T) -> Unit,
         ) {
-            inputFlow
+            val input = inputFlow
+                .map { query -> query.trim() }
+                .distinctUntilChanged()
                 .debounce(500)
-                .mapLatest { latestQuery -> background.invoke(latestQuery) }
+
+            merge(input, retryFlow)
+                .mapLatest { query -> background.invoke(query) }
                 .flowOn(Dispatchers.IO)
                 .onEach(ui)
                 .launchIn(scope)
         }
 
-        override suspend fun emit(value: QueryEvent) {
-            inputFlow.emit(value)
+        override fun emitInput(query: String) {
+            inputFlow.tryEmit(query)
+        }
+
+        override fun emitRetry(query: String) {
+            retryFlow.tryEmit(query)
         }
     }
 }

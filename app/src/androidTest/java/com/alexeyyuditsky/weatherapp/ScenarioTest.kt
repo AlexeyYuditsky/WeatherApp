@@ -10,7 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.alexeyyuditsky.weatherapp.core.QueryEvent
 import com.alexeyyuditsky.weatherapp.core.Routes.FIND_CITY
 import com.alexeyyuditsky.weatherapp.core.Routes.WEATHER
 import com.alexeyyuditsky.weatherapp.core.RunAsync
@@ -149,7 +148,7 @@ class ScenarioTest {
                                 cityName = "Moscow city",
                                 temperature = "33.1°C",
                             ).Show()
-                        }
+                    }
                 }
             }
         }
@@ -276,7 +275,7 @@ private class FakeRunAsyncUi {
     }
 }
 
-class FakeRunAsync : RunAsync<QueryEvent> {
+class FakeRunAsync : RunAsync {
 
     private var resultCached: Any? = null
     private var uiCached: (Any) -> Unit = {}
@@ -292,13 +291,13 @@ class FakeRunAsync : RunAsync<QueryEvent> {
         uiCached = ui as (Any) -> Unit
     }
 
-    private var backgroundDebounced: suspend (QueryEvent) -> Any = {}
+    private var backgroundDebounced: suspend (String) -> Any = {}
     private var uiDebounced: (Any) -> Unit = {}
     private var debouncedResult: Any? = null
 
     override fun <T : Any> debounce(
         scope: CoroutineScope,
-        background: suspend (QueryEvent) -> T,
+        background: suspend (String) -> T,
         ui: (T) -> Unit,
     ) {
         backgroundDebounced = background
@@ -306,8 +305,12 @@ class FakeRunAsync : RunAsync<QueryEvent> {
         uiDebounced = ui as (Any) -> Unit
     }
 
-    override suspend fun emit(value: QueryEvent) = runBlocking {
-        debouncedResult = backgroundDebounced.invoke(value)
+    override fun emitInput(query: String) = runBlocking {
+        debouncedResult = backgroundDebounced.invoke(query)
+    }
+
+    override fun emitRetry(query: String) = runBlocking {
+        debouncedResult = backgroundDebounced.invoke(query)
     }
 
     fun returnResult() {

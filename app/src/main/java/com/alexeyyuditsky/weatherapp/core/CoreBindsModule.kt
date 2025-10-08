@@ -12,5 +12,5 @@ abstract class CoreBindsModule {
 
     @Binds
     @Singleton
-    abstract fun bindRunAsync(runAsync: RunAsync.Base): RunAsync<QueryEvent>
+    abstract fun bindRunAsync(runAsync: RunAsync.Base): RunAsync
 }

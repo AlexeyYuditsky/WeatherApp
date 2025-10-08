@@ -3,7 +3,7 @@ package com.alexeyyuditsky.weatherapp.core
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 
-class FakeRunAsync : RunAsync<QueryEvent> {
+class FakeRunAsync : RunAsync{
 
     private var resultCached: Any? = null
     private var uiCached: (Any) -> Unit = {}
@@ -18,13 +18,13 @@ class FakeRunAsync : RunAsync<QueryEvent> {
         uiCached = ui as (Any) -> Unit
     }
 
-    private var backgroundDebounced: suspend (QueryEvent) -> Any = {}
+    private var backgroundDebounced: suspend (String) -> Any = {}
     private var uiDebounced: (Any) -> Unit = {}
     private var debouncedResult: Any? = null
 
     override fun <T : Any> debounce(
         scope: CoroutineScope,
-        background: suspend (QueryEvent) -> T,
+        background: suspend (String) -> T,
         ui: (T) -> Unit,
     ) {
         backgroundDebounced = background
@@ -32,8 +32,12 @@ class FakeRunAsync : RunAsync<QueryEvent> {
         uiDebounced = ui as (Any) -> Unit
     }
 
-    override fun emit(value: QueryEvent) = runBlocking {
-        debouncedResult = backgroundDebounced.invoke(value)
+    override fun emitInput(query: String) = runBlocking {
+        debouncedResult = backgroundDebounced.invoke(query)
+    }
+
+    override fun emitRetry(query: String) = runBlocking {
+        debouncedResult = backgroundDebounced.invoke(query)
     }
 
     fun returnResult() {

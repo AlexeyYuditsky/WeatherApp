@@ -3,7 +3,6 @@ package com.alexeyyuditsky.weatherapp.weather.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.alexeyyuditsky.weatherapp.core.QueryEvent
 import com.alexeyyuditsky.weatherapp.core.RunAsync
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherResult
@@ -14,7 +13,7 @@ import javax.inject.Inject
 class WeatherViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repository: WeatherRepository,
-    private val runAsync: RunAsync<QueryEvent>,
+    private val runAsync: RunAsync,
     private val mapper: WeatherResult.Mapper<WeatherUi>,
 ) : ViewModel() {
 
