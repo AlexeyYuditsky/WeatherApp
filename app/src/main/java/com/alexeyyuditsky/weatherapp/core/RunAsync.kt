@@ -32,9 +32,10 @@ interface RunAsync {
         ui: (T) -> Unit,
     )
 
-    fun emitInput(query: String)
-
-    fun emitRetry(query: String)
+    fun emit(
+        query: String,
+        isRetryCall: Boolean
+    )
 
     class Base @Inject constructor() : RunAsync {
 
@@ -78,12 +79,15 @@ interface RunAsync {
                 .launchIn(scope)
         }
 
-        override fun emitInput(query: String) {
-            inputFlow.tryEmit(query)
+        override fun emit(
+            query: String,
+            isRetryCall: Boolean
+        ) {
+            if (isRetryCall)
+                retryFlow.tryEmit(query)
+            else
+                inputFlow.tryEmit(query)
         }
 
-        override fun emitRetry(query: String) {
-            retryFlow.tryEmit(query)
-        }
     }
 }

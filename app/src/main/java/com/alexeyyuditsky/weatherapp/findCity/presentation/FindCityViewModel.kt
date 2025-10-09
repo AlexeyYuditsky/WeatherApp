@@ -38,11 +38,13 @@ class FindCityViewModel @Inject constructor(
         )
     }
 
-    fun inputFindCity(cityName: String) =
-        runAsync.emitInput(cityName)
-
-    fun retryFindCity(cityName: String) =
-        runAsync.emitRetry(cityName)
+    fun findCity(
+        cityName: String,
+        isRetryCall: Boolean = false,
+    ) = runAsync.emit(
+        query = cityName,
+        isRetryCall = isRetryCall
+    )
 
     fun chooseCity(foundCity: FoundCity) = runAsync.run(
         scope = viewModelScope,

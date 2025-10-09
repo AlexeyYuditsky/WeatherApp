@@ -18,7 +18,7 @@ fun FindCityScreen(
     FindCityScreenUi(
         input = input,
         onInputChange = { text ->
-            viewModel.inputFindCity(cityName = text)
+            viewModel.findCity(cityName = text)
             input = text
         },
         foundCityUi = foundCityUi,
@@ -26,6 +26,11 @@ fun FindCityScreen(
             viewModel.chooseCity(foundCity = foundCity)
             navigateToWeatherScreen.invoke()
         },
-        onRetryClick = { viewModel.retryFindCity(cityName = input) }
+        onRetryClick = {
+            viewModel.findCity(
+                cityName = input,
+                isRetryCall = true
+            )
+        }
     )
 }

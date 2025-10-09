@@ -24,29 +24,29 @@ class FindCityViewModelTest {
     fun getErrorThenInputFindCityThenSaveIt() {
         assertEquals(FoundCityUi.Empty, viewModel.state.value)
 
-        viewModel.inputFindCity(cityName = "")
+        viewModel.findCity(cityName = "")
         repository.assertFindCityCalled(emptyList())
         assertEquals(FoundCityUi.Empty, viewModel.state.value)
 
-        viewModel.inputFindCity(cityName = " ")
+        viewModel.findCity(cityName = " ")
         repository.assertFindCityCalled(emptyList())
         assertEquals(FoundCityUi.Empty, viewModel.state.value)
 
-        viewModel.inputFindCity(cityName = "Mo")
+        viewModel.findCity(cityName = "Mo")
         repository.assertFindCityCalled(listOf("Mo"))
         assertEquals(FoundCityUi.Loading, viewModel.state.value)
 
         runAsync.returnResult()
         assertEquals(FoundCityUi.NoConnectionError, viewModel.state.value)
 
-        viewModel.inputFindCity(cityName = "Mo")
+        viewModel.findCity(cityName = "Mo")
         repository.assertFindCityCalled(listOf("Mo", "Mo"))
         assertEquals(FoundCityUi.Loading, viewModel.state.value)
 
         runAsync.returnResult()
         assertEquals(FoundCityUi.Empty, viewModel.state.value)
 
-        viewModel.inputFindCity(cityName = "Mos")
+        viewModel.findCity(cityName = "Mos")
         repository.assertFindCityCalled(listOf("Mo", "Mo", "Mos"))
         assertEquals(FoundCityUi.Loading, viewModel.state.value)
 

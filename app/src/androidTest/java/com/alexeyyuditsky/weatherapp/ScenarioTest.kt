@@ -1,7 +1,9 @@
 package com.alexeyyuditsky.weatherapp
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -10,9 +12,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.alexeyyuditsky.core.FakeRunAsync
 import com.alexeyyuditsky.weatherapp.core.Routes.FIND_CITY
 import com.alexeyyuditsky.weatherapp.core.Routes.WEATHER
-import com.alexeyyuditsky.weatherapp.core.RunAsync
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
@@ -29,10 +31,8 @@ import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreen
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherUi
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherUiMapper
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,10 +42,10 @@ class ScenarioTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
-    val fakeRunAsync = FakeRunAsync()
 
     @Test
     fun findCityAndShowWeather() {
+        val fakeRunAsync = FakeRunAsync()
         with(composeTestRule) {
             val findCityViewModel = FindCityViewModel(
                 savedStateHandle = SavedStateHandle(),
@@ -80,7 +80,7 @@ class ScenarioTest {
                 }
             }
 
-            startUiTestWithLoading()
+            startUiTestWithLoading(fakeRunAsync)
         }
     }
 
@@ -94,56 +94,47 @@ class ScenarioTest {
                 startDestination = FIND_CITY,
             ) {
                 composable(route = FIND_CITY) {
-                    val input = rememberSaveable { mutableStateOf("") }
-                    val shouldShowNoConnectionError = rememberSaveable { mutableStateOf(true) }
-                    val showLoadingText =
-                        fakeRunAsyncUi.stateFlow.collectAsStateWithLifecycle().value
+                    var input by rememberSaveable { mutableStateOf("") }
+                    var shouldShowNoConnectionError by rememberSaveable { mutableStateOf(true) }
+                    val showLoading by fakeRunAsyncUi.stateFlow.collectAsStateWithLifecycle()
 
                     FindCityScreenUi(
-                        input = input.value,
-                        onInputChange = { text: String -> input.value = text },
-                        foundCityUi = if (input.value.isEmpty())
+                        input = input,
+                        onInputChange = { text -> input = text },
+                        foundCityUi = if (input.isBlank())
                             FoundCityUi.Empty
-                        else if (input.value == "Mo")
-                            if (shouldShowNoConnectionError.value)
+                        else if (input == "Mo")
+                            if (shouldShowNoConnectionError)
                                 FoundCityUi.NoConnectionError
                             else
                                 FoundCityUi.Empty
+                        else if (showLoading)
+                            FoundCityUi.Loading
                         else
-                            when (showLoadingText) {
-                                "loadMoscow" ->
-                                    FoundCityUi.Loading
-
-                                "moscowLoaded" ->
-                                    FoundCityUi.Success(
-                                        foundCity = FoundCity(
-                                            name = "Moscow",
-                                            latitude = 55.75f,
-                                            longitude = 37.61f,
-                                        )
-                                    )
-
-                                else ->
-                                    FoundCityUi.Empty
-                            },
+                            FoundCityUi.Success(
+                                foundCity = FoundCity(
+                                    name = "Moscow",
+                                    latitude = 55.75f,
+                                    longitude = 37.61f,
+                                )
+                            ),
                         onFoundCityClick = { navController.navigate(WEATHER) },
-                        onRetryClick = { shouldShowNoConnectionError.value = false },
+                        onRetryClick = { shouldShowNoConnectionError = false },
                     )
                 }
 
                 composable(route = WEATHER) {
-                    val shouldShowNoConnectionError = rememberSaveable { mutableStateOf(true) }
-                    val showLoadingText =
-                        fakeRunAsyncUi.stateFlow.collectAsStateWithLifecycle().value
+                    var shouldShowNoConnectionError by rememberSaveable { mutableStateOf(true) }
+                    val showLoading by fakeRunAsyncUi.stateFlow.collectAsStateWithLifecycle()
 
-                    if (shouldShowNoConnectionError.value)
+                    if (shouldShowNoConnectionError)
                         WeatherUi.NoConnectionError.Show(
-                            onRetryClick = { shouldShowNoConnectionError.value = false }
+                            onRetryClick = { shouldShowNoConnectionError = false }
                         )
                     else {
-                        if (showLoadingText == "loadWeather")
+                        if (showLoading)
                             WeatherUi.Loading.Show()
-                        else if (showLoadingText == "weatherLoaded")
+                        else
                             WeatherUi.Success(
                                 cityName = "Moscow city",
                                 temperature = "33.1°C",
@@ -156,7 +147,7 @@ class ScenarioTest {
         startUiTest(fakeRunAsyncUi)
     }
 
-    private fun startUiTestWithLoading() {
+    private fun startUiTestWithLoading(fakeRunAsync: FakeRunAsync) {
         val findCityPage = FindCityPage(composeTestRule = composeTestRule)
         findCityPage.input(text = "Mo")
         fakeRunAsync.returnResult()
@@ -193,9 +184,9 @@ class ScenarioTest {
         findCityPage.assertEmptyIsDisplayed()
 
         findCityPage.input(text = "Mos")
-        fakeRunAsyncUi.change("loadMoscow")
+        fakeRunAsyncUi.change(isLoading = true)
         findCityPage.assertLoading()
-        fakeRunAsyncUi.change("moscowLoaded")
+        fakeRunAsyncUi.change(isLoading = false)
         findCityPage.assertCityFound(cityName = "Moscow")
 
         findCityPage.clickFoundCity(cityName = "Moscow")
@@ -203,9 +194,9 @@ class ScenarioTest {
         val weatherPage = WeatherPage(composeTestRule = composeTestRule)
         weatherPage.assertNoConnectionIsDisplayed()
         weatherPage.clickRetry()
-        fakeRunAsyncUi.change("loadWeather")
+        fakeRunAsyncUi.change(isLoading = true)
         weatherPage.assertLoading()
-        fakeRunAsyncUi.change("weatherLoaded")
+        fakeRunAsyncUi.change(isLoading = false)
         weatherPage.assertCityName(cityName = "Moscow city")
         weatherPage.assertWeatherDisplayed(temperature = "33.1°C")
     }
@@ -267,61 +258,10 @@ private class FakeWeatherRepository : WeatherRepository {
 }
 
 private class FakeRunAsyncUi {
-    private val mutableStateFlow = MutableStateFlow("")
+    private val mutableStateFlow = MutableStateFlow(true)
     val stateFlow = mutableStateFlow.asStateFlow()
 
-    fun change(value: String) {
-        mutableStateFlow.value = value
+    fun change(isLoading: Boolean) {
+        mutableStateFlow.value = isLoading
     }
-}
-
-class FakeRunAsync : RunAsync {
-
-    private var resultCached: Any? = null
-    private var uiCached: (Any) -> Unit = {}
-
-    override fun <T : Any> run(
-        scope: CoroutineScope,
-        background: suspend () -> T,
-        ui: (T) -> Unit,
-    ) = runBlocking {
-        val result: T = background.invoke()
-        resultCached = result
-        @Suppress("UNCHECKED_CAST")
-        uiCached = ui as (Any) -> Unit
-    }
-
-    private var backgroundDebounced: suspend (String) -> Any = {}
-    private var uiDebounced: (Any) -> Unit = {}
-    private var debouncedResult: Any? = null
-
-    override fun <T : Any> debounce(
-        scope: CoroutineScope,
-        background: suspend (String) -> T,
-        ui: (T) -> Unit,
-    ) {
-        backgroundDebounced = background
-        @Suppress("UNCHECKED_CAST")
-        uiDebounced = ui as (Any) -> Unit
-    }
-
-    override fun emitInput(query: String) = runBlocking {
-        debouncedResult = backgroundDebounced.invoke(query)
-    }
-
-    override fun emitRetry(query: String) = runBlocking {
-        debouncedResult = backgroundDebounced.invoke(query)
-    }
-
-    fun returnResult() {
-        resultCached?.let {
-            uiCached.invoke(it)
-            resultCached = null
-        }
-        debouncedResult?.let {
-            uiDebounced.invoke(it)
-            debouncedResult = null
-        }
-    }
-
 }

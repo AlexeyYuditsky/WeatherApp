@@ -36,17 +36,17 @@ interface WeatherUi : Parcelable {
             Text(
                 text = cityName,
                 style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Companion.Center,
-                modifier = Modifier.Companion
+                textAlign = TextAlign.Center,
+                modifier = Modifier
                     .fillMaxWidth()
                     .testTag("cityNameText"),
             )
-            Spacer(modifier = Modifier.Companion.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = temperature,
                 style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Companion.Center,
-                modifier = Modifier.Companion
+                textAlign = TextAlign.Center,
+                modifier = Modifier
                     .fillMaxWidth()
                     .testTag("temperatureText"),
             )

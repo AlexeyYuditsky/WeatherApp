@@ -1,6 +1,7 @@
 package com.alexeyyuditsky.weatherapp.weather.presentation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -8,8 +9,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun WeatherScreen(
     viewModel: WeatherViewModel,
 ) {
-    val weatherScreenUi = viewModel.state.collectAsStateWithLifecycle()
-    weatherScreenUi.value.Show(onRetryClick = viewModel::loadWeather)
+    val weatherScreenUi by viewModel.state.collectAsStateWithLifecycle()
+    weatherScreenUi.Show(onRetryClick = viewModel::loadWeather)
 }
 
 @Preview(showBackground = true)
@@ -22,9 +23,9 @@ fun PreviewWeatherScreenUiSuccess() = WeatherUi.Success(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewWeatherScreenUiLoading() =
-    WeatherUi.Loading.Show {}
+    WeatherUi.Loading.Show()
 
 @Preview(showBackground = true)
 @Composable
 private fun PreviewWeatherScreenUiNoConnectionError() =
-    WeatherUi.NoConnectionError.Show {}
+    WeatherUi.NoConnectionError.Show()

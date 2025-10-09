@@ -15,7 +15,7 @@ class FindCityPage(
     private val foundCityText = composeTestRule.onNodeWithTag("foundCityText", true)
     private val noInternetConnectionText = composeTestRule.onNodeWithTag("noInternetConnectionText")
     private val retryButton = composeTestRule.onNodeWithTag("retryButton")
-    private val circularProgress = composeTestRule.onNodeWithTag("circularProgress", true)
+    private val circularProgress = composeTestRule.onNodeWithTag("circularProgress")
 
     fun input(text: String) =
         outlinedTextField.performTextReplacement(text)
