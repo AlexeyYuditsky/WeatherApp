@@ -88,6 +88,5 @@ interface RunAsync {
             else
                 inputFlow.tryEmit(query)
         }
-
     }
 }

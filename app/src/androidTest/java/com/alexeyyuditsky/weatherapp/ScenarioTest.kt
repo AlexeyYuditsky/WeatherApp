@@ -44,44 +44,42 @@ class ScenarioTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun findCityAndShowWeather() {
+    fun findCityAndShowWeather() = with(composeTestRule) {
         val fakeRunAsync = FakeRunAsync()
-        with(composeTestRule) {
-            val findCityViewModel = FindCityViewModel(
-                savedStateHandle = SavedStateHandle(),
-                repository = FakeFindCityRepository(),
-                runAsync = fakeRunAsync,
-                mapper = FoundCityUiMapper(),
-            )
-            val weatherViewModel = WeatherViewModel(
-                savedStateHandle = SavedStateHandle(),
-                repository = FakeWeatherRepository(),
-                runAsync = fakeRunAsync,
-                mapper = WeatherUiMapper(),
-            )
-            setContent {
-                val navController: NavHostController = rememberNavController()
-                NavHost(
-                    navController = navController,
-                    startDestination = FIND_CITY,
-                ) {
-                    composable(route = FIND_CITY) {
-                        FindCityScreen(
-                            viewModel = findCityViewModel,
-                            navigateToWeatherScreen = { navController.navigate(WEATHER) },
-                        )
-                    }
+        val findCityViewModel = FindCityViewModel(
+            savedStateHandle = SavedStateHandle(),
+            repository = FakeFindCityRepository(),
+            runAsync = fakeRunAsync,
+            mapper = FoundCityUiMapper(),
+        )
+        val weatherViewModel = WeatherViewModel(
+            savedStateHandle = SavedStateHandle(),
+            repository = FakeWeatherRepository(),
+            runAsync = fakeRunAsync,
+            mapper = WeatherUiMapper(),
+        )
+        setContent {
+            val navController: NavHostController = rememberNavController()
+            NavHost(
+                navController = navController,
+                startDestination = FIND_CITY,
+            ) {
+                composable(route = FIND_CITY) {
+                    FindCityScreen(
+                        viewModel = findCityViewModel,
+                        navigateToWeatherScreen = { navController.navigate(WEATHER) },
+                    )
+                }
 
-                    composable(route = WEATHER) {
-                        WeatherScreen(
-                            viewModel = weatherViewModel,
-                        )
-                    }
+                composable(route = WEATHER) {
+                    WeatherScreen(
+                        viewModel = weatherViewModel,
+                    )
                 }
             }
-
-            startUiTestWithLoading(fakeRunAsync)
         }
+
+        startUiTestWithLoading(fakeRunAsync)
     }
 
     @Test
@@ -96,7 +94,7 @@ class ScenarioTest {
                 composable(route = FIND_CITY) {
                     var input by rememberSaveable { mutableStateOf("") }
                     var shouldShowNoConnectionError by rememberSaveable { mutableStateOf(true) }
-                    val showLoading by fakeRunAsyncUi.stateFlow.collectAsStateWithLifecycle()
+                    val showLoading by fakeRunAsyncUi.loadingFlow.collectAsStateWithLifecycle()
 
                     FindCityScreenUi(
                         input = input,
@@ -125,7 +123,7 @@ class ScenarioTest {
 
                 composable(route = WEATHER) {
                     var shouldShowNoConnectionError by rememberSaveable { mutableStateOf(true) }
-                    val showLoading by fakeRunAsyncUi.stateFlow.collectAsStateWithLifecycle()
+                    val showLoading by fakeRunAsyncUi.loadingFlow.collectAsStateWithLifecycle()
 
                     if (shouldShowNoConnectionError)
                         WeatherUi.NoConnectionError.Show(
@@ -258,10 +256,11 @@ private class FakeWeatherRepository : WeatherRepository {
 }
 
 private class FakeRunAsyncUi {
-    private val mutableStateFlow = MutableStateFlow(true)
-    val stateFlow = mutableStateFlow.asStateFlow()
+
+    private val mutableLoadingFlow = MutableStateFlow(true)
+    val loadingFlow = mutableLoadingFlow.asStateFlow()
 
     fun change(isLoading: Boolean) {
-        mutableStateFlow.value = isLoading
+        mutableLoadingFlow.value = isLoading
     }
 }
