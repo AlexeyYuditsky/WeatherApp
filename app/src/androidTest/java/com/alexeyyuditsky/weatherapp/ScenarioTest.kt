@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -59,7 +58,7 @@ class ScenarioTest {
             mapper = WeatherUiMapper(),
         )
         setContent {
-            val navController: NavHostController = rememberNavController()
+            val navController = rememberNavController()
             NavHost(
                 navController = navController,
                 startDestination = FIND_CITY,
@@ -68,6 +67,7 @@ class ScenarioTest {
                     FindCityScreen(
                         viewModel = findCityViewModel,
                         navigateToWeatherScreen = { navController.navigate(WEATHER) },
+                        onGetLocationClick = { error("choose location is unavailable") },
                     )
                 }
 
@@ -86,7 +86,7 @@ class ScenarioTest {
     fun findCityAndShowWeatherUi() = with(composeTestRule) {
         val fakeRunAsyncUi = FakeRunAsyncUi()
         setContent {
-            val navController: NavHostController = rememberNavController()
+            val navController = rememberNavController()
             NavHost(
                 navController = navController,
                 startDestination = FIND_CITY,
@@ -118,6 +118,7 @@ class ScenarioTest {
                             ),
                         onFoundCityClick = { navController.navigate(WEATHER) },
                         onRetryClick = { shouldShowNoConnectionError = false },
+                        onGetLocationClick = { error("choose location is unavailable") },
                     )
                 }
 
@@ -235,8 +236,11 @@ private class FakeFindCityRepository : FindCityRepository {
                 latitude = 55.75f,
                 longitude = 37.61f,
             )
-        ) throw IllegalStateException("save called with wrong argument $foundCity")
+        ) error("save called with wrong argument $foundCity")
     }
+
+    override suspend fun save(lat: Double, lon: Double) =
+        error("choose location is unavailable")
 }
 
 private class FakeWeatherRepository : WeatherRepository {

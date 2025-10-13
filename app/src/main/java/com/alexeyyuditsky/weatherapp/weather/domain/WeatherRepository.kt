@@ -15,15 +15,15 @@ interface WeatherRepository {
     ) : WeatherRepository {
 
         override suspend fun fetchWeather(): WeatherResult = try {
-            val (latitude, longitude, cityName) = weatherCacheDataSource.cityParams()
-            val temperature = weatherCloudDataSource.temperature(
+            val (latitude, longitude) = weatherCacheDataSource.cityParams()
+            val weatherCloud = weatherCloudDataSource.temperature(
                 latitude = latitude,
                 longitude = longitude
             )
             WeatherResult.Success(
                 weatherInCity = WeatherInCity(
-                    cityName = cityName,
-                    temperature = temperature
+                    cityName = weatherCloud.cityName,
+                    temperature = weatherCloud.main.temperature
                 )
             )
         } catch (e: DomainException) {

@@ -11,6 +11,11 @@ interface FindCityRepository {
 
     suspend fun saveCity(foundCity: FoundCity)
 
+    suspend fun saveCity(
+        latitude: Double,
+        longitude: Double,
+    )
+
     class Base @Inject constructor(
         private val cloudDataSource: FindCityCloudDataSource,
         private val cacheDataSource: FindCityCacheDataSource,
@@ -36,9 +41,16 @@ interface FindCityRepository {
 
         override suspend fun saveCity(foundCity: FoundCity) =
             cacheDataSource.save(
-                name = foundCity.name,
                 latitude = foundCity.latitude,
                 longitude = foundCity.longitude,
             )
+
+        override suspend fun saveCity(
+            latitude: Double,
+            longitude: Double,
+        ) = cacheDataSource.save(
+            latitude = latitude.toFloat(),
+            longitude = longitude.toFloat(),
+        )
     }
 }

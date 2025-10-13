@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 interface WeatherCacheDataSource {
 
-    fun cityParams(): Triple<Float, Float, String>
+    fun cityParams(): Pair<Float, Float>
 
     class Base @Inject constructor(
         @ApplicationContext context: Context
@@ -18,15 +18,13 @@ interface WeatherCacheDataSource {
             Context.MODE_PRIVATE
         )
 
-        override fun cityParams(): Triple<Float, Float, String> {
+        override fun cityParams(): Pair<Float, Float> {
             val latitude = sharedPreferences.getFloat(LATITUDE, 0f)
             val longitude = sharedPreferences.getFloat(LONGITUDE, 0f)
-            val cityName = sharedPreferences.getString(NAME, "") ?: ""
-            return Triple(latitude, longitude, cityName)
+            return latitude to longitude
         }
 
         private companion object {
-            const val NAME = "cityNameKey"
             const val LATITUDE = "latitudeKey"
             const val LONGITUDE = "longitudeKey"
         }

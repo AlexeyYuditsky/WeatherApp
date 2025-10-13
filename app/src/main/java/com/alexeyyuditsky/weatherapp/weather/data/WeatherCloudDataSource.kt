@@ -9,7 +9,7 @@ interface WeatherCloudDataSource {
     suspend fun temperature(
         latitude: Float,
         longitude: Float,
-    ): Float
+    ): WeatherCloud
 
     class Base @Inject constructor(
         private val weatherService: WeatherService,
@@ -18,11 +18,11 @@ interface WeatherCloudDataSource {
         override suspend fun temperature(
             latitude: Float,
             longitude: Float,
-        ): Float = try {
-           weatherService.fetchWeather(
+        ): WeatherCloud = try {
+            weatherService.fetchWeather(
                 latitude = latitude,
                 longitude = longitude,
-            ).main.temperature
+            )
         } catch (e: Exception) {
             if (e is IOException)
                 throw NoInternetException

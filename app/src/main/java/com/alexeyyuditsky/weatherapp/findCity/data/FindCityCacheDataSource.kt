@@ -9,7 +9,6 @@ import javax.inject.Inject
 interface FindCityCacheDataSource {
 
     suspend fun save(
-        name: String,
         latitude: Float,
         longitude: Float,
     )
@@ -24,17 +23,14 @@ interface FindCityCacheDataSource {
         )
 
         override suspend fun save(
-            name: String,
             latitude: Float,
             longitude: Float,
         ) = sharedPreferences.edit {
-            putString(NAME, name)
             putFloat(LATITUDE, latitude)
             putFloat(LONGITUDE, longitude)
         }
 
         private companion object {
-            const val NAME = "cityNameKey"
             const val LATITUDE = "latitudeKey"
             const val LONGITUDE = "longitudeKey"
         }

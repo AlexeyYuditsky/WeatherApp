@@ -53,6 +53,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.play.services.location)
+
     implementation(libs.hilt.android)
     androidTestImplementation(libs.hilt.android.testing)
     ksp(libs.hilt.android.compiler)

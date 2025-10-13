@@ -105,6 +105,10 @@ private class FakeFindCityRepository : FindCityRepository {
         savedCity = foundCity
     }
 
+    override suspend fun saveCity(latitude: Double, longitude: Double) {
+        // TODO: later
+    }
+
     fun assertSaveCalled(expected: FoundCity) =
         assertEquals(expected, savedCity)
 

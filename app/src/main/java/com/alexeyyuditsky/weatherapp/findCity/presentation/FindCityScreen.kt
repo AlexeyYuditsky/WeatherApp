@@ -11,6 +11,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun FindCityScreen(
     viewModel: FindCityViewModel,
     navigateToWeatherScreen: () -> Unit,
+    onGetLocationClick: () -> Unit,
 ) {
     var input by rememberSaveable { mutableStateOf("") }
     val foundCityUi by viewModel.state.collectAsStateWithLifecycle()
@@ -31,6 +32,7 @@ fun FindCityScreen(
                 cityName = input,
                 isRetryCall = true
             )
-        }
+        },
+        onGetLocationClick = onGetLocationClick
     )
 }

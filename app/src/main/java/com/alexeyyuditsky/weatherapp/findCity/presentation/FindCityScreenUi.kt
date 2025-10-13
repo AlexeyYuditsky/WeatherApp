@@ -3,6 +3,7 @@ package com.alexeyyuditsky.weatherapp.findCity.presentation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,7 +22,16 @@ fun FindCityScreenUi(
     foundCityUi: FoundCityUi,
     onFoundCityClick: (FoundCity) -> Unit,
     onRetryClick: () -> Unit,
+    onGetLocationClick: () -> Unit,
 ) = Column {
+    Button(
+        onClick = onGetLocationClick,
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+    ) {
+        Text(text = stringResource(R.string.use_current_location))
+    }
     OutlinedTextField(
         label = { Text(text = stringResource(R.string.city)) },
         value = input,
@@ -51,6 +61,7 @@ private fun PreviewFindCityScreenUiSuccess() = FindCityScreenUi(
     ),
     onFoundCityClick = {},
     onRetryClick = {},
+    onGetLocationClick = {},
 )
 
 @Preview(showBackground = true)
@@ -61,6 +72,7 @@ private fun PreviewFindCityScreenUiLoading() = FindCityScreenUi(
     foundCityUi = FoundCityUi.Loading,
     onFoundCityClick = {},
     onRetryClick = {},
+    onGetLocationClick = {},
 )
 
 @Preview(showBackground = true)
@@ -71,6 +83,7 @@ private fun PreviewFindCityScreenUiEmpty() = FindCityScreenUi(
     foundCityUi = FoundCityUi.Empty,
     onFoundCityClick = {},
     onRetryClick = {},
+    onGetLocationClick = {},
 )
 
 @Preview(showBackground = true)
@@ -81,4 +94,5 @@ private fun PreviewFindCityScreenUiNoConnectionError() = FindCityScreenUi(
     foundCityUi = FoundCityUi.NoConnectionError,
     onFoundCityClick = {},
     onRetryClick = {},
+    onGetLocationClick = {},
 )
