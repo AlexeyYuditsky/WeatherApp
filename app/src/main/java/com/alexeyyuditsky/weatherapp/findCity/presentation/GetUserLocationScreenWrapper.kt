@@ -3,7 +3,6 @@ package com.alexeyyuditsky.weatherapp.findCity.presentation
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Looper
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
@@ -12,62 +11,36 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
 
 @Composable
 fun GetUserLocationScreenWrapper(
-    onLocationProvided: (Double, Double) -> Unit,
+    onSuccess: (Double, Double) -> Unit,
     onFailed: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
-    val locationRequest: LocationRequest = LocationRequest.Builder(
-        Priority.PRIORITY_HIGH_ACCURACY,
-        1000
-    )
+    val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
         .setWaitForAccurateLocation(false)
         .build()
-
-    val locationCallback: LocationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            for (location in locationResult.locations) {
-                fusedLocationClient.removeLocationUpdates(this)
-                onLocationProvided.invoke(location.latitude, location.longitude)
-            }
-        }
-    }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { permissions ->
-            val isGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
-                    permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            val isGranted = arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ).any { permissions[it] == true }
 
             if (isGranted)
                 getUserLocation(
                     fusedLocationClient = fusedLocationClient,
-                    onLocationReceived = { lat, lon ->
-                        onLocationProvided.invoke(
-                            lat.toDouble(),
-                            lon.toDouble()
-                        )
-                    },
-                    requestUpdates = {
-                        fusedLocationClient.requestLocationUpdates(
-                            locationRequest,
-                            locationCallback,
-                            Looper.getMainLooper()
-                        )
-                            .addOnSuccessListener { }
-                            .addOnFailureListener {
-                                onFailed.invoke(it.message ?: "Failed to get location")
-                            }
+                    onLocationReceived = { latitude, longitude ->
+                        onSuccess.invoke(latitude, longitude)
                     }
                 )
             else
@@ -89,38 +62,22 @@ fun GetUserLocationScreenWrapper(
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
 
-                if (fineGranted || coarseGranted) {
+                if (fineGranted || coarseGranted)
                     getUserLocation(
                         fusedLocationClient = fusedLocationClient,
-                        onLocationReceived = { lat, lon ->
-                            onLocationProvided.invoke(
-                                lat.toDouble(),
-                                lon.toDouble()
-                            )
-                        },
-                        requestUpdates = {
-                            fusedLocationClient.requestLocationUpdates(
-                                locationRequest,
-                                locationCallback,
-                                Looper.getMainLooper()
-                            )
-                                .addOnSuccessListener {}
-                                .addOnFailureListener { e ->
-                                    onFailed.invoke(e.message ?: "Failed to get location!")
-                                }
+                        onLocationReceived = { latitude, longitude ->
+                            onSuccess.invoke(latitude, longitude)
                         }
                     )
-                } else {
+                else
                     locationPermissionLauncher.launch(
                         input = arrayOf(
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                         )
                     )
-                }
-            } else {
+            } else
                 onFailed.invoke("Location is not enabled!")
-            }
         }
     )
 }
@@ -147,11 +104,7 @@ private fun isLocationEnabled(
 @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
 private fun getUserLocation(
     fusedLocationClient: FusedLocationProviderClient,
-    onLocationReceived: (String, String) -> Unit,
-    requestUpdates: () -> Unit,
+    onLocationReceived: (Double, Double) -> Unit,
 ) = fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-    if (location == null)
-        requestUpdates.invoke()
-    else
-        onLocationReceived.invoke(location.latitude.toString(), location.longitude.toString())
+    onLocationReceived.invoke(location.latitude, location.longitude)
 }

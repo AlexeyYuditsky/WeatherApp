@@ -98,7 +98,7 @@ class ScenarioTest {
 
                     FindCityScreenUi(
                         input = input,
-                        onInputChange = { text -> input = text },
+                        onValueChange = { text -> input = text },
                         foundCityUi = if (input.isBlank())
                             FoundCityUi.Empty
                         else if (input == "Mo")
@@ -239,8 +239,10 @@ private class FakeFindCityRepository : FindCityRepository {
         ) error("save called with wrong argument $foundCity")
     }
 
-    override suspend fun save(lat: Double, lon: Double) =
-        error("choose location is unavailable")
+    override suspend fun saveCity(
+        latitude: Double,
+        longitude: Double,
+    ) = error("choose location is unavailable")
 }
 
 private class FakeWeatherRepository : WeatherRepository {

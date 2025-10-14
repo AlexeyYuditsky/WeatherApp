@@ -17,8 +17,8 @@ fun FindCityOrGetLocationScreen(
     var getLocation by rememberSaveable { mutableStateOf(false) }
     if (getLocation)
         GetUserLocationScreenWrapper(
-            onLocationProvided = { lat, lon ->
-                viewModel.chooseLocation(lat, lon)
+            onSuccess = { latitude, longitude ->
+                viewModel.chooseLocation(latitude, longitude)
                 getLocation = false
                 navigateToWeatherScreen.invoke()
             },

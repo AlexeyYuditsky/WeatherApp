@@ -18,7 +18,7 @@ import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 @Composable
 fun FindCityScreenUi(
     input: String,
-    onInputChange: (String) -> Unit,
+    onValueChange: (String) -> Unit,
     foundCityUi: FoundCityUi,
     onFoundCityClick: (FoundCity) -> Unit,
     onRetryClick: () -> Unit,
@@ -35,7 +35,7 @@ fun FindCityScreenUi(
     OutlinedTextField(
         label = { Text(text = stringResource(R.string.city)) },
         value = input,
-        onValueChange = onInputChange,
+        onValueChange = onValueChange,
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
@@ -51,7 +51,7 @@ fun FindCityScreenUi(
 @Composable
 private fun PreviewFindCityScreenUiSuccess() = FindCityScreenUi(
     input = "Moscow",
-    onInputChange = {},
+    onValueChange = {},
     foundCityUi = FoundCityUi.Success(
         foundCity = FoundCity(
             name = "Moscow",
@@ -68,7 +68,7 @@ private fun PreviewFindCityScreenUiSuccess() = FindCityScreenUi(
 @Composable
 private fun PreviewFindCityScreenUiLoading() = FindCityScreenUi(
     input = "Moscow",
-    onInputChange = {},
+    onValueChange = {},
     foundCityUi = FoundCityUi.Loading,
     onFoundCityClick = {},
     onRetryClick = {},
@@ -79,7 +79,7 @@ private fun PreviewFindCityScreenUiLoading() = FindCityScreenUi(
 @Composable
 private fun PreviewFindCityScreenUiEmpty() = FindCityScreenUi(
     input = "",
-    onInputChange = {},
+    onValueChange = {},
     foundCityUi = FoundCityUi.Empty,
     onFoundCityClick = {},
     onRetryClick = {},
@@ -90,7 +90,7 @@ private fun PreviewFindCityScreenUiEmpty() = FindCityScreenUi(
 @Composable
 private fun PreviewFindCityScreenUiNoConnectionError() = FindCityScreenUi(
     input = "Moscow",
-    onInputChange = {},
+    onValueChange = {},
     foundCityUi = FoundCityUi.NoConnectionError,
     onFoundCityClick = {},
     onRetryClick = {},

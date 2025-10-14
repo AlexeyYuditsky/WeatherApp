@@ -22,7 +22,7 @@ fun MainContent(innerPadding: PaddingValues) {
     NavHost(
         navController = navController,
         startDestination = Routes.FIND_CITY,
-        modifier = Modifier.Companion.padding(paddingValues = innerPadding)
+        modifier = Modifier.padding(paddingValues = innerPadding)
     ) {
         composable(route = Routes.FIND_CITY) {
             FindCityOrGetLocationScreen(
@@ -32,9 +32,7 @@ fun MainContent(innerPadding: PaddingValues) {
         }
 
         composable(route = Routes.WEATHER) {
-            WeatherScreen(
-                viewModel = hiltViewModel<WeatherViewModel>(),
-            )
+            WeatherScreen(viewModel = hiltViewModel<WeatherViewModel>())
         }
     }
 }

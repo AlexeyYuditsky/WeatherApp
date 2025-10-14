@@ -18,7 +18,7 @@ fun FindCityScreen(
 
     FindCityScreenUi(
         input = input,
-        onInputChange = { text ->
+        onValueChange = { text ->
             viewModel.findCity(cityName = text)
             input = text
         },
