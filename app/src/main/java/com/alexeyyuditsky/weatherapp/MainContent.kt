@@ -9,7 +9,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.alexeyyuditsky.weatherapp.core.Routes
+import com.alexeyyuditsky.weatherapp.core.Routes.FIND_CITY
+import com.alexeyyuditsky.weatherapp.core.Routes.WEATHER
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityOrGetLocationScreen
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityViewModel
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreen
@@ -21,17 +22,17 @@ fun MainContent(innerPadding: PaddingValues) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = Routes.FIND_CITY,
+        startDestination = FIND_CITY,
         modifier = Modifier.padding(paddingValues = innerPadding)
     ) {
-        composable(route = Routes.FIND_CITY) {
+        composable(route = FIND_CITY) {
             FindCityOrGetLocationScreen(
                 viewModel = hiltViewModel<FindCityViewModel>(),
-                navigateToWeatherScreen = { navController.navigate(Routes.WEATHER) },
+                navigateToWeatherScreen = { navController.navigate(WEATHER) },
             )
         }
 
-        composable(route = Routes.WEATHER) {
+        composable(route = WEATHER) {
             WeatherScreen(viewModel = hiltViewModel<WeatherViewModel>())
         }
     }

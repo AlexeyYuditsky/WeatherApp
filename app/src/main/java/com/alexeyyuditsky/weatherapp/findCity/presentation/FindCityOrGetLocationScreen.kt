@@ -13,7 +13,7 @@ fun FindCityOrGetLocationScreen(
     viewModel: FindCityViewModel,
     navigateToWeatherScreen: () -> Unit,
 ) {
-    val context = LocalContext.current
+    val context = LocalContext.current.applicationContext
     var getLocation by rememberSaveable { mutableStateOf(false) }
     if (getLocation)
         GetUserLocationScreenWrapper(
@@ -23,7 +23,7 @@ fun FindCityOrGetLocationScreen(
                 navigateToWeatherScreen.invoke()
             },
             onFailed = { text ->
-                Toast.makeText(context.applicationContext, text, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
                 getLocation = false
             }
         )
@@ -31,6 +31,6 @@ fun FindCityOrGetLocationScreen(
     FindCityScreen(
         viewModel = viewModel,
         navigateToWeatherScreen = navigateToWeatherScreen,
-        onGetLocationClick = { getLocation = true }
+        onGetLocationClick = { if (!getLocation) getLocation = true }
     )
 }

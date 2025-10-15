@@ -1,6 +1,7 @@
 package com.alexeyyuditsky.weatherapp.findCity.presentation
 
-import android.Manifest
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -22,7 +23,7 @@ fun GetUserLocationScreenWrapper(
     onFailed: (String) -> Unit,
 ) {
     val context = LocalContext.current
-    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(LocalContext.current)
 
     val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
         .setWaitForAccurateLocation(false)
@@ -31,11 +32,7 @@ fun GetUserLocationScreenWrapper(
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { permissions ->
-            val isGranted = arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ).any { permissions[it] == true }
-
+            val isGranted = permissions.any { it.value }
             if (isGranted)
                 getUserLocation(
                     fusedLocationClient = fusedLocationClient,
@@ -45,63 +42,52 @@ fun GetUserLocationScreenWrapper(
                 )
             else
                 onFailed.invoke("Permission denied")
-        })
+        }
+    )
 
-    isLocationEnabled(
+    isGeoLocationEnabled(
         locationRequest = locationRequest,
         context = context,
-        onResult = { isEnabled ->
-            if (isEnabled) {
-                val fineGranted = ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
+        isGeoLocationEnabled = {
+            val fineGranted = ActivityCompat.checkSelfPermission(context, ACCESS_FINE_LOCATION) ==
+                    PackageManager.PERMISSION_GRANTED
+            val coarseGranted =
+                ActivityCompat.checkSelfPermission(context, ACCESS_COARSE_LOCATION) ==
+                        PackageManager.PERMISSION_GRANTED
 
-                val coarseGranted = ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-
-                if (fineGranted || coarseGranted)
-                    getUserLocation(
-                        fusedLocationClient = fusedLocationClient,
-                        onLocationReceived = { latitude, longitude ->
-                            onSuccess.invoke(latitude, longitude)
-                        }
-                    )
-                else
-                    locationPermissionLauncher.launch(
-                        input = arrayOf(
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                        )
-                    )
-            } else
-                onFailed.invoke("Location is not enabled!")
-        }
+            if (fineGranted || coarseGranted)
+                getUserLocation(
+                    fusedLocationClient = fusedLocationClient,
+                    onLocationReceived = { latitude, longitude ->
+                        onSuccess.invoke(latitude, longitude)
+                    }
+                )
+            else
+                locationPermissionLauncher.launch(
+                    input = arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)
+                )
+        },
+        isGeoLocationDisabled = onFailed
     )
 }
 
-private fun isLocationEnabled(
+private fun isGeoLocationEnabled(
     locationRequest: LocationRequest,
     context: Context,
-    onResult: (Boolean) -> Unit,
-) {
-    val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
-    val client = LocationServices.getSettingsClient(context)
-    val task = client.checkLocationSettings(builder.build())
-
-    task.addOnCompleteListener { taskResult ->
-        try {
-            taskResult.getResult(ApiException::class.java)
-            onResult.invoke(true)
-        } catch (_: ApiException) {
-            onResult.invoke(false)
-        }
+    isGeoLocationEnabled: () -> Unit,
+    isGeoLocationDisabled: (String) -> Unit,
+) = LocationServices.getSettingsClient(context).checkLocationSettings(
+    LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build()
+).addOnCompleteListener { taskResult ->
+    try {
+        taskResult.getResult(ApiException::class.java)
+        isGeoLocationEnabled.invoke()
+    } catch (_: ApiException) {
+        isGeoLocationDisabled.invoke("Location is disabled")
     }
 }
 
-@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+@RequiresPermission(anyOf = [ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION])
 private fun getUserLocation(
     fusedLocationClient: FusedLocationProviderClient,
     onLocationReceived: (Double, Double) -> Unit,
