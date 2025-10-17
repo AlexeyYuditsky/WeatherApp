@@ -8,6 +8,8 @@ import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,6 +22,9 @@ class FindCityViewModel @Inject constructor(
 
     val state = savedStateHandle.getStateFlow(KEY, mapper.mapToEmpty())
 
+    private val _close = MutableStateFlow(false)
+    val close get() = _close.asStateFlow()
+
     init {
         runAsync.debounce(
             scope = viewModelScope,
@@ -27,7 +32,7 @@ class FindCityViewModel @Inject constructor(
                 if (latestQuery.isBlank())
                     mapper.mapToEmpty()
                 else {
-                    savedStateHandle[KEY] = mapper.mapToLoading()
+                    savedStateHandle[KEY] = FoundCityUi.Loading
                     val foundCityResult = repository.findCity(latestQuery)
                     foundCityResult.map(mapper)
                 }
@@ -46,17 +51,19 @@ class FindCityViewModel @Inject constructor(
         isRetryCall = isRetryCall
     )
 
-    fun chooseCity(foundCity: FoundCity) = runAsync.run(
+    fun chooseCity(foundCity: FoundCity) = runAsync.runAsync(
         scope = viewModelScope,
-        background = { repository.saveCity(foundCity = foundCity) }
+        background = { repository.saveCity(foundCity = foundCity) },
+        ui = { _close.value = true }
     )
 
     fun chooseLocation(
         latitude: Double,
         longitude: Double,
-    ) = runAsync.run(
+    ) = runAsync.runAsync(
         scope = viewModelScope,
-        background = { repository.saveCity(latitude, longitude) }
+        background = { repository.saveCity(latitude, longitude) },
+        ui = { _close.value = true }
     )
 
     private companion object {

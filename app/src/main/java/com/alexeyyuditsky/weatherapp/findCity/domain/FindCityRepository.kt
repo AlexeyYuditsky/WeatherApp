@@ -21,23 +21,24 @@ interface FindCityRepository {
         private val cacheDataSource: FindCityCacheDataSource,
     ) : FindCityRepository {
 
-        override suspend fun findCity(query: String): FoundCityResult = try {
-            val foundCityCloudList = cloudDataSource.findCity(query = query)
-            if (foundCityCloudList.isEmpty())
-                FoundCityResult.Empty
-            else {
-                val foundCityCloud = foundCityCloudList.first()
-                FoundCityResult.Success(
-                    foundCity = FoundCity(
-                        name = foundCityCloud.name,
-                        latitude = foundCityCloud.latitude,
-                        longitude = foundCityCloud.longitude,
+        override suspend fun findCity(query: String): FoundCityResult =
+            try {
+                val foundCityCloudList = cloudDataSource.findCity(query = query)
+                if (foundCityCloudList.isEmpty())
+                    FoundCityResult.Empty
+                else {
+                    val foundCityCloud = foundCityCloudList.first()
+                    FoundCityResult.Success(
+                        foundCity = FoundCity(
+                            name = foundCityCloud.name,
+                            latitude = foundCityCloud.latitude,
+                            longitude = foundCityCloud.longitude,
+                        )
                     )
-                )
+                }
+            } catch (e: DomainException) {
+                FoundCityResult.Error(error = e)
             }
-        } catch (e: DomainException) {
-            FoundCityResult.Error(error = e)
-        }
 
         override suspend fun saveCity(foundCity: FoundCity) =
             cacheDataSource.save(

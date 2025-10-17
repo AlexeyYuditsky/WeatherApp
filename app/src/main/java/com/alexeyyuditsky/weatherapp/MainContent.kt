@@ -1,6 +1,5 @@
 package com.alexeyyuditsky.weatherapp
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -9,31 +8,49 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.alexeyyuditsky.weatherapp.core.Routes.FIND_CITY
-import com.alexeyyuditsky.weatherapp.core.Routes.WEATHER
+import com.alexeyyuditsky.weatherapp.core.Routes
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityOrGetLocationScreen
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityViewModel
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreen
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherViewModel
 
-@SuppressLint("MissingPermission")
 @Composable
 fun MainContent(innerPadding: PaddingValues) {
+    val mainViewModel = hiltViewModel<MainViewModel>()
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = FIND_CITY,
+        startDestination = if (mainViewModel.hasAlreadyChosenLocation()) Routes.WEATHER else Routes.FIND_CITY,
         modifier = Modifier.padding(paddingValues = innerPadding)
     ) {
-        composable(route = FIND_CITY) {
+        composable(route = Routes.FIND_CITY) {
             FindCityOrGetLocationScreen(
                 viewModel = hiltViewModel<FindCityViewModel>(),
-                navigateToWeatherScreen = { navController.navigate(WEATHER) },
+                navigateToWeatherScreen = {
+                    navController.navigate(Routes.WEATHER) {
+                        launchSingleTop = true
+                        popUpTo(Routes.FIND_CITY) {
+                            inclusive = true
+                            saveState = false
+                        }
+                    }
+                }
             )
         }
 
-        composable(route = WEATHER) {
-            WeatherScreen(viewModel = hiltViewModel<WeatherViewModel>())
+        composable(route = Routes.WEATHER) {
+            WeatherScreen(
+                viewModel = hiltViewModel<WeatherViewModel>(),
+                goToChooseLocation = {
+                    navController.navigate(Routes.FIND_CITY) {
+                        launchSingleTop = true
+                        popUpTo(Routes.WEATHER) {
+                            inclusive = true
+                            saveState = false
+                        }
+                    }
+                }
+            )
         }
     }
 }

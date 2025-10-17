@@ -3,10 +3,10 @@ package com.alexeyyuditsky.weatherapp.findCity.data
 import com.google.gson.annotations.SerializedName
 
 data class FoundCityCloud(
-    @SerializedName(value = "name")
+    @SerializedName("name")
     val name: String,
-    @SerializedName(value = "lat")
+    @SerializedName("lat")
     val latitude: Float,
-    @SerializedName(value = "lon")
+    @SerializedName("lon")
     val longitude: Float,
 )

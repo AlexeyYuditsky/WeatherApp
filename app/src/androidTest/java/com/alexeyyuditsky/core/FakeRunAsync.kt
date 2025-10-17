@@ -13,7 +13,7 @@ class FakeRunAsync : RunAsync {
     private var backgroundDebouncedResult: Any? = null
     private var uiDebouncedWork: (Any) -> Unit = {}
 
-    override fun <T : Any> run(
+    override fun <T : Any> runAsync(
         scope: CoroutineScope,
         background: suspend () -> T,
         ui: (T) -> Unit,

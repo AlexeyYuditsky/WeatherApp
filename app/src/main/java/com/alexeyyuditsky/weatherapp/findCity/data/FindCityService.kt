@@ -8,7 +8,7 @@ interface FindCityService {
 
     @GET("geo/1.0/direct")
     suspend fun findCity(
-        @Query(value = "q") query: String,
-        @Query(value = "appid") apiKey: String = BuildConfig.API_KEY
-    ) : List<FoundCityCloud>
+        @Query("q") query: String,
+        @Query("appid") apiKey: String = BuildConfig.API_KEY,
+    ): List<FoundCityCloud>
 }

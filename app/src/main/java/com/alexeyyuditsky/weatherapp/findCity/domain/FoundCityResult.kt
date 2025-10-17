@@ -6,13 +6,13 @@ interface FoundCityResult {
 
     interface Mapper<T> {
 
-        fun mapToSuccess(fountCity: FoundCity): T
-
-        fun mapToLoading(): T
+        fun mapToSuccess(foundCity: FoundCity): T
 
         fun mapToEmpty(): T
 
         fun mapToNoConnectionError(): T
+
+        fun mapToServiceUnavailableError(): T
     }
 
     data class Success(
@@ -20,7 +20,7 @@ interface FoundCityResult {
     ) : FoundCityResult {
 
         override fun <T> map(mapper: Mapper<T>): T =
-            mapper.mapToSuccess(fountCity = foundCity)
+            mapper.mapToSuccess(foundCity = foundCity)
     }
 
     data object Empty : FoundCityResult {
@@ -38,6 +38,6 @@ interface FoundCityResult {
             if (error is NoInternetException)
                 mapper.mapToNoConnectionError()
             else
-                TODO("later")
+                mapper.mapToServiceUnavailableError()
     }
 }

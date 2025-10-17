@@ -1,23 +1,28 @@
 package com.alexeyyuditsky.weatherapp.weather.di
 
+import com.alexeyyuditsky.weatherapp.weather.data.FetchWeatherRepository
+import com.alexeyyuditsky.weatherapp.weather.data.StartForegroundWrapper
 import com.alexeyyuditsky.weatherapp.weather.data.WeatherCacheDataSource
 import com.alexeyyuditsky.weatherapp.weather.data.WeatherCloudDataSource
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherResult
+import com.alexeyyuditsky.weatherapp.weather.presentation.TimeWrapper
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherUi
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherUiMapper
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 abstract class WeatherBindsModule {
 
     @Binds
     abstract fun bindWeatherCloudDataSource(cloudDataSource: WeatherCloudDataSource.Base): WeatherCloudDataSource
 
+    @Singleton
     @Binds
     abstract fun bindWeatherCacheDataSource(cacheDataSource: WeatherCacheDataSource.Base): WeatherCacheDataSource
 
@@ -25,5 +30,14 @@ abstract class WeatherBindsModule {
     abstract fun bindWeatherRepository(repository: WeatherRepository.Base): WeatherRepository
 
     @Binds
+    abstract fun bindsFetchWeatherRepository(fetchRepository: FetchWeatherRepository.Base): FetchWeatherRepository
+
+    @Binds
     abstract fun bindWeatherUiMapper(mapper: WeatherUiMapper): WeatherResult.Mapper<WeatherUi>
+
+    @Binds
+    abstract fun bindTimeWrapper(wrapper: TimeWrapper.Base): TimeWrapper
+
+    @Binds
+    abstract fun bindForegroundWrapper(wrapper: StartForegroundWrapper.Base): StartForegroundWrapper
 }

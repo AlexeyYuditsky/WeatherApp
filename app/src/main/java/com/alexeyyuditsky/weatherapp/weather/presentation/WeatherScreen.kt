@@ -8,24 +8,62 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun WeatherScreen(
     viewModel: WeatherViewModel,
+    goToChooseLocation: () -> Unit,
 ) {
-    val weatherScreenUi by viewModel.state.collectAsStateWithLifecycle()
-    weatherScreenUi.Show(onRetryClick = viewModel::loadWeather)
+    val weatherUi by viewModel.state.collectAsStateWithLifecycle()
+    val connected by viewModel.connectionFlow.collectAsStateWithLifecycle(ConnectedUi.Connected)
+    val error by viewModel.errorFlow.collectAsStateWithLifecycle(ErrorUi.Empty)
+
+    WeatherScreenUi(
+        connectedUi = connected,
+        errorUi = error,
+        weatherUi = weatherUi,
+        retry = viewModel::retryLoadWeather,
+        goToChooseLocation = goToChooseLocation,
+    )
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewWeatherScreenUiBase() {
+    WeatherScreenUi(
+        ConnectedUi.Connected,
+        ErrorUi.Empty,
+        WeatherUi.Success("Moscow", "33.1°C", "", "5 min ago (10-Aug-2025)"),
+        {}
+    ) {}
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewWeatherScreenUiSuccess() = WeatherUi.Success(
-    cityName = "Moscow city",
-    temperature = "33.1°C",
-).Show()
+fun PreviewLoading() {
+    WeatherScreenUi(
+        ConnectedUi.Connected,
+        ErrorUi.Empty,
+        WeatherUi.Loading,
+        {}
+    ) {}
+}
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewWeatherScreenUiLoading() =
-    WeatherUi.Loading.Show()
+fun PreviewDisconnected() {
+    WeatherScreenUi(
+        ConnectedUi.Disconnected,
+        ErrorUi.Empty,
+        WeatherUi.Success("Moscow", "33.1°C", "", "5 min ago (10-Aug-2025)"),
+        {}
+    ) {}
+}
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewWeatherScreenUiNoConnectionError() =
-    WeatherUi.NoConnectionError.Show()
+fun PreviewError() {
+    WeatherScreenUi(
+        ConnectedUi.Connected,
+        ErrorUi.Error,
+        WeatherUi.Empty,
+        {}
+    ) {}
+}

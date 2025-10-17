@@ -31,6 +31,6 @@ fun FindCityOrGetLocationScreen(
     FindCityScreen(
         viewModel = viewModel,
         navigateToWeatherScreen = navigateToWeatherScreen,
-        onGetLocationClick = { if (!getLocation) getLocation = true }
+        onGetLocationClick = { getLocation = true }
     )
 }

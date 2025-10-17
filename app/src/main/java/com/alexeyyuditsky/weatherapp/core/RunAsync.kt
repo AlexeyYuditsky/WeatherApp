@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -20,7 +21,7 @@ import javax.inject.Inject
 
 interface RunAsync {
 
-    fun <T : Any> run(
+    fun <T : Any> runAsync(
         scope: CoroutineScope,
         background: suspend () -> T,
         ui: (T) -> Unit = {},
@@ -37,9 +38,28 @@ interface RunAsync {
         isRetryCall: Boolean
     )
 
+    fun <T : Any, E : Any> runFlow(
+        scope: CoroutineScope,
+        flow: Flow<T>,
+        map: suspend (T) -> E,
+        onEach: suspend (E) -> Unit
+    )
+
     class Base @Inject constructor() : RunAsync {
 
-        override fun <T : Any> run(
+        override fun <T : Any, E : Any> runFlow(
+            scope: CoroutineScope,
+            flow: Flow<T>,
+            map: suspend (T) -> E,
+            onEach: suspend (E) -> Unit
+        ) {
+            flow.map(map)
+                .onEach(onEach)
+                .flowOn(Dispatchers.IO)
+                .launchIn(scope)
+        }
+
+        override fun <T : Any> runAsync(
             scope: CoroutineScope,
             background: suspend () -> T,
             ui: (T) -> Unit,

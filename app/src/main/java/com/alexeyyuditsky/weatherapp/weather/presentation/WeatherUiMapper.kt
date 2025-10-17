@@ -4,20 +4,21 @@ import com.alexeyyuditsky.weatherapp.weather.domain.WeatherInCity
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherResult
 import javax.inject.Inject
 
-class WeatherUiMapper @Inject constructor() : WeatherResult.Mapper<WeatherUi> {
+class WeatherUiMapper @Inject constructor(
+    private val timeWrapper: TimeWrapper,
+) : WeatherResult.Mapper<WeatherUi> {
 
-    override fun mapToSuccess(weatherInCity: WeatherInCity): WeatherUi =
-        WeatherUi.Success(
-            cityName = weatherInCity.cityName,
-            temperature = weatherInCity.temperature.toString() + "°C"
-        )
+    override fun mapToNoDataYet() = WeatherUi.Loading
 
-    override fun mapToLoading(): WeatherUi =
-        WeatherUi.Loading
+    override fun mapToEmpty() = WeatherUi.Empty
 
-    override fun mapToEmpty(): WeatherUi =
-        WeatherUi.Empty
-
-    override fun mapToNoConnectionError(): WeatherUi =
-        WeatherUi.NoConnectionError
+    override fun mapToSuccess(
+        weatherInCity: WeatherInCity,
+    ) = WeatherUi.Success(
+        cityName = weatherInCity.cityName,
+        details = weatherInCity.details,
+        imageUrl = weatherInCity.imageUrl,
+        time = timeWrapper.getHumanReadableTime(weatherInCity.time),
+        forecast = weatherInCity.forecast
+    )
 }

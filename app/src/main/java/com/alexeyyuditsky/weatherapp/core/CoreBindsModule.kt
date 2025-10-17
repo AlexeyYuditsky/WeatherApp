@@ -13,4 +13,8 @@ abstract class CoreBindsModule {
     @Binds
     @Singleton
     abstract fun bindRunAsync(runAsync: RunAsync.Base): RunAsync
+
+    @Binds
+    @Singleton
+    abstract fun bindsConnection(connection: Connection.Base): Connection
 }

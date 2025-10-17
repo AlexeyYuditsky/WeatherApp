@@ -30,4 +30,7 @@ class CoreProvidesModule {
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
+
+    @Provides
+    fun provideMinutes(): Int = 5
 }

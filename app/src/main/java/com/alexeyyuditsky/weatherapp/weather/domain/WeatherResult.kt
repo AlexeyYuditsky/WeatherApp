@@ -1,8 +1,5 @@
 package com.alexeyyuditsky.weatherapp.weather.domain
 
-import com.alexeyyuditsky.weatherapp.findCity.domain.DomainException
-import com.alexeyyuditsky.weatherapp.findCity.domain.NoInternetException
-
 interface WeatherResult {
 
     fun <T> map(mapper: Mapper<T>): T
@@ -11,11 +8,9 @@ interface WeatherResult {
 
         fun mapToSuccess(weatherInCity: WeatherInCity): T
 
-        fun mapToLoading(): T
-
         fun mapToEmpty(): T
 
-        fun mapToNoConnectionError(): T
+        fun mapToNoDataYet(): T
     }
 
     data class Success(
@@ -26,14 +21,9 @@ interface WeatherResult {
             mapper.mapToSuccess(weatherInCity = weatherInCity)
     }
 
-    data class Error(
-        private val error: DomainException,
-    ) : WeatherResult {
+    data object NoDataYet : WeatherResult {
 
         override fun <T> map(mapper: Mapper<T>): T =
-            if (error is NoInternetException)
-                mapper.mapToNoConnectionError()
-            else
-                TODO("later")
+            mapper.mapToNoDataYet()
     }
 }

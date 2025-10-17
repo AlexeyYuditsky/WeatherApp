@@ -27,7 +27,7 @@ class WeatherViewModelTest {
         fakeRunAsync.returnResult()
         assertEquals(WeatherUi.NoConnectionError, viewModel.state.value)
 
-        viewModel.loadWeather()
+        viewModel.retryLoadWeather()
         assertEquals(WeatherUi.Loading, viewModel.state.value)
 
         fakeRunAsync.returnResult()
