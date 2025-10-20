@@ -53,7 +53,7 @@ class FindCityViewModel @Inject constructor(
 
     fun chooseCity(foundCity: FoundCity) = runAsync.runAsync(
         scope = viewModelScope,
-        background = { repository.saveCity(foundCity = foundCity) },
+        background = { repository.saveFoundCity(foundCity = foundCity) },
         ui = { _close.value = true }
     )
 
@@ -62,7 +62,7 @@ class FindCityViewModel @Inject constructor(
         longitude: Double,
     ) = runAsync.runAsync(
         scope = viewModelScope,
-        background = { repository.saveCity(latitude, longitude) },
+        background = { repository.saveFoundCity(latitude, longitude) },
         ui = { _close.value = true }
     )
 

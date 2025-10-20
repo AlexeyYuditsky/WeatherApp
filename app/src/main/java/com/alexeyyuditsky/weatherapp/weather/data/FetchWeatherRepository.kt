@@ -18,7 +18,7 @@ interface FetchWeatherRepository {
             cacheDataSource.saveHasError(hasError = false)
             val (lat, lon) = cacheDataSource.cityParams()
             val weatherCloud = cloudDataSource.weather(lat, lon)
-            /*val airPollution = try {
+            val airPollution = try {
                 val airPollutionCloud = cloudDataSource.airPollution(lat, lon)
                 airPollutionCloud.list.firstOrNull()?.main?.ui() ?: ""
             } catch (_: Exception) {
@@ -31,18 +31,18 @@ interface FetchWeatherRepository {
                 }
             } catch (_: Exception) {
                 emptyList()//ignore forecast if error
-            }*/
+            }
             val now = System.currentTimeMillis()
             val (details, imageUrl) = weatherCloud.details()
             cacheDataSource.saveWeather(
                 WeatherParams(
-                    lat = lat,
-                    lon = lon,
+                    latitude = lat,
+                    longitude = lon,
                     city = weatherCloud.cityName,
                     time = now,
                     imageUrl = imageUrl,
-                    details = details/* + airPollution*/,
-                    //forecast = forecast
+                    details = details + airPollution,
+                    forecast = forecast,
                 )
             )
         }

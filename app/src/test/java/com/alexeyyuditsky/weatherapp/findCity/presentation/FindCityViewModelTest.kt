@@ -101,11 +101,11 @@ private class FakeFindCityRepository : FindCityRepository {
         }
     }
 
-    override suspend fun saveCity(foundCity: FoundCity) {
+    override suspend fun saveFoundCity(foundCity: FoundCity) {
         savedCity = foundCity
     }
 
-    override suspend fun saveCity(
+    override suspend fun saveFoundCity(
         latitude: Double,
         longitude: Double
     ) = TODO()

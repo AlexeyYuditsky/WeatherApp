@@ -2,6 +2,7 @@ package com.alexeyyuditsky.weatherapp.weather.data
 
 import com.alexeyyuditsky.weatherapp.findCity.domain.NoInternetException
 import com.alexeyyuditsky.weatherapp.findCity.domain.ServiceUnavailableException
+import retrofit2.Call
 import java.io.IOException
 import javax.inject.Inject
 
@@ -24,10 +25,9 @@ interface WeatherCloudDataSource {
 
     abstract class Abstract : WeatherCloudDataSource {
 
-        protected suspend fun <T> handle(
-            block: suspend () -> T,
-        ): T = try {
-            block.invoke()
+        protected suspend fun <T> handle(block: suspend () -> Call<T>): T = try {
+            val data = block.invoke().execute()
+            data.body()!!
         } catch (e: Exception) {
             if (e is IOException)
                 throw NoInternetException
@@ -42,17 +42,23 @@ interface WeatherCloudDataSource {
 
         override suspend fun weather(
             latitude: Float,
-            longitude: Float
-        ) = handle { service.weather(latitude, longitude) }
+            longitude: Float,
+        ) = handle {
+            service.weather(latitude, longitude)
+        }
 
         override suspend fun airPollution(
             latitude: Float,
-            longitude: Float
-        ) = handle { service.airPollution(latitude, longitude) }
+            longitude: Float,
+        ) = handle {
+            service.airPollution(latitude, longitude)
+        }
 
         override suspend fun forecast(
             latitude: Float,
-            longitude: Float
-        ) = handle { service.forecast(latitude, longitude) }
+            longitude: Float,
+        ) = handle {
+            service.forecast(latitude, longitude)
+        }
     }
 }

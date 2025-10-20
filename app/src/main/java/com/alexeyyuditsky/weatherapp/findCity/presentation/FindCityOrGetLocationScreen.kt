@@ -15,6 +15,7 @@ fun FindCityOrGetLocationScreen(
 ) {
     val context = LocalContext.current.applicationContext
     var getLocation by rememberSaveable { mutableStateOf(false) }
+
     if (getLocation)
         GetUserLocationScreenWrapper(
             onSuccess = { latitude, longitude ->

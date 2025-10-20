@@ -230,7 +230,7 @@ private class FakeFindCityRepository : FindCityRepository {
             error("not supported for this test")
     }
 
-    override suspend fun saveCity(foundCity: FoundCity) {
+    override suspend fun saveFoundCity(foundCity: FoundCity) {
         if (foundCity != FoundCity(
                 name = "Moscow",
                 latitude = 55.75f,
@@ -239,7 +239,7 @@ private class FakeFindCityRepository : FindCityRepository {
         ) error("save called with wrong argument $foundCity")
     }
 
-    override suspend fun saveCity(
+    override suspend fun saveFoundCity(
         latitude: Double,
         longitude: Double,
     ) = error("choose location is unavailable")

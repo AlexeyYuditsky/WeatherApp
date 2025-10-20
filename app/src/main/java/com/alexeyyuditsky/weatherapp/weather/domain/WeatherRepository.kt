@@ -46,9 +46,9 @@ interface WeatherRepository {
             }
         }
 
-        override fun weatherFlow() = cacheDataSource.savedWeather()
+        override fun weatherFlow(): Flow<WeatherParams> = cacheDataSource.savedWeather()
 
-        override fun errorFlow() = cacheDataSource.hasError()
+        override fun errorFlow(): Flow<Boolean> = cacheDataSource.hasError()
 
         override fun loadWeather() = startForeGroundWrapper.start()
     }

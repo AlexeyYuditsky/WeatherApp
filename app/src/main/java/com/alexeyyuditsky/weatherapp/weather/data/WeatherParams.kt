@@ -5,8 +5,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class WeatherParams(
-    val lat: Float,
-    val lon: Float,
+    val latitude: Float,
+    val longitude: Float,
     val city: String,
     val time: Long,
     val imageUrl: String,
@@ -16,5 +16,5 @@ data class WeatherParams(
 
     fun isEmpty() = time == 0L
 
-    fun same(latitude: Float, longitude: Float) = lat == latitude && longitude == lon
+    fun same(latitude: Float, longitude: Float) = this@WeatherParams.latitude == latitude && longitude == this@WeatherParams.longitude
 }

@@ -14,7 +14,7 @@ data class WeatherCloud(
     @SerializedName("wind") val wind: WindCloud,
     @SerializedName("clouds") val clouds: CloudsCloud,
     @SerializedName("sys") val sys: SysCloud,
-    @SerializedName("timezone") val timeZone: Int
+    @SerializedName("timezone") val timeZone: Int,
 ) {
 
     fun details(): Pair<String, String> {
@@ -41,7 +41,7 @@ fun formatUnixTimestampWithOffset(
     unixTimestampSeconds: Long,
     timezoneOffsetSeconds: Int,
     pattern: String = "HH:mm",
-    locale: Locale = Locale.getDefault()
+    locale: Locale = Locale.getDefault(),
 ): String {
     if (unixTimestampSeconds <= 0) return "n/a"
     val utcInstant = Instant.ofEpochSecond(unixTimestampSeconds)

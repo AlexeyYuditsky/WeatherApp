@@ -72,14 +72,20 @@ interface WeatherCacheDataSource {
             }
         }
 
-        private val default = WeatherParams(
-            0f, 0f, "", 0L, "", ""
-        )
-
-        override fun savedWeather() = context.dataStore.data.map { preferences ->
-            val raw = preferences[weatherParams] ?: gson.toJson(default)
-            gson.fromJson(raw, WeatherParams::class.java)
-        }
+        override fun savedWeather(): Flow<WeatherParams> =
+            context.dataStore.data.map { preferences ->
+                val raw = preferences[weatherParams] ?: gson.toJson(
+                    WeatherParams(
+                        latitude = 0f,
+                        longitude = 0f,
+                        city = "",
+                        time = 0L,
+                        imageUrl = "",
+                        details = ""
+                    )
+                )
+                gson.fromJson(raw, WeatherParams::class.java)
+            }
 
         override suspend fun saveHasError(hasError: Boolean) {
             context.dataStore.edit { prefs ->

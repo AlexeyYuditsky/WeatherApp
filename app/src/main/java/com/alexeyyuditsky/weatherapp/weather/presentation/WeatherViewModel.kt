@@ -34,7 +34,10 @@ class WeatherViewModel @Inject constructor(
         runAsync.runFlow(
             scope = viewModelScope,
             flow = repository.weatherFlow(),
-            map = { weather -> repository.weather(savedWeather = weather).map(mapper) },
+            map = { weather ->
+                val weatherResult = repository.weather(savedWeather = weather)
+                weatherResult.map(mapper)
+            },
             onEach = { savedStateHandle[KEY] = it }
         )
     }

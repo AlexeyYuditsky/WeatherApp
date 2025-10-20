@@ -32,7 +32,7 @@ interface ConnectedUi {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(color = Color.Red)
-                .padding(vertical = 8.dp)
+                .padding(vertical = 16.dp)
                 .testTag("noInternetConnection")
         )
     }

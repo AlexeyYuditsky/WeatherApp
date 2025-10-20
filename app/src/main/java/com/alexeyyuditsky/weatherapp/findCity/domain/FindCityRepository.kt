@@ -9,9 +9,9 @@ interface FindCityRepository {
 
     suspend fun findCity(query: String): FoundCityResult
 
-    suspend fun saveCity(foundCity: FoundCity)
+    suspend fun saveFoundCity(foundCity: FoundCity)
 
-    suspend fun saveCity(
+    suspend fun saveFoundCity(
         latitude: Double,
         longitude: Double,
     )
@@ -40,13 +40,13 @@ interface FindCityRepository {
                 FoundCityResult.Error(error = e)
             }
 
-        override suspend fun saveCity(foundCity: FoundCity) =
+        override suspend fun saveFoundCity(foundCity: FoundCity) =
             cacheDataSource.save(
                 latitude = foundCity.latitude,
                 longitude = foundCity.longitude,
             )
 
-        override suspend fun saveCity(
+        override suspend fun saveFoundCity(
             latitude: Double,
             longitude: Double,
         ) = cacheDataSource.save(
