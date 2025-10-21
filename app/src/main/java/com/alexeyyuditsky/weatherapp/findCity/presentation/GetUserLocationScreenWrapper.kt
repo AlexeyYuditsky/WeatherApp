@@ -4,6 +4,7 @@ import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Looper
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
@@ -12,10 +13,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.Task
 
 @Composable
 fun GetUserLocationScreenWrapper(
@@ -29,6 +33,25 @@ fun GetUserLocationScreenWrapper(
         .setWaitForAccurateLocation(false)
         .build()
 
+    val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            for (location in locationResult.locations) {
+                fusedLocationClient.removeLocationUpdates(this)
+                onSuccess.invoke(location.latitude, location.longitude)
+            }
+        }
+    }
+
+    val requestUpdates: () -> Unit = {
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        ).addOnFailureListener { e ->
+            onFailed.invoke(e.message ?: "failed to get location")
+        }
+    }
+
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { permissions ->
@@ -38,7 +61,8 @@ fun GetUserLocationScreenWrapper(
                     fusedLocationClient = fusedLocationClient,
                     onLocationReceived = { latitude, longitude ->
                         onSuccess.invoke(latitude, longitude)
-                    }
+                    },
+                    requestUpdates = requestUpdates
                 )
             else
                 onFailed.invoke("Permission denied")
@@ -60,7 +84,8 @@ fun GetUserLocationScreenWrapper(
                     fusedLocationClient = fusedLocationClient,
                     onLocationReceived = { latitude, longitude ->
                         onSuccess.invoke(latitude, longitude)
-                    }
+                    },
+                    requestUpdates = requestUpdates
                 )
             else
                 locationPermissionLauncher.launch(
@@ -91,6 +116,9 @@ private fun isGeoLocationEnabled(
 private fun getUserLocation(
     fusedLocationClient: FusedLocationProviderClient,
     onLocationReceived: (Double, Double) -> Unit,
+    requestUpdates: () -> Unit,
 ) = fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-    onLocationReceived.invoke(location.latitude, location.longitude)
+    location?.let {
+        onLocationReceived.invoke(location.latitude, location.longitude)
+    } ?: requestUpdates.invoke()
 }

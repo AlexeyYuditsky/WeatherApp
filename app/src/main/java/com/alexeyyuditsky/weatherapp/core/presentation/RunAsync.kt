@@ -1,4 +1,4 @@
-package com.alexeyyuditsky.weatherapp.core
+package com.alexeyyuditsky.weatherapp.core.presentation
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

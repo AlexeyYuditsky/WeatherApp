@@ -1,5 +1,6 @@
 package com.alexeyyuditsky.weatherapp.core
 
+import com.alexeyyuditsky.weatherapp.core.presentation.RunAsync
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 

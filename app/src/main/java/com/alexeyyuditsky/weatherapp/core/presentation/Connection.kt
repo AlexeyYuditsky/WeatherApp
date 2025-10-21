@@ -1,4 +1,4 @@
-package com.alexeyyuditsky.weatherapp.core
+package com.alexeyyuditsky.weatherapp.core.presentation
 
 import android.content.Context
 import android.net.ConnectivityManager

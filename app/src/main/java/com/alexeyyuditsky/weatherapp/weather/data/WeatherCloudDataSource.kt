@@ -1,12 +1,9 @@
 package com.alexeyyuditsky.weatherapp.weather.data
 
-import com.alexeyyuditsky.weatherapp.findCity.domain.NoInternetException
-import com.alexeyyuditsky.weatherapp.findCity.domain.ServiceUnavailableException
-import retrofit2.Call
-import java.io.IOException
+import com.alexeyyuditsky.weatherapp.core.data.CloudDataSource
 import javax.inject.Inject
 
-interface WeatherCloudDataSource {
+interface WeatherCloudDataSource : CloudDataSource {
 
     suspend fun weather(
         latitude: Float,
@@ -23,22 +20,9 @@ interface WeatherCloudDataSource {
         longitude: Float,
     ): ForecastCloud
 
-    abstract class Abstract : WeatherCloudDataSource {
-
-        protected suspend fun <T> handle(block: suspend () -> Call<T>): T = try {
-            val data = block.invoke().execute()
-            data.body()!!
-        } catch (e: Exception) {
-            if (e is IOException)
-                throw NoInternetException
-            else
-                throw ServiceUnavailableException
-        }
-    }
-
     class Base @Inject constructor(
         private val service: WeatherService,
-    ) : Abstract() {
+    ) : WeatherCloudDataSource {
 
         override suspend fun weather(
             latitude: Float,

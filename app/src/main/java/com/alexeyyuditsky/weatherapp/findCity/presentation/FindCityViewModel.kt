@@ -3,7 +3,7 @@ package com.alexeyyuditsky.weatherapp.findCity.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.alexeyyuditsky.weatherapp.core.RunAsync
+import com.alexeyyuditsky.weatherapp.core.presentation.RunAsync
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
@@ -51,7 +51,9 @@ class FindCityViewModel @Inject constructor(
         isRetryCall = isRetryCall
     )
 
-    fun chooseCity(foundCity: FoundCity) = runAsync.runAsync(
+    fun chooseCity(
+        foundCity: FoundCity
+    ) = runAsync.runAsync(
         scope = viewModelScope,
         background = { repository.saveFoundCity(foundCity = foundCity) },
         ui = { _close.value = true }

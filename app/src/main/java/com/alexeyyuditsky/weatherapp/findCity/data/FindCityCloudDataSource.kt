@@ -1,26 +1,22 @@
 package com.alexeyyuditsky.weatherapp.findCity.data
 
-import com.alexeyyuditsky.weatherapp.findCity.domain.NoInternetException
-import com.alexeyyuditsky.weatherapp.findCity.domain.ServiceUnavailableException
-import java.io.IOException
+import com.alexeyyuditsky.weatherapp.core.data.CloudDataSource
 import javax.inject.Inject
 
-interface FindCityCloudDataSource {
+interface FindCityCloudDataSource : CloudDataSource {
 
-    suspend fun findCity(query: String): List<FoundCityCloud>
+    suspend fun findCity(
+        query: String,
+    ): List<FoundCityCloud>
 
     class Base @Inject constructor(
         private val findCityService: FindCityService,
     ) : FindCityCloudDataSource {
 
-        override suspend fun findCity(query: String): List<FoundCityCloud> =
-            try {
-                findCityService.findCity(query = query)
-            } catch (e: Exception) {
-                if (e is IOException)
-                    throw NoInternetException
-                else
-                    throw ServiceUnavailableException
-            }
+        override suspend fun findCity(
+            query: String,
+        ): List<FoundCityCloud> = handle {
+            findCityService.findCity(query = query)
+        }
     }
 }

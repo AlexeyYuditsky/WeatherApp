@@ -8,7 +8,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.alexeyyuditsky.weatherapp.core.Routes
+import com.alexeyyuditsky.weatherapp.core.presentation.Routes
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityOrGetLocationScreen
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityViewModel
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreen

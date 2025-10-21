@@ -1,4 +1,4 @@
-package com.alexeyyuditsky.weatherapp.core
+package com.alexeyyuditsky.weatherapp.core.di
 
 import dagger.Module
 import dagger.Provides
@@ -26,7 +26,7 @@ class CoreProvidesModule {
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
     ): Retrofit = Retrofit.Builder()
-        .baseUrl("https://api.openweathermap.org")
+        .baseUrl("https://api.openweathermap.org/")
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()

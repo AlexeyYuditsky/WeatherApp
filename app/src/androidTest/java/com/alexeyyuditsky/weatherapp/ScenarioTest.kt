@@ -12,8 +12,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexeyyuditsky.core.FakeRunAsync
-import com.alexeyyuditsky.weatherapp.core.Routes.FIND_CITY
-import com.alexeyyuditsky.weatherapp.core.Routes.WEATHER
+import com.alexeyyuditsky.weatherapp.core.presentation.Routes.FIND_CITY
+import com.alexeyyuditsky.weatherapp.core.presentation.Routes.WEATHER
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
