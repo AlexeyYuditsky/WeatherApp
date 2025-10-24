@@ -1,10 +1,12 @@
 package com.alexeyyuditsky.weatherapp.weather.data
 
 import android.content.Context
+import androidx.glance.appwidget.updateAll
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.alexeyyuditsky.weatherapp.findCity.domain.DomainException
+import com.alexeyyuditsky.weatherapp.widget.WeatherWidget
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -18,7 +20,7 @@ class WeatherWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         try {
             fetchWeatherRepository.fetchWeather()
-            //WeatherWidget().updateAll(applicationContext)
+            WeatherWidget().updateAll(applicationContext)
         } catch (e: DomainException) {
             fetchWeatherRepository.saveException(e)
         }

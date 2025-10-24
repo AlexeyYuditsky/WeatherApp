@@ -90,7 +90,7 @@ interface RunAsync {
             val input = inputFlow
                 .map { query -> query.trim() }
                 .distinctUntilChanged()
-                .debounce(500)
+                .debounce(1000)
 
             merge(input, retryFlow)
                 .mapLatest { query -> background.invoke(query) }

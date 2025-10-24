@@ -2,52 +2,67 @@ package com.alexeyyuditsky.core
 
 import com.alexeyyuditsky.weatherapp.core.presentation.RunAsync
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
 
+@Suppress("UNCHECKED_CAST")
 class FakeRunAsync : RunAsync {
 
-    private var backgroundResult: Any? = null
-    private var uiWork: (Any) -> Unit = {}
-
-    private var backgroundDebouncedWork: suspend (String) -> Any = {}
-    private var backgroundDebouncedResult: Any? = null
-    private var uiDebouncedWork: (Any) -> Unit = {}
+    private var resultCached: Any? = null
+    private var uiCached: (Any) -> Unit = {}
 
     override fun <T : Any> runAsync(
         scope: CoroutineScope,
         background: suspend () -> T,
-        ui: (T) -> Unit,
-    ) = runBlocking {
-        backgroundResult = background.invoke()
-        @Suppress("UNCHECKED_CAST")
-        uiWork = ui as (Any) -> Unit
+        ui: (T) -> Unit
+    ) {
+        runBlocking {
+            val result: T = background.invoke()
+            resultCached = result
+            uiCached = ui as (Any) -> Unit
+        }
     }
+
+    private var backgroundDebounced: suspend (String) -> Any = {}
+    private var uiDebounced: (Any) -> Unit = {}
+    private var debouncedResult: Any? = null
 
     override fun <T : Any> debounce(
         scope: CoroutineScope,
         background: suspend (String) -> T,
-        ui: (T) -> Unit,
+        ui: (T) -> Unit
     ) {
-        backgroundDebouncedWork = background
-        @Suppress("UNCHECKED_CAST")
-        uiDebouncedWork = ui as (Any) -> Unit
+        backgroundDebounced = background
+        uiDebounced = ui as (Any) -> Unit
     }
 
     override fun emit(
         query: String,
         isRetryCall: Boolean,
     ) = runBlocking {
-        backgroundDebouncedResult = backgroundDebouncedWork.invoke(query)
+        debouncedResult = backgroundDebounced.invoke(query)
+    }
+
+    override fun <T : Any, E : Any> runFlow(
+        scope: CoroutineScope,
+        flow: Flow<T>,
+        map: suspend (T) -> E,
+        onEach: suspend (E) -> Unit
+    ) {
+        flow.map(map).onEach(onEach).launchIn(scope)
     }
 
     fun returnResult() {
-        backgroundResult?.let {
-            uiWork.invoke(it)
-            backgroundResult = null
+        resultCached?.let {
+            uiCached.invoke(it)
+            resultCached = null
         }
-        backgroundDebouncedResult?.let {
-            uiDebouncedWork.invoke(it)
-            backgroundDebouncedResult = null
+        debouncedResult?.let {
+            uiDebounced.invoke(it)
+            debouncedResult = null
         }
     }
 }

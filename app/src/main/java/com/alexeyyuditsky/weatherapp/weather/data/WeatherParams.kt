@@ -16,5 +16,6 @@ data class WeatherParams(
 
     fun isEmpty() = time == 0L
 
-    fun same(latitude: Float, longitude: Float) = this@WeatherParams.latitude == latitude && longitude == this@WeatherParams.longitude
+    fun same(latitude: Float, longitude: Float) =
+        this@WeatherParams.latitude == latitude && longitude == this@WeatherParams.longitude
 }

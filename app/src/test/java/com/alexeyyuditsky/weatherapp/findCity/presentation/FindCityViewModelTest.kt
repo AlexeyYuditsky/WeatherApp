@@ -2,10 +2,8 @@ package com.alexeyyuditsky.weatherapp.findCity.presentation
 
 import androidx.lifecycle.SavedStateHandle
 import com.alexeyyuditsky.weatherapp.core.FakeRunAsync
-import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
-import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
+import com.alexeyyuditsky.weatherapp.findCity.data.FakeFindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
-import com.alexeyyuditsky.weatherapp.findCity.domain.NoInternetException
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -21,98 +19,52 @@ class FindCityViewModelTest {
     )
 
     @Test
-    fun getErrorThenInputFindCityThenSaveIt() {
+    fun runEmptyQueriesThenGetNoInternetErrorThenGetServiceUnavailableErrorThenGetEmptyThenGetFoundCity() {
         assertEquals(FoundCityUi.Empty, viewModel.state.value)
 
         viewModel.findCity(cityName = "")
-        repository.assertFindCityCalled(emptyList())
+        assertEquals(emptyList<String>(), repository.findCityCalledList)
         assertEquals(FoundCityUi.Empty, viewModel.state.value)
 
         viewModel.findCity(cityName = " ")
-        repository.assertFindCityCalled(emptyList())
+        assertEquals(emptyList<String>(), repository.findCityCalledList)
         assertEquals(FoundCityUi.Empty, viewModel.state.value)
 
-        viewModel.findCity(cityName = "Mo")
-        repository.assertFindCityCalled(listOf("Mo"))
+        viewModel.findCity(cityName = "mo")
+        runAsync.runBackgroundWorkDebounce()
+        assertEquals(listOf("mo"), repository.findCityCalledList)
         assertEquals(FoundCityUi.Loading, viewModel.state.value)
-
-        runAsync.returnResult()
+        runAsync.runUiWorkDebounce()
         assertEquals(FoundCityUi.NoConnectionError, viewModel.state.value)
 
-        viewModel.findCity(cityName = "Mo")
-        repository.assertFindCityCalled(listOf("Mo", "Mo"))
+        viewModel.findCity(cityName = "mos")
+        runAsync.runBackgroundWorkDebounce()
+        assertEquals(listOf("mo", "mos"), repository.findCityCalledList)
         assertEquals(FoundCityUi.Loading, viewModel.state.value)
+        runAsync.runUiWorkDebounce()
+        assertEquals(FoundCityUi.ServiceUnavailableError, viewModel.state.value)
 
-        runAsync.returnResult()
+        viewModel.findCity(cityName = "mosc")
+        runAsync.runBackgroundWorkDebounce()
+        assertEquals(listOf("mo", "mos", "mosc"), repository.findCityCalledList)
+        assertEquals(FoundCityUi.Loading, viewModel.state.value)
+        runAsync.runUiWorkDebounce()
         assertEquals(FoundCityUi.Empty, viewModel.state.value)
 
-        viewModel.findCity(cityName = "Mos")
-        repository.assertFindCityCalled(listOf("Mo", "Mo", "Mos"))
+        viewModel.findCity(cityName = "moscow")
+        runAsync.runBackgroundWorkDebounce()
+        assertEquals(listOf("mo", "mos", "mosc", "moscow"), repository.findCityCalledList)
         assertEquals(FoundCityUi.Loading, viewModel.state.value)
-
-        runAsync.returnResult()
-        val foundCity = FoundCity(
-            name = "Moscow",
-            latitude = 55.75f,
-            longitude = 37.61f,
-        )
+        runAsync.runUiWorkDebounce()
         assertEquals(
-            FoundCityUi.Success(foundCity = foundCity),
+            FoundCityUi.Success(
+                foundCity = FoundCity(
+                    name = "Moscow",
+                    latitude = 55.75f,
+                    longitude = 37.61f,
+                )
+            ),
             viewModel.state.value
         )
-
-        viewModel.chooseCity(foundCity = foundCity)
-        repository.assertSaveCalled(expected = foundCity)
     }
-}
-
-private class FakeFindCityRepository : FindCityRepository {
-
-    private val findCityCalledList = mutableListOf<String>()
-    private var shouldShowError = true
-    private lateinit var savedCity: FoundCity
-
-    override suspend fun findCity(query: String): FoundCityResult {
-        findCityCalledList += query
-
-        return when {
-            query.isBlank() ->
-                error("repository should not accept empty query")
-
-            query == "Mo" -> {
-                if (shouldShowError)
-                    FoundCityResult.Error(error = NoInternetException)
-                        .also { shouldShowError = false }
-                else
-                    FoundCityResult.Empty
-            }
-
-            query == "Mos" ->
-                FoundCityResult.Success(
-                    foundCity = FoundCity(
-                        name = "Moscow",
-                        latitude = 55.75f,
-                        longitude = 37.61f,
-                    )
-                )
-
-            else ->
-                error("not supported for this test")
-        }
-    }
-
-    override suspend fun saveFoundCity(foundCity: FoundCity) {
-        savedCity = foundCity
-    }
-
-    override suspend fun saveFoundCity(
-        latitude: Double,
-        longitude: Double
-    ) = TODO()
-
-    fun assertSaveCalled(expected: FoundCity) =
-        assertEquals(expected, savedCity)
-
-    fun assertFindCityCalled(expected: List<String>) =
-        assertEquals(expected, findCityCalledList)
 }

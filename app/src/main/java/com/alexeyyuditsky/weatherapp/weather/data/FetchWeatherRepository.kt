@@ -16,16 +16,16 @@ interface FetchWeatherRepository {
 
         override suspend fun fetchWeather() {
             cacheDataSource.saveHasError(hasError = false)
-            val (lat, lon) = cacheDataSource.cityParams()
-            val weatherCloud = cloudDataSource.weather(lat, lon)
+            val (latitude, longitude) = cacheDataSource.cityParams()
+            val weatherCloud = cloudDataSource.weather(latitude, longitude)
             val airPollution = try {
-                val airPollutionCloud = cloudDataSource.airPollution(lat, lon)
+                val airPollutionCloud = cloudDataSource.airPollution(latitude, longitude)
                 airPollutionCloud.list.firstOrNull()?.main?.ui() ?: ""
             } catch (_: Exception) {
                 ""//ignore air pollution if error
             }
             val forecast = try {
-                val response = cloudDataSource.forecast(lat, lon)
+                val response = cloudDataSource.forecast(latitude, longitude)
                 response.list.map {
                     it.details(response.city.timezone)
                 }
@@ -36,8 +36,8 @@ interface FetchWeatherRepository {
             val (details, imageUrl) = weatherCloud.details()
             cacheDataSource.saveWeather(
                 WeatherParams(
-                    latitude = lat,
-                    longitude = lon,
+                    latitude = latitude,
+                    longitude = longitude,
                     city = weatherCloud.cityName,
                     time = now,
                     imageUrl = imageUrl,

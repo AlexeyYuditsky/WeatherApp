@@ -53,6 +53,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.glance.appwidget)
+
     implementation(libs.coil)
     implementation(libs.androidx.material.icons.extended)
 

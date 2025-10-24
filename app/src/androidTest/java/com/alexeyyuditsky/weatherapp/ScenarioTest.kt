@@ -1,36 +1,32 @@
 package com.alexeyyuditsky.weatherapp
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexeyyuditsky.core.FakeRunAsync
-import com.alexeyyuditsky.weatherapp.core.presentation.Routes.FIND_CITY
-import com.alexeyyuditsky.weatherapp.core.presentation.Routes.WEATHER
+import com.alexeyyuditsky.weatherapp.core.presentation.Connection
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
 import com.alexeyyuditsky.weatherapp.findCity.domain.NoInternetException
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityScreen
-import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityScreenUi
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityViewModel
-import com.alexeyyuditsky.weatherapp.findCity.presentation.FoundCityUi
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FoundCityUiMapper
+import com.alexeyyuditsky.weatherapp.weather.data.WeatherParams
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherInCity
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherResult
+import com.alexeyyuditsky.weatherapp.weather.presentation.TimeWrapper
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreen
-import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherUi
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherUiMapper
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -42,111 +38,53 @@ class ScenarioTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    val fakeRunAsync = FakeRunAsync()
+    val fakeWeatherRepository = FakeWeatherRepository()
+    val fakeConnection = FakeConnection()
+
     @Test
-    fun findCityAndShowWeather() = with(composeTestRule) {
-        val fakeRunAsync = FakeRunAsync()
+    fun findCityAndShowWeather(): Unit = with(composeTestRule) {
         val findCityViewModel = FindCityViewModel(
+            mapper = FoundCityUiMapper(),
             savedStateHandle = SavedStateHandle(),
             repository = FakeFindCityRepository(),
-            runAsync = fakeRunAsync,
-            mapper = FoundCityUiMapper(),
+            runAsync = fakeRunAsync
         )
         val weatherViewModel = WeatherViewModel(
+            mapper = WeatherUiMapper(TimeWrapper.Base()),
             savedStateHandle = SavedStateHandle(),
-            repository = FakeWeatherRepository(),
+            repository = fakeWeatherRepository,
             runAsync = fakeRunAsync,
-            mapper = WeatherUiMapper(),
+            connection = fakeConnection
         )
         setContent {
-            val navController = rememberNavController()
-            NavHost(
-                navController = navController,
-                startDestination = FIND_CITY,
-            ) {
-                composable(route = FIND_CITY) {
+            val navController: NavHostController = rememberNavController()
+            NavHost(navController = navController, startDestination = "findCityScreen") {
+                composable("findCityScreen") {
                     FindCityScreen(
                         viewModel = findCityViewModel,
-                        navigateToWeatherScreen = { navController.navigate(WEATHER) },
-                        onGetLocationClick = { error("choose location is unavailable") },
-                    )
+                        navigateToWeatherScreen = {
+                            navController.navigate("weatherScreen")
+                        }
+                    ) {
+                        throw IllegalStateException("choose location is not tested here")
+                    }
                 }
 
-                composable(route = WEATHER) {
+                composable("weatherScreen") {
                     WeatherScreen(
-                        viewModel = weatherViewModel,
-                    )
-                }
-            }
-        }
-
-        startUiTestWithLoading(fakeRunAsync)
-    }
-
-    @Test
-    fun findCityAndShowWeatherUi() = with(composeTestRule) {
-        val fakeRunAsyncUi = FakeRunAsyncUi()
-        setContent {
-            val navController = rememberNavController()
-            NavHost(
-                navController = navController,
-                startDestination = FIND_CITY,
-            ) {
-                composable(route = FIND_CITY) {
-                    var input by rememberSaveable { mutableStateOf("") }
-                    var shouldShowNoConnectionError by rememberSaveable { mutableStateOf(true) }
-                    val showLoading by fakeRunAsyncUi.loadingFlow.collectAsStateWithLifecycle()
-
-                    FindCityScreenUi(
-                        input = input,
-                        onValueChange = { text -> input = text },
-                        foundCityUi = if (input.isBlank())
-                            FoundCityUi.Empty
-                        else if (input == "Mo")
-                            if (shouldShowNoConnectionError)
-                                FoundCityUi.NoConnectionError
-                            else
-                                FoundCityUi.Empty
-                        else if (showLoading)
-                            FoundCityUi.Loading
-                        else
-                            FoundCityUi.Success(
-                                foundCity = FoundCity(
-                                    name = "Moscow",
-                                    latitude = 55.75f,
-                                    longitude = 37.61f,
-                                )
-                            ),
-                        onFoundCityClick = { navController.navigate(WEATHER) },
-                        onRetryClick = { shouldShowNoConnectionError = false },
-                        onGetLocationClick = { error("choose location is unavailable") },
-                    )
-                }
-
-                composable(route = WEATHER) {
-                    var shouldShowNoConnectionError by rememberSaveable { mutableStateOf(true) }
-                    val showLoading by fakeRunAsyncUi.loadingFlow.collectAsStateWithLifecycle()
-
-                    if (shouldShowNoConnectionError)
-                        WeatherUi.NoConnectionError.Show(
-                            onRetryClick = { shouldShowNoConnectionError = false }
-                        )
-                    else {
-                        if (showLoading)
-                            WeatherUi.Loading.Show()
-                        else
-                            WeatherUi.Success(
-                                cityName = "Moscow city",
-                                temperature = "33.1°C",
-                            ).Show()
+                        viewModel = weatherViewModel
+                    ) {
+                        throw IllegalStateException("go back to choose location is not tested here")
                     }
                 }
             }
         }
 
-        startUiTest(fakeRunAsyncUi)
+        startUiTestWithLoading()
     }
 
-    private fun startUiTestWithLoading(fakeRunAsync: FakeRunAsync) {
+    private fun startUiTestWithLoading() {
         val findCityPage = FindCityPage(composeTestRule = composeTestRule)
         findCityPage.input(text = "Mo")
         fakeRunAsync.returnResult()
@@ -154,7 +92,7 @@ class ScenarioTest {
 
         findCityPage.clickRetry()
         fakeRunAsync.returnResult()
-        findCityPage.assertEmptyIsDisplayed()
+        findCityPage.assertEmptyResult()
 
         findCityPage.input(text = "Mos")
         findCityPage.assertLoading()
@@ -162,111 +100,97 @@ class ScenarioTest {
         findCityPage.assertCityFound(cityName = "Moscow")
 
         findCityPage.clickFoundCity(cityName = "Moscow")
-
         val weatherPage = WeatherPage(composeTestRule = composeTestRule)
         fakeRunAsync.returnResult()
         weatherPage.assertNoConnectionIsDisplayed()
 
-        weatherPage.clickRetry()
+        fakeConnection.changeConnected(true)
         weatherPage.assertLoading()
-        fakeRunAsync.returnResult()
+        fakeWeatherRepository.loadWeather()
         weatherPage.assertCityName(cityName = "Moscow city")
-        weatherPage.assertWeatherDisplayed(temperature = "33.1°C")
-    }
-
-    private fun startUiTest(fakeRunAsyncUi: FakeRunAsyncUi) {
-        val findCityPage = FindCityPage(composeTestRule = composeTestRule)
-        findCityPage.input(text = "Mo")
-        findCityPage.assertNoConnectionIsDisplayed()
-
-        findCityPage.clickRetry()
-        findCityPage.assertEmptyIsDisplayed()
-
-        findCityPage.input(text = "Mos")
-        fakeRunAsyncUi.change(isLoading = true)
-        findCityPage.assertLoading()
-        fakeRunAsyncUi.change(isLoading = false)
-        findCityPage.assertCityFound(cityName = "Moscow")
-
-        findCityPage.clickFoundCity(cityName = "Moscow")
-
-        val weatherPage = WeatherPage(composeTestRule = composeTestRule)
-        weatherPage.assertNoConnectionIsDisplayed()
-        weatherPage.clickRetry()
-        fakeRunAsyncUi.change(isLoading = true)
-        weatherPage.assertLoading()
-        fakeRunAsyncUi.change(isLoading = false)
-        weatherPage.assertCityName(cityName = "Moscow city")
-        weatherPage.assertWeatherDisplayed(temperature = "33.1°C")
+        weatherPage.assertWeatherDisplayed(temp = "33.1")
     }
 }
 
-private class FakeFindCityRepository : FindCityRepository {
+class FakeWeatherRepository : WeatherRepository {
+
+    private var shouldShowError = true
+    private val weatherFlow = MutableStateFlow(WeatherParams(0f, 0f, "", 0, "", ""))
+    private val errorFlow = MutableStateFlow(false)
+
+    override fun weather(savedWeather: WeatherParams): WeatherResult {
+        if (shouldShowError) {
+            shouldShowError = false
+            return WeatherResult.NoDataYet
+        } else {
+            return WeatherResult.Success(
+                weatherInCity = WeatherInCity(
+                    cityName = "Moscow city",
+                    details = "33.1",
+                    imageUrl = "",
+                    time = 0
+                )
+            )
+        }
+    }
+
+    override fun weatherFlow(): Flow<WeatherParams> {
+        return weatherFlow
+    }
+
+    override fun errorFlow(): Flow<Boolean> {
+        return errorFlow
+    }
+
+    override fun loadWeather() {
+        weatherFlow.value = WeatherParams(5f, 5f, "moscow", 1, "", "")
+    }
+}
+
+class FakeFindCityRepository : FindCityRepository {
 
     private var shouldShowError = true
 
-    override suspend fun findCity(query: String): FoundCityResult = when {
-        query.isBlank() ->
-            error("repository should not accept empty query")
-
-        query == "Mo" -> {
-            if (shouldShowError)
-                FoundCityResult.Error(error = NoInternetException)
-                    .also { shouldShowError = false }
-            else
-                FoundCityResult.Empty
+    override suspend fun findCity(query: String): FoundCityResult {
+        if (query.trim().isEmpty())
+            throw IllegalStateException("repository should not accept empty query")
+        if (query == "Mo") {
+            if (shouldShowError) {
+                shouldShowError = false
+                return FoundCityResult.Error(error = NoInternetException)
+            } else {
+                return FoundCityResult.Empty
+            }
         }
 
-        query == "Mos" ->
-            FoundCityResult.Success(
+        if (query == "Mos")
+            return FoundCityResult.Success(
                 foundCity = FoundCity(
                     name = "Moscow",
                     latitude = 55.75f,
-                    longitude = 37.61f,
+                    longitude = 37.61f
                 )
             )
 
-        else ->
-            error("not supported for this test")
+        throw IllegalStateException("not supported for this test")
     }
 
     override suspend fun saveFoundCity(foundCity: FoundCity) {
-        if (foundCity != FoundCity(
-                name = "Moscow",
-                latitude = 55.75f,
-                longitude = 37.61f,
-            )
-        ) error("save called with wrong argument $foundCity")
+        if (foundCity != FoundCity(name = "Moscow", latitude = 55.75f, longitude = 37.61f))
+            throw IllegalStateException("save called with wrong argument $foundCity")
     }
 
-    override suspend fun saveFoundCity(
-        latitude: Double,
-        longitude: Double,
-    ) = error("choose location is unavailable")
+    override suspend fun saveFoundCity(latitude: Double, longitude: Double) {
+        throw IllegalStateException("choose location is not tested here")
+    }
 }
 
-private class FakeWeatherRepository : WeatherRepository {
+class FakeConnection : Connection {
 
-    private var shouldShowError = true
+    private val mutableStateFlow = MutableStateFlow(false)
+    override val connected: StateFlow<Boolean> get() = mutableStateFlow.asStateFlow()
 
-    override suspend fun fetchWeather(): WeatherResult = if (shouldShowError)
-        WeatherResult.Error(error = NoInternetException)
-            .also { shouldShowError = false }
-    else
-        WeatherResult.Success(
-            weatherInCity = WeatherInCity(
-                cityName = "Moscow city",
-                temperature = 33.1f,
-            )
-        )
-}
-
-private class FakeRunAsyncUi {
-
-    private val mutableLoadingFlow = MutableStateFlow(true)
-    val loadingFlow = mutableLoadingFlow.asStateFlow()
-
-    fun change(isLoading: Boolean) {
-        mutableLoadingFlow.value = isLoading
+    fun changeConnected(connected: Boolean) {
+        mutableStateFlow.value = connected
     }
 }

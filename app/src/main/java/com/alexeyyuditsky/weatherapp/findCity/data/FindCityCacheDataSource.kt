@@ -34,6 +34,5 @@ interface FindCityCacheDataSource {
             const val LATITUDE = "latitudeKey"
             const val LONGITUDE = "longitudeKey"
         }
-
     }
 }

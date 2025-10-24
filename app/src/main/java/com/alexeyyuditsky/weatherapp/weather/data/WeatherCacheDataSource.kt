@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.map
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import javax.inject.Singleton
 
 interface WeatherCacheDataSource {
 
@@ -32,8 +33,9 @@ interface WeatherCacheDataSource {
 
     fun hasError(): Flow<Boolean>
 
+    @Singleton
     class Base @Inject constructor(
-        @ApplicationContext private val context: Context,
+        @ApplicationContext private val context: Context
     ) : WeatherCacheDataSource {
 
         private val gson = Gson()
@@ -72,20 +74,14 @@ interface WeatherCacheDataSource {
             }
         }
 
-        override fun savedWeather(): Flow<WeatherParams> =
-            context.dataStore.data.map { preferences ->
-                val raw = preferences[weatherParams] ?: gson.toJson(
-                    WeatherParams(
-                        latitude = 0f,
-                        longitude = 0f,
-                        city = "",
-                        time = 0L,
-                        imageUrl = "",
-                        details = ""
-                    )
-                )
-                gson.fromJson(raw, WeatherParams::class.java)
-            }
+        private val default = WeatherParams(
+            0f, 0f, "", 0L, "", ""
+        )
+
+        override fun savedWeather() = context.dataStore.data.map { preferences ->
+            val raw = preferences[weatherParams] ?: gson.toJson(default)
+            gson.fromJson(raw, WeatherParams::class.java)
+        }
 
         override suspend fun saveHasError(hasError: Boolean) {
             context.dataStore.edit { prefs ->
@@ -101,9 +97,9 @@ interface WeatherCacheDataSource {
         private val weatherParams = stringPreferencesKey("weather_params")
         private val hasErrorKey = booleanPreferencesKey("weather_error")
 
-        private companion object {
-            const val LATITUDE = "latitudeKey"
-            const val LONGITUDE = "longitudeKey"
+        companion object {
+            private const val LATITUDE = "latitudeKey"
+            private const val LONGITUDE = "longitudeKey"
         }
     }
 }
