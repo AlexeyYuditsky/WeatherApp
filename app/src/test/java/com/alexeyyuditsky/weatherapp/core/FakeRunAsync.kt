@@ -1,6 +1,6 @@
 package com.alexeyyuditsky.weatherapp.core
 
-import com.alexeyyuditsky.weatherapp.core.presentation.RunAsync
+import com.alexeyyuditsky.weatherapp.findCity.presentation.FoundCityUi
 import com.alexeyyuditsky.weatherapp.weather.data.WeatherParams
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherUi
 import kotlinx.coroutines.CoroutineScope
@@ -40,10 +40,11 @@ class FakeRunAsync : RunAsync {
         uiWork = ui as (Any) -> Unit
     }
 
-    override fun <T : Any> debounce(
+    override fun debounce(
         scope: CoroutineScope,
-        background: suspend (String) -> T,
-        ui: (T) -> Unit,
+        start: (String) -> FoundCityUi,
+        background: suspend (String) -> FoundCityUi,
+        ui: (FoundCityUi) -> Unit
     ) {
         backgroundWorkDebounced = background
         @Suppress("UNCHECKED_CAST")

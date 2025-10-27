@@ -2,13 +2,13 @@ package com.alexeyyuditsky.weatherapp
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.alexeyyuditsky.core.FakeRunAsync
-import com.alexeyyuditsky.weatherapp.core.presentation.Connection
+import com.alexeyyuditsky.weatherapp.core.Connection
+import com.alexeyyuditsky.weatherapp.core.Screen
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
@@ -58,20 +58,20 @@ class ScenarioTest {
             connection = fakeConnection
         )
         setContent {
-            val navController: NavHostController = rememberNavController()
-            NavHost(navController = navController, startDestination = "findCityScreen") {
-                composable("findCityScreen") {
+            val navController = rememberNavController()
+            NavHost(navController = navController, startDestination = Screen.FindCity) {
+                composable<Screen.FindCity> {
                     FindCityScreen(
                         viewModel = findCityViewModel,
                         navigateToWeatherScreen = {
-                            navController.navigate("weatherScreen")
+                            navController.navigate(Screen.Weather)
                         }
                     ) {
                         throw IllegalStateException("choose location is not tested here")
                     }
                 }
 
-                composable("weatherScreen") {
+                composable<Screen.Weather> {
                     WeatherScreen(
                         viewModel = weatherViewModel
                     ) {

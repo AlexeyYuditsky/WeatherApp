@@ -8,28 +8,30 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.alexeyyuditsky.weatherapp.core.presentation.Routes
+import com.alexeyyuditsky.weatherapp.core.Screen
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityOrGetLocationScreen
 import com.alexeyyuditsky.weatherapp.findCity.presentation.FindCityViewModel
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherScreen
 import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherViewModel
 
 @Composable
-fun MainContent(innerPadding: PaddingValues) {
+fun MainContent(
+    innerPadding: PaddingValues,
+) {
     val mainViewModel = hiltViewModel<MainViewModel>()
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = if (mainViewModel.hasAlreadyChosenLocation()) Routes.WEATHER else Routes.FIND_CITY,
+        startDestination = if (mainViewModel.hasAlreadyChosenLocation()) Screen.Weather else Screen.FindCity,
         modifier = Modifier.padding(paddingValues = innerPadding)
     ) {
-        composable(route = Routes.FIND_CITY) {
+        composable<Screen.FindCity> {
             FindCityOrGetLocationScreen(
                 viewModel = hiltViewModel<FindCityViewModel>(),
                 navigateToWeatherScreen = {
-                    navController.navigate(Routes.WEATHER) {
+                    navController.navigate(Screen.Weather) {
                         launchSingleTop = true
-                        popUpTo(Routes.FIND_CITY) {
+                        popUpTo(Screen.FindCity) {
                             inclusive = true
                             saveState = false
                         }
@@ -38,13 +40,13 @@ fun MainContent(innerPadding: PaddingValues) {
             )
         }
 
-        composable(route = Routes.WEATHER) {
+        composable<Screen.Weather> {
             WeatherScreen(
                 viewModel = hiltViewModel<WeatherViewModel>(),
                 goToChooseLocation = {
-                    navController.navigate(Routes.FIND_CITY) {
+                    navController.navigate(Screen.FindCity) {
                         launchSingleTop = true
-                        popUpTo(Routes.WEATHER) {
+                        popUpTo(Screen.Weather) {
                             inclusive = true
                             saveState = false
                         }

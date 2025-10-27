@@ -1,5 +1,6 @@
 package com.alexeyyuditsky.weatherapp.findCity.di
 
+import com.alexeyyuditsky.weatherapp.findCity.data.FindCityRepositoryImpl
 import com.alexeyyuditsky.weatherapp.findCity.data.FindCityCacheDataSource
 import com.alexeyyuditsky.weatherapp.findCity.data.FindCityCloudDataSource
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
@@ -22,7 +23,7 @@ abstract class FoundCityBindsModule {
     abstract fun bindFindCityCacheDataSource(cacheDataSource: FindCityCacheDataSource.Base): FindCityCacheDataSource
 
     @Binds
-    abstract fun bindFindCityRepository(repository: FindCityRepository.Base): FindCityRepository
+    abstract fun bindFindCityRepository(repository: FindCityRepositoryImpl): FindCityRepository
 
     @Binds
     abstract fun bindFoundCityUiMapper(mapper: FoundCityUiMapper): FoundCityResult.Mapper<FoundCityUi>

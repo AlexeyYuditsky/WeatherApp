@@ -1,5 +1,6 @@
 package com.alexeyyuditsky.weatherapp.weather.di
 
+import com.alexeyyuditsky.weatherapp.weather.data.WeatherRepositoryImpl
 import com.alexeyyuditsky.weatherapp.weather.data.FetchWeatherRepository
 import com.alexeyyuditsky.weatherapp.weather.data.StartForegroundWrapper
 import com.alexeyyuditsky.weatherapp.weather.data.WeatherCacheDataSource
@@ -20,24 +21,38 @@ import javax.inject.Singleton
 abstract class WeatherBindsModule {
 
     @Binds
-    abstract fun bindWeatherCloudDataSource(cloudDataSource: WeatherCloudDataSource.Base): WeatherCloudDataSource
+    abstract fun bindWeatherCloudDataSource(
+        cloudDataSource: WeatherCloudDataSource.Base,
+    ): WeatherCloudDataSource
 
     @Singleton
     @Binds
-    abstract fun bindWeatherCacheDataSource(cacheDataSource: WeatherCacheDataSource.Base): WeatherCacheDataSource
+    abstract fun bindWeatherCacheDataSource(
+        cacheDataSource: WeatherCacheDataSource.Base,
+    ): WeatherCacheDataSource
 
     @Binds
-    abstract fun bindWeatherRepository(repository: WeatherRepository.Base): WeatherRepository
+    abstract fun bindWeatherRepository(
+        repository: WeatherRepositoryImpl,
+    ): WeatherRepository
 
     @Binds
-    abstract fun bindsFetchWeatherRepository(fetchRepository: FetchWeatherRepository.Base): FetchWeatherRepository
+    abstract fun bindsFetchWeatherRepository(
+        fetchRepository: FetchWeatherRepository.Base,
+    ): FetchWeatherRepository
 
     @Binds
-    abstract fun bindWeatherUiMapper(mapper: WeatherUiMapper): WeatherResult.Mapper<WeatherUi>
+    abstract fun bindWeatherUiMapper(
+        mapper: WeatherUiMapper,
+    ): WeatherResult.Mapper<WeatherUi>
 
     @Binds
-    abstract fun bindTimeWrapper(wrapper: TimeWrapper.Base): TimeWrapper
+    abstract fun bindTimeWrapper(
+        wrapper: TimeWrapper.Base,
+    ): TimeWrapper
 
     @Binds
-    abstract fun bindForegroundWrapper(wrapper: StartForegroundWrapper.Base): StartForegroundWrapper
+    abstract fun bindForegroundWrapper(
+        wrapper: StartForegroundWrapper.Base,
+    ): StartForegroundWrapper
 }

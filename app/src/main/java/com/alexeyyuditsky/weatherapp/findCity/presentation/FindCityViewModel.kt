@@ -3,7 +3,7 @@ package com.alexeyyuditsky.weatherapp.findCity.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.alexeyyuditsky.weatherapp.core.presentation.RunAsync
+import com.alexeyyuditsky.weatherapp.core.RunAsync
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
@@ -16,11 +16,11 @@ import javax.inject.Inject
 class FindCityViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repository: FindCityRepository,
-    private val runAsync: RunAsync,
     private val mapper: FoundCityResult.Mapper<FoundCityUi>,
+    private val runAsync: RunAsync,
 ) : ViewModel() {
 
-    val state = savedStateHandle.getStateFlow(KEY, mapper.mapToEmpty())
+    val state = savedStateHandle.getStateFlow<FoundCityUi>(KEY, FoundCityUi.Empty)
 
     private val _close = MutableStateFlow(false)
     val close get() = _close.asStateFlow()
@@ -28,18 +28,19 @@ class FindCityViewModel @Inject constructor(
     init {
         runAsync.debounce(
             scope = viewModelScope,
-            background = { latestQuery ->
-                if (latestQuery.isBlank())
-                    mapper.mapToEmpty()
-                else {
-                    savedStateHandle[KEY] = FoundCityUi.Loading
-                    val foundCityResult = repository.findCity(latestQuery)
-                    foundCityResult.map(mapper)
-                }
+            start = { query ->
+                if (query.isBlank())
+                    FoundCityUi.Empty
+                else
+                    FoundCityUi.Loading
+            },
+            background = { query ->
+                val foundCityResult = repository.findCity(query)
+                foundCityResult.map(mapper)
             },
             ui = { foundCityUi ->
                 savedStateHandle[KEY] = foundCityUi
-            }
+            },
         )
     }
 
@@ -52,7 +53,7 @@ class FindCityViewModel @Inject constructor(
     )
 
     fun chooseCity(
-        foundCity: FoundCity
+        foundCity: FoundCity,
     ) = runAsync.runAsync(
         scope = viewModelScope,
         background = { repository.saveFoundCity(foundCity = foundCity) },

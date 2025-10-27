@@ -1,8 +1,7 @@
-package com.alexeyyuditsky.weatherapp.core.presentation
+package com.alexeyyuditsky.weatherapp.core
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
@@ -31,7 +30,7 @@ interface Connection {
         override val connected = mutableConnection.asStateFlow()
 
         init {
-            connectivityManager.registerNetworkCallback(request, object : NetworkCallback() {
+            connectivityManager.registerNetworkCallback(request, object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
                     mutableConnection.value = true
                 }

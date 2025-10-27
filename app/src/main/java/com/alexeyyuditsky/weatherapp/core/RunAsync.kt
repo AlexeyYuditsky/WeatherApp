@@ -1,5 +1,6 @@
-package com.alexeyyuditsky.weatherapp.core.presentation
+package com.alexeyyuditsky.weatherapp.core
 
+import com.alexeyyuditsky.weatherapp.findCity.presentation.FoundCityUi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -12,9 +13,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -27,22 +28,23 @@ interface RunAsync {
         ui: (T) -> Unit = {},
     )
 
-    fun <T : Any> debounce(
+    fun debounce(
         scope: CoroutineScope,
-        background: suspend (String) -> T,
-        ui: (T) -> Unit,
+        start: (String) -> FoundCityUi,
+        background: suspend (String) -> FoundCityUi,
+        ui: (FoundCityUi) -> Unit,
     )
 
     fun emit(
         query: String,
-        isRetryCall: Boolean
+        isRetryCall: Boolean,
     )
 
     fun <T : Any, E : Any> runFlow(
         scope: CoroutineScope,
         flow: Flow<T>,
         map: suspend (T) -> E,
-        onEach: suspend (E) -> Unit
+        onEach: suspend (E) -> Unit,
     )
 
     class Base @Inject constructor() : RunAsync {
@@ -51,7 +53,7 @@ interface RunAsync {
             scope: CoroutineScope,
             flow: Flow<T>,
             map: suspend (T) -> E,
-            onEach: suspend (E) -> Unit
+            onEach: suspend (E) -> Unit,
         ) {
             flow.map(map)
                 .onEach(onEach)
@@ -82,10 +84,11 @@ interface RunAsync {
         )
 
         @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-        override fun <T : Any> debounce(
+        override fun debounce(
             scope: CoroutineScope,
-            background: suspend (String) -> T,
-            ui: (T) -> Unit,
+            start: (String) -> FoundCityUi,
+            background: suspend (String) -> FoundCityUi,
+            ui: (FoundCityUi) -> Unit,
         ) {
             val input = inputFlow
                 .map { query -> query.trim() }
@@ -93,15 +96,25 @@ interface RunAsync {
                 .debounce(1000)
 
             merge(input, retryFlow)
-                .mapLatest { query -> background.invoke(query) }
-                .flowOn(Dispatchers.IO)
+                .transformLatest { query ->
+                    val startState = start.invoke(query)
+                    emit(startState)
+
+                    if (startState is FoundCityUi.Loading) {
+                        emit(
+                            withContext(Dispatchers.IO) {
+                                background(query)
+                            }
+                        )
+                    }
+                }
                 .onEach(ui)
                 .launchIn(scope)
         }
 
         override fun emit(
             query: String,
-            isRetryCall: Boolean
+            isRetryCall: Boolean,
         ) {
             if (isRetryCall)
                 retryFlow.tryEmit(query)

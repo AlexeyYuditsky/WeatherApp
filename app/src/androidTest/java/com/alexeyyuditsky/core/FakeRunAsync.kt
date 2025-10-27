@@ -1,6 +1,7 @@
 package com.alexeyyuditsky.core
 
-import com.alexeyyuditsky.weatherapp.core.presentation.RunAsync
+import com.alexeyyuditsky.weatherapp.core.RunAsync
+import com.alexeyyuditsky.weatherapp.findCity.presentation.FoundCityUi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
@@ -30,10 +31,11 @@ class FakeRunAsync : RunAsync {
     private var uiDebounced: (Any) -> Unit = {}
     private var debouncedResult: Any? = null
 
-    override fun <T : Any> debounce(
+    override fun debounce(
         scope: CoroutineScope,
-        background: suspend (String) -> T,
-        ui: (T) -> Unit
+        start: (String) -> FoundCityUi,
+        background: suspend (String) -> FoundCityUi,
+        ui: (FoundCityUi) -> Unit
     ) {
         backgroundDebounced = background
         uiDebounced = ui as (Any) -> Unit

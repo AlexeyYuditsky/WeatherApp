@@ -1,7 +1,7 @@
 package com.alexeyyuditsky.weatherapp.core.di
 
-import com.alexeyyuditsky.weatherapp.core.presentation.Connection
-import com.alexeyyuditsky.weatherapp.core.presentation.RunAsync
+import com.alexeyyuditsky.weatherapp.core.Connection
+import com.alexeyyuditsky.weatherapp.core.RunAsync
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

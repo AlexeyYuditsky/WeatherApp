@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -53,6 +54,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.serialization.json)
+
     implementation(libs.androidx.glance.appwidget)
 
     implementation(libs.coil)
