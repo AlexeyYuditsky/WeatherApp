@@ -48,6 +48,7 @@ class FindCityViewModel @Inject constructor(
         cityName: String,
         isRetryCall: Boolean = false,
     ) = runAsync.emit(
+        scope = viewModelScope,
         query = cityName,
         isRetryCall = isRetryCall
     )
@@ -56,8 +57,12 @@ class FindCityViewModel @Inject constructor(
         foundCity: FoundCity,
     ) = runAsync.runAsync(
         scope = viewModelScope,
-        background = { repository.saveFoundCity(foundCity = foundCity) },
-        ui = { _close.value = true }
+        background = {
+            repository.saveFoundCity(foundCity = foundCity)
+        },
+        ui = {
+            _close.value = true
+        }
     )
 
     fun chooseLocation(
@@ -65,8 +70,12 @@ class FindCityViewModel @Inject constructor(
         longitude: Double,
     ) = runAsync.runAsync(
         scope = viewModelScope,
-        background = { repository.saveFoundCity(latitude, longitude) },
-        ui = { _close.value = true }
+        background = {
+            repository.saveFoundCity(latitude, longitude)
+        },
+        ui = {
+            _close.value = true
+        }
     )
 
     private companion object {

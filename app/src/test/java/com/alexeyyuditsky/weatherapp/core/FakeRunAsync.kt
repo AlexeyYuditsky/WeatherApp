@@ -12,11 +12,6 @@ class FakeRunAsync : RunAsync {
     private var backgroundResult: Any? = null
     private var uiWork: (Any) -> Unit = {}
 
-    private lateinit var queryDebounced: String
-    private lateinit var backgroundWorkDebounced: suspend (String) -> Any
-    private lateinit var backgroundResultDebounced: Any
-    private lateinit var uiWorkDebounced: (Any) -> Unit
-
     private var mapCached: suspend (WeatherParams) -> WeatherUi = { WeatherUi.Empty }
     private var onEachCached: suspend (Any) -> Unit = {}
 
@@ -40,22 +35,26 @@ class FakeRunAsync : RunAsync {
         uiWork = ui as (Any) -> Unit
     }
 
+    private lateinit var queryDebounced: String
+    private lateinit var startWorkDebounced: (String) -> FoundCityUi
+    private lateinit var backgroundWorkDebounced: suspend (String) -> FoundCityUi
+    private lateinit var backgroundResultDebounced: FoundCityUi
+    private lateinit var uiWorkDebounced: (FoundCityUi) -> Unit
+
     override fun debounce(
         scope: CoroutineScope,
         start: (String) -> FoundCityUi,
         background: suspend (String) -> FoundCityUi,
         ui: (FoundCityUi) -> Unit
     ) {
+        startWorkDebounced = start
         backgroundWorkDebounced = background
-        @Suppress("UNCHECKED_CAST")
-        uiWorkDebounced = ui as (Any) -> Unit
+        uiWorkDebounced = ui
     }
 
-    override fun emit(
-        query: String,
-        isRetryCall: Boolean,
-    ) {
-        queryDebounced = query
+    fun runStartWorkDebounced() {
+        val startedState = startWorkDebounced.invoke(queryDebounced)
+        uiWorkDebounced.invoke(startedState)
     }
 
     fun runBackgroundWorkDebounce() = runBlocking {
@@ -63,6 +62,14 @@ class FakeRunAsync : RunAsync {
     }
 
     fun runUiWorkDebounce() = uiWorkDebounced.invoke(backgroundResultDebounced)
+
+    override fun emit(
+        scope: CoroutineScope,
+        query: String,
+        isRetryCall: Boolean,
+    ) {
+        queryDebounced = query
+    }
 
     fun pingFlow(weatherParams: WeatherParams) = runBlocking {
         val result = mapCached.invoke(weatherParams)

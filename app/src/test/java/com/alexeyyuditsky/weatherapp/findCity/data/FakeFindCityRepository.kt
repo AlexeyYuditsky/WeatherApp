@@ -8,6 +8,7 @@ import com.alexeyyuditsky.weatherapp.findCity.domain.ServiceUnavailableException
 
 class FakeFindCityRepository : FindCityRepository {
 
+    var shouldShowError = true
     private lateinit var savedCity: FoundCity
     val findCityCalledList = mutableListOf<String>()
 
@@ -27,6 +28,20 @@ class FakeFindCityRepository : FindCityRepository {
 
             query == "mosc" ->
                 FoundCityResult.Empty
+
+            query == "mosco" -> {
+                if (shouldShowError)
+                    FoundCityResult.Error(error = NoInternetException)
+                        .also { shouldShowError = false }
+                else
+                    FoundCityResult.Success(
+                        foundCity = FoundCity(
+                            name = "Moscow",
+                            latitude = 55.75f,
+                            longitude = 37.61f,
+                        )
+                    )
+            }
 
             query == "moscow" ->
                 FoundCityResult.Success(

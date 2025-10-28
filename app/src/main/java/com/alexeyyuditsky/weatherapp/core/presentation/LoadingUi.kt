@@ -1,7 +1,7 @@
 package com.alexeyyuditsky.weatherapp.core.presentation
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,7 +15,7 @@ import com.alexeyyuditsky.weatherapp.R
 @Composable
 fun LoadingUi() = Column(
     horizontalAlignment = Alignment.CenterHorizontally,
-    modifier = Modifier.fillMaxSize()
+    modifier = Modifier.fillMaxWidth()
 ) {
     CircularProgressIndicator()
     Text(
@@ -24,6 +24,6 @@ fun LoadingUi() = Column(
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showSystemUi = true)
 @Composable
 fun PreviewLoading() = LoadingUi()

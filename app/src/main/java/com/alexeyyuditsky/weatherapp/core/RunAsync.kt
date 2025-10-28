@@ -5,7 +5,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.debounce
@@ -36,6 +35,7 @@ interface RunAsync {
     )
 
     fun emit(
+        scope: CoroutineScope,
         query: String,
         isRetryCall: Boolean,
     )
@@ -74,14 +74,8 @@ interface RunAsync {
             }
         }
 
-        private val inputFlow = MutableSharedFlow<String>(
-            extraBufferCapacity = 1,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST
-        )
-        private val retryFlow = MutableSharedFlow<String>(
-            extraBufferCapacity = 1,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST
-        )
+        private val inputFlow = MutableSharedFlow<String>()
+        private val retryFlow = MutableSharedFlow<String>()
 
         @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
         override fun debounce(
@@ -97,15 +91,14 @@ interface RunAsync {
 
             merge(input, retryFlow)
                 .transformLatest { query ->
-                    val startState = start.invoke(query)
-                    emit(startState)
+                    val startedState = start.invoke(query)
+                    emit(startedState)
 
-                    if (startState is FoundCityUi.Loading) {
-                        emit(
-                            withContext(Dispatchers.IO) {
-                                background(query)
-                            }
-                        )
+                    if (startedState is FoundCityUi.Loading) {
+                        val foundCityUi = withContext(Dispatchers.IO) {
+                            background(query)
+                        }
+                        emit(foundCityUi)
                     }
                 }
                 .onEach(ui)
@@ -113,13 +106,16 @@ interface RunAsync {
         }
 
         override fun emit(
+            scope: CoroutineScope,
             query: String,
             isRetryCall: Boolean,
         ) {
-            if (isRetryCall)
-                retryFlow.tryEmit(query)
-            else
-                inputFlow.tryEmit(query)
+            scope.launch {
+                if (isRetryCall)
+                    retryFlow.emit(query)
+                else
+                    inputFlow.emit(query)
+            }
         }
     }
 }

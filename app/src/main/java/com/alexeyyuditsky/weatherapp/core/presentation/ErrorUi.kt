@@ -2,9 +2,8 @@ package com.alexeyyuditsky.weatherapp.core.presentation
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,22 +21,23 @@ fun ErrorUi(
     onRetryClick: () -> Unit,
 ) = Column(
     horizontalAlignment = Alignment.CenterHorizontally,
-    modifier = Modifier.fillMaxSize()
+    modifier = Modifier.fillMaxWidth()
 ) {
     Text(
         text = stringResource(errorResId),
         modifier = Modifier.testTag("noInternetConnection")
     )
-    Spacer(modifier = Modifier.height(24.dp))
     Button(
         onClick = onRetryClick,
-        modifier = Modifier.testTag("retryButton")
+        modifier = Modifier
+            .padding(top = 16.dp)
+            .testTag("retryButton")
     ) {
         Text(text = stringResource(R.string.retry))
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showSystemUi = true)
 @Composable
 fun PreviewError() = ErrorUi(
     errorResId = R.string.no_internet_connection,
