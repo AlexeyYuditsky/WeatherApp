@@ -25,10 +25,10 @@ class FakeRunAsync : RunAsync {
         onEachCached = onEach as suspend (Any) -> Unit
     }
 
-    override fun <T : Any> runAsync(
+    override fun <T> runAsync(
         scope: CoroutineScope,
         background: suspend () -> T,
-        ui: (T) -> Unit,
+        ui: () -> Unit,
     ) = runBlocking {
         backgroundResult = background.invoke()
         @Suppress("UNCHECKED_CAST")
@@ -64,7 +64,6 @@ class FakeRunAsync : RunAsync {
     fun runUiWorkDebounce() = uiWorkDebounced.invoke(backgroundResultDebounced)
 
     override fun emit(
-        scope: CoroutineScope,
         query: String,
         isRetryCall: Boolean,
     ) {

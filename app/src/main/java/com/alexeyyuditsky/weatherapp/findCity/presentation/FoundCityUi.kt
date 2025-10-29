@@ -2,13 +2,11 @@ package com.alexeyyuditsky.weatherapp.findCity.presentation
 
 import android.os.Parcelable
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
 import com.alexeyyuditsky.weatherapp.R
 import com.alexeyyuditsky.weatherapp.core.presentation.ErrorUi
 import com.alexeyyuditsky.weatherapp.core.presentation.LoadingUi
@@ -73,9 +71,7 @@ interface FoundCityUi : Parcelable {
             onRetryClick: () -> Unit,
         ) = Button(
             onClick = { onFoundCityClick.invoke(foundCity) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 text = foundCity.name,

@@ -8,8 +8,8 @@ import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,8 +22,8 @@ class FindCityViewModel @Inject constructor(
 
     val state = savedStateHandle.getStateFlow<FoundCityUi>(KEY, FoundCityUi.Empty)
 
-    private val _close = MutableStateFlow(false)
-    val close get() = _close.asStateFlow()
+    private val _events = MutableSharedFlow<FindCityEvent>(extraBufferCapacity = 1)
+    val events get() = _events.asSharedFlow()
 
     init {
         runAsync.debounce(
@@ -48,7 +48,6 @@ class FindCityViewModel @Inject constructor(
         cityName: String,
         isRetryCall: Boolean = false,
     ) = runAsync.emit(
-        scope = viewModelScope,
         query = cityName,
         isRetryCall = isRetryCall
     )
@@ -61,7 +60,7 @@ class FindCityViewModel @Inject constructor(
             repository.saveFoundCity(foundCity = foundCity)
         },
         ui = {
-            _close.value = true
+            _events.tryEmit(FindCityEvent.NavigateToWeatherScreen)
         }
     )
 
@@ -74,7 +73,7 @@ class FindCityViewModel @Inject constructor(
             repository.saveFoundCity(latitude, longitude)
         },
         ui = {
-            _close.value = true
+            _events.tryEmit(FindCityEvent.NavigateToWeatherScreen)
         }
     )
 

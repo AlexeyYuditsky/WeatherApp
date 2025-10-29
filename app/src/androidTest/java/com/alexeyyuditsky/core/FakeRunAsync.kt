@@ -15,10 +15,10 @@ class FakeRunAsync : RunAsync {
     private var resultCached: Any? = null
     private var uiCached: (Any) -> Unit = {}
 
-    override fun <T : Any> runAsync(
+    override fun <T> runAsync(
         scope: CoroutineScope,
         background: suspend () -> T,
-        ui: (T) -> Unit
+        ui: () -> Unit
     ) {
         runBlocking {
             val result: T = background.invoke()
@@ -54,7 +54,10 @@ class FakeRunAsync : RunAsync {
         map: suspend (T) -> E,
         onEach: suspend (E) -> Unit
     ) {
-        flow.map(map).onEach(onEach).launchIn(scope)
+        flow
+            .map(map)
+            .onEach(onEach)
+            .launchIn(scope)
     }
 
     fun returnResult() {

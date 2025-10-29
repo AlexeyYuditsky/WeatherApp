@@ -21,10 +21,10 @@ import javax.inject.Inject
 
 interface RunAsync {
 
-    fun <T : Any> runAsync(
+    fun <T> runAsync(
         scope: CoroutineScope,
         background: suspend () -> T,
-        ui: (T) -> Unit = {},
+        ui: () -> Unit = {},
     )
 
     fun debounce(
@@ -35,7 +35,6 @@ interface RunAsync {
     )
 
     fun emit(
-        scope: CoroutineScope,
         query: String,
         isRetryCall: Boolean,
     )
@@ -61,21 +60,19 @@ interface RunAsync {
                 .launchIn(scope)
         }
 
-        override fun <T : Any> runAsync(
+        override fun <T> runAsync(
             scope: CoroutineScope,
             background: suspend () -> T,
-            ui: (T) -> Unit,
+            ui: () -> Unit,
         ) {
-            scope.launch(Dispatchers.IO) {
-                val result = background.invoke()
-                withContext(Dispatchers.Main) {
-                    ui.invoke(result)
-                }
+            scope.launch {
+                withContext(Dispatchers.IO) { background.invoke() }
+                ui.invoke()
             }
         }
 
-        private val inputFlow = MutableSharedFlow<String>()
-        private val retryFlow = MutableSharedFlow<String>()
+        private val inputFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
+        private val retryFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
 
         @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
         override fun debounce(
@@ -106,16 +103,13 @@ interface RunAsync {
         }
 
         override fun emit(
-            scope: CoroutineScope,
             query: String,
             isRetryCall: Boolean,
         ) {
-            scope.launch {
-                if (isRetryCall)
-                    retryFlow.emit(query)
-                else
-                    inputFlow.emit(query)
-            }
+            if (isRetryCall)
+                retryFlow.tryEmit(query)
+            else
+                inputFlow.tryEmit(query)
         }
     }
 }
