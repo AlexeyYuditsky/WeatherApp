@@ -17,11 +17,9 @@ fun FindCityOrGetLocationScreen(
     var getLocation by rememberSaveable { mutableStateOf(false) }
 
     if (getLocation)
-        GetUserLocationScreen(
+        GetLocationScreen(
             onSuccess = { latitude, longitude ->
                 viewModel.chooseLocation(latitude, longitude)
-                getLocation = false
-                navigateToWeatherScreen.invoke()
             },
             onFailed = { text ->
                 Toast.makeText(context, text, Toast.LENGTH_SHORT).show()

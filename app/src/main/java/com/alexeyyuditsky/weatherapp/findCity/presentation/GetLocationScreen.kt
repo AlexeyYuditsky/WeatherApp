@@ -21,7 +21,7 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
 
 @Composable
-fun GetUserLocationScreen(
+fun GetLocationScreen(
     onSuccess: (Double, Double) -> Unit,
     onFailed: (String) -> Unit,
 ) {
