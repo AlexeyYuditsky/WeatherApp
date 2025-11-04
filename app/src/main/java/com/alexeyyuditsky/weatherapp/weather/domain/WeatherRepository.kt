@@ -5,13 +5,13 @@ import kotlinx.coroutines.flow.Flow
 
 interface WeatherRepository {
 
+    val weatherFlow: Flow<WeatherParams>
+
+    val errorFlow: Flow<Boolean>
+
     fun weather(
         savedWeather: WeatherParams,
     ): WeatherResult
-
-    fun weatherFlow(): Flow<WeatherParams>
-
-    fun errorFlow(): Flow<Boolean>
 
     fun loadWeather()
 }

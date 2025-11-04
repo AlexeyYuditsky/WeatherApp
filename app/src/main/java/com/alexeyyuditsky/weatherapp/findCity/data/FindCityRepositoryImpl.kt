@@ -18,7 +18,7 @@ class FindCityRepositoryImpl @Inject constructor(
         if (foundCityCloudList.isEmpty())
             FoundCityResult.Empty
         else {
-            val foundCityCloud = foundCityCloudList.first()
+            val foundCityCloud = foundCityCloudList[0]
             FoundCityResult.Success(
                 foundCity = FoundCity(
                     name = foundCityCloud.name,

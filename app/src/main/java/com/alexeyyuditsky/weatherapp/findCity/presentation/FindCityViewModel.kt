@@ -36,7 +36,8 @@ class FindCityViewModel @Inject constructor(
             },
             background = { query ->
                 val foundCityResult = repository.findCity(query)
-                foundCityResult.map(mapper)
+                val foundCityUi = foundCityResult.map(mapper)
+                foundCityUi
             },
             ui = { foundCityUi ->
                 savedStateHandle[KEY] = foundCityUi

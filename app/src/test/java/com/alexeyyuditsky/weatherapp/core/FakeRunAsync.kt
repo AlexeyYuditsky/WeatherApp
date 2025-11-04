@@ -18,11 +18,11 @@ class FakeRunAsync : RunAsync {
     override fun <T : Any, E : Any> runFlow(
         scope: CoroutineScope,
         flow: Flow<T>,
-        map: suspend (T) -> E,
-        onEach: suspend (E) -> Unit
+        background: suspend (T) -> E,
+        ui: suspend (E) -> Unit
     ) {
-        mapCached = map as suspend (WeatherParams) -> WeatherUi
-        onEachCached = onEach as suspend (Any) -> Unit
+        mapCached = background as suspend (WeatherParams) -> WeatherUi
+        onEachCached = ui as suspend (Any) -> Unit
     }
 
     override fun <T> runAsync(

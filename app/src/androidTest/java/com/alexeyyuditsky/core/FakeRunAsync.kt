@@ -51,12 +51,12 @@ class FakeRunAsync : RunAsync {
     override fun <T : Any, E : Any> runFlow(
         scope: CoroutineScope,
         flow: Flow<T>,
-        map: suspend (T) -> E,
-        onEach: suspend (E) -> Unit
+        background: suspend (T) -> E,
+        ui: suspend (E) -> Unit
     ) {
         flow
-            .map(map)
-            .onEach(onEach)
+            .map(background)
+            .onEach(ui)
             .launchIn(scope)
     }
 

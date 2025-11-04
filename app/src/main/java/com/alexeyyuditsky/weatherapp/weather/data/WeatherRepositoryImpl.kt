@@ -9,7 +9,7 @@ import javax.inject.Inject
 class WeatherRepositoryImpl @Inject constructor(
     private val minutes: Int,
     private val cacheDataSource: WeatherCacheDataSource,
-    private val startForeGroundWrapper: StartForegroundWrapper
+    private val startForegroundWrapper: StartForegroundWrapper
 ) : WeatherRepository {
 
     override fun weather(savedWeather: WeatherParams): WeatherResult {
@@ -36,9 +36,9 @@ class WeatherRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun weatherFlow(): Flow<WeatherParams> = cacheDataSource.savedWeather()
+    override val weatherFlow: Flow<WeatherParams> = cacheDataSource.savedWeather()
 
-    override fun errorFlow(): Flow<Boolean> = cacheDataSource.hasError()
+    override val errorFlow: Flow<Boolean> = cacheDataSource.hasError()
 
-    override fun loadWeather() = startForeGroundWrapper.start()
+    override fun loadWeather() = startForegroundWrapper.start()
 }

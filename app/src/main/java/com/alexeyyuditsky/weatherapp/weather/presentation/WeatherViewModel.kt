@@ -20,25 +20,34 @@ class WeatherViewModel @Inject constructor(
     connection: Connection,
 ) : ViewModel() {
 
-    val state = savedStateHandle.getStateFlow(KEY, mapper.mapToEmpty())
+    val state = savedStateHandle.getStateFlow<WeatherUi>(KEY, WeatherUi.Empty)
 
     val connectionFlow = connection.connected.map {
-        if (it) ConnectedUi.Connected else ConnectedUi.Disconnected
+        if (it)
+            ConnectedUi.Connected
+        else
+            ConnectedUi.Disconnected
     }
 
-    val errorFlow = repository.errorFlow().map {
-        if (it) ErrorUi.Error else ErrorUi.Empty
+    val errorFlow = repository.errorFlow.map {
+        if (it)
+            ErrorUi.Error
+        else
+            ErrorUi.Empty
     }
 
     init {
         runAsync.runFlow(
             scope = viewModelScope,
-            flow = repository.weatherFlow(),
-            map = { weather ->
-                val weatherResult = repository.weather(savedWeather = weather)
-                weatherResult.map(mapper)
+            flow = repository.weatherFlow,
+            background = { weatherParams ->
+                val weatherResult = repository.weather(savedWeather = weatherParams)
+                val weatherUi = weatherResult.map(mapper)
+                weatherUi
             },
-            onEach = { savedStateHandle[KEY] = it }
+            ui = { weatherUi ->
+                savedStateHandle[KEY] = weatherUi
+            }
         )
     }
 
@@ -46,7 +55,9 @@ class WeatherViewModel @Inject constructor(
         savedStateHandle[KEY] = WeatherUi.Loading
         runAsync.runAsync(
             scope = viewModelScope,
-            background = { repository.loadWeather() }
+            background = {
+                repository.loadWeather()
+            }
         )
     }
 

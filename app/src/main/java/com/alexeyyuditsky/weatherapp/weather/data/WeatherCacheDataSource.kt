@@ -35,10 +35,13 @@ interface WeatherCacheDataSource {
 
     @Singleton
     class Base @Inject constructor(
-        @ApplicationContext private val context: Context
+        @ApplicationContext private val context: Context,
     ) : WeatherCacheDataSource {
 
         private val gson = Gson()
+        private val weatherWidget = stringPreferencesKey("weather_widget")
+        private val weatherParams = stringPreferencesKey("weather_params")
+        private val hasErrorKey = booleanPreferencesKey("weather_error")
 
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
             name = context.getString(R.string.app_name)
@@ -47,14 +50,23 @@ interface WeatherCacheDataSource {
         private val sharedPreferences =
             context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
 
+        private val default = WeatherParams(
+            latitude = 0f,
+            longitude = 0f,
+            city = "",
+            time = 0L,
+            imageUrl = "",
+            details = ""
+        )
+
+        private val dateFormat = SimpleDateFormat("HH:mm\ndd-MMM", Locale.getDefault()).apply {
+            timeZone = TimeZone.getDefault()
+        }
+
         override fun cityParams(): Pair<Float, Float> {
             val latitude = sharedPreferences.getFloat(LATITUDE, 0f)
             val longitude = sharedPreferences.getFloat(LONGITUDE, 0f)
             return Pair(latitude, longitude)
-        }
-
-        private val dateFormat = SimpleDateFormat("HH:mm\ndd-MMM", Locale.getDefault()).apply {
-            timeZone = TimeZone.getDefault()
         }
 
         override suspend fun saveWeather(params: WeatherParams) {
@@ -68,15 +80,10 @@ interface WeatherCacheDataSource {
             }
         }
 
-        override fun weatherForWidget(): Flow<String> {
-            return context.dataStore.data.map { preferences ->
+        override fun weatherForWidget(): Flow<String> =
+            context.dataStore.data.map { preferences ->
                 preferences[weatherWidget] ?: ""
             }
-        }
-
-        private val default = WeatherParams(
-            0f, 0f, "", 0L, "", ""
-        )
 
         override fun savedWeather() = context.dataStore.data.map { preferences ->
             val raw = preferences[weatherParams] ?: gson.toJson(default)
@@ -93,13 +100,9 @@ interface WeatherCacheDataSource {
             preferences[hasErrorKey] ?: false
         }
 
-        private val weatherWidget = stringPreferencesKey("weather_widget")
-        private val weatherParams = stringPreferencesKey("weather_params")
-        private val hasErrorKey = booleanPreferencesKey("weather_error")
-
-        companion object {
-            private const val LATITUDE = "latitudeKey"
-            private const val LONGITUDE = "longitudeKey"
+        private companion object {
+            const val LATITUDE = "latitudeKey"
+            const val LONGITUDE = "longitudeKey"
         }
     }
 }

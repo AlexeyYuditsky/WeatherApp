@@ -39,24 +39,24 @@ interface RunAsync {
         isRetryCall: Boolean,
     )
 
-    fun <T : Any, E : Any> runFlow(
+    fun <T, E> runFlow(
         scope: CoroutineScope,
         flow: Flow<T>,
-        map: suspend (T) -> E,
-        onEach: suspend (E) -> Unit,
+        background: suspend (T) -> E,
+        ui: (E) -> Unit,
     )
 
     class Base @Inject constructor() : RunAsync {
 
-        override fun <T : Any, E : Any> runFlow(
+        override fun <T, E> runFlow(
             scope: CoroutineScope,
             flow: Flow<T>,
-            map: suspend (T) -> E,
-            onEach: suspend (E) -> Unit,
+            background: suspend (T) -> E,
+            ui: (E) -> Unit,
         ) {
-            flow.map(map)
-                .onEach(onEach)
+            flow.map(background)
                 .flowOn(Dispatchers.IO)
+                .onEach(ui)
                 .launchIn(scope)
         }
 

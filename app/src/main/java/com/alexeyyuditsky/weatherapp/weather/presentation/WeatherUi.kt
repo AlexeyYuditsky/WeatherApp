@@ -1,17 +1,13 @@
 package com.alexeyyuditsky.weatherapp.weather.presentation
 
 import android.os.Parcelable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.alexeyyuditsky.weatherapp.R
@@ -36,7 +33,102 @@ interface WeatherUi : Parcelable {
     fun Show() = Unit
 
     @Parcelize
-    data object Empty : WeatherUi
+    data class Success(
+        private val cityName: String,
+        private val details: String,
+        private val imageUrl: String,
+        private val time: String,
+        private val forecast: List<Pair<String, String>> = emptyList(),
+    ) : WeatherUi {
+
+        @Composable
+        override fun Show() = Column(
+            modifier = Modifier.padding(horizontal = 8.dp)
+        ) {
+            Text(
+                text = cityName,
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("CityName")
+            )
+            Row {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = stringResource(R.string.weather_image),
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .size(size = 72.dp)
+                        .background(
+                            shape = RoundedCornerShape(size = 8.dp),
+                            color = Color(
+                                red = 0f,
+                                green = 0.2f,
+                                blue = 0f,
+                                alpha = 0.2f
+                            )
+                        )
+                )
+                Column {
+                    Text(
+                        text = details,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("WeatherTemperature"),
+                    )
+                    Text(
+                        text = time,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+            LazyColumn {
+                items(forecast) { (text, url) ->
+                    Row(
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                            .fillMaxWidth()
+                            .border(
+                                width = 2.dp,
+                                color = LocalContentColor.current,
+                                shape = RoundedCornerShape(size = 8.dp)
+                            )
+                    ) {
+                        AsyncImage(
+                            model = url,
+                            contentDescription = stringResource(R.string.weather_image),
+                            modifier = Modifier
+                                .padding(all = 8.dp)
+                                .size(size = 72.dp)
+                                .background(
+                                    shape = RoundedCornerShape(size = 8.dp),
+                                    color = Color(
+                                        red = 0f,
+                                        green = 0.2f,
+                                        blue = 0f,
+                                        alpha = 0.2f
+                                    )
+                                )
+                        )
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .padding(vertical = 8.dp)
+                                .fillMaxWidth()
+                                .testTag("WeatherTemperature"),
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     @Parcelize
     data object Loading : WeatherUi {
@@ -46,101 +138,61 @@ interface WeatherUi : Parcelable {
     }
 
     @Parcelize
-    data class Success(
-        private val cityName: String,
-        private val details: String,
-        private val imageUrl: String,
-        private val time: String,
-        private val forecast: List<Pair<String, String>> = emptyList()
-    ) : WeatherUi {
-
-        @Composable
-        override fun Show() = Column {
-            Column {
-                Text(
-                    text = cityName,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("CityName"),
-                    textAlign = TextAlign.Center
-                )
-                Row {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    AsyncImage(
-                        model = imageUrl,
-                        contentDescription = stringResource(R.string.weather_image),
-                        modifier = Modifier
-                            .padding(top = 16.dp)
-                            .size(72.dp)
-                            .background(
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color(red = 0f, green = 0.2f, blue = 0f, alpha = 0.2f)
-                            )
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column {
-                        Text(
-                            text = details,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .testTag("WeatherTemperature"),
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = time,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp)
-                                .fillMaxWidth(),
-                            textAlign = TextAlign.End
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                }
-                LazyColumn {
-                    items(forecast) { (text, url) ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                                .border(
-                                    width = 2.dp,
-                                    color = LocalContentColor.current,
-                                    shape = RoundedCornerShape(8.dp)
-                                ),
-                        ) {
-                            Spacer(modifier = Modifier.width(8.dp))
-                            AsyncImage(
-                                model = url,
-                                contentDescription = stringResource(R.string.weather_image),
-                                modifier = Modifier
-                                    .padding(top = 16.dp)
-                                    .size(72.dp)
-                                    .background(
-                                        shape = RoundedCornerShape(8.dp),
-                                        color = Color(
-                                            red = 0f,
-                                            green = 0.2f,
-                                            blue = 0f,
-                                            alpha = 0.2f
-                                        )
-                                    )
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = text,
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp)
-                                    .testTag("WeatherTemperature"),
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
+    data object Empty : WeatherUi
 }
+
+@Preview(showSystemUi = true)
+@Composable
+fun PreviewWeatherScreenUiSuccess() =
+    WeatherScreenUi(
+        weatherUi = WeatherUi.Success(
+            cityName = "Moscow",
+            details = "Temperature: 9.24°C\nClouds (overcast clouds)\nHumidity: 69.0%\nWind speed: 1.88 m/s\nClouds: 100%\nSunrise: 07:41\nSunset: 16:44\nAir pollution: good",
+            imageUrl = "",
+            time = "5 min ago (10-Aug-2025)",
+            forecast = listOf("Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "")
+        ),
+        connectedUi = ConnectedUi.Connected,
+        errorUi = ErrorUi.Empty,
+        retry = {},
+        goToChooseLocation = {},
+    )
+
+@Preview(showSystemUi = true)
+@Composable
+fun PreviewWeatherScreenUiLoading() =
+    WeatherScreenUi(
+        weatherUi = WeatherUi.Loading,
+        connectedUi = ConnectedUi.Connected,
+        errorUi = ErrorUi.Empty,
+        retry = {},
+        goToChooseLocation = {},
+    )
+
+@Preview(showSystemUi = true)
+@Composable
+fun PreviewWeatherScreenUiDisconnected() =
+    WeatherScreenUi(
+        weatherUi = WeatherUi.Success(
+            cityName = "Moscow",
+            details = "Temperature: 9.24°C\nClouds (overcast clouds)\nHumidity: 69.0%\nWind speed: 1.88 m/s\nClouds: 100%\nSunrise: 07:41\nSunset: 16:44\nAir pollution: good",
+            imageUrl = "",
+            time = "5 min ago (10-Aug-2025)",
+            forecast = listOf("Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "")
+        ),
+        connectedUi = ConnectedUi.Disconnected,
+        errorUi = ErrorUi.Empty,
+        retry = {},
+        goToChooseLocation = {},
+    )
+
+@Preview(showSystemUi = true)
+@Composable
+fun PreviewWeatherScreenUiError() =
+    WeatherScreenUi(
+        weatherUi = WeatherUi.Empty,
+        connectedUi = ConnectedUi.Connected,
+        errorUi = ErrorUi.Error,
+        retry = {},
+        goToChooseLocation = {},
+    )
