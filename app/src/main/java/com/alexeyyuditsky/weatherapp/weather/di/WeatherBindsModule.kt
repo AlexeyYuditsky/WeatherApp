@@ -14,7 +14,6 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -25,7 +24,6 @@ abstract class WeatherBindsModule {
         cloudDataSource: WeatherCloudDataSource.Base,
     ): WeatherCloudDataSource
 
-    @Singleton
     @Binds
     abstract fun bindWeatherCacheDataSource(
         cacheDataSource: WeatherCacheDataSource.Base,

@@ -3,6 +3,7 @@ package com.alexeyyuditsky.weatherapp.weather.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.alexeyyuditsky.weatherapp.core.presentation.ConnectionUi
 
 @Composable
 fun WeatherScreen(
@@ -10,11 +11,11 @@ fun WeatherScreen(
     goToChooseLocation: () -> Unit,
 ) {
     val weatherUi by viewModel.state.collectAsStateWithLifecycle()
-    val connected by viewModel.connectionFlow.collectAsStateWithLifecycle(ConnectedUi.Connected)
-    val error by viewModel.errorFlow.collectAsStateWithLifecycle(ErrorUi.Empty)
+    val connection by viewModel.connection.collectAsStateWithLifecycle(ConnectionUi.Connected)
+    val error by viewModel.error.collectAsStateWithLifecycle(ErrorUi.Empty)
 
     WeatherScreenUi(
-        connectedUi = connected,
+        connectionUi = connection,
         errorUi = error,
         weatherUi = weatherUi,
         retry = viewModel::retryLoadWeather,

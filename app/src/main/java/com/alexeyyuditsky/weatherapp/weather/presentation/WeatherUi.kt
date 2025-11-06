@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.alexeyyuditsky.weatherapp.R
+import com.alexeyyuditsky.weatherapp.core.presentation.ConnectionUi
 import com.alexeyyuditsky.weatherapp.core.presentation.LoadingUi
 import kotlinx.parcelize.Parcelize
 
@@ -152,7 +153,7 @@ fun PreviewWeatherScreenUiSuccess() =
             time = "5 min ago (10-Aug-2025)",
             forecast = listOf("Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "")
         ),
-        connectedUi = ConnectedUi.Connected,
+        connectionUi = ConnectionUi.Connected,
         errorUi = ErrorUi.Empty,
         retry = {},
         goToChooseLocation = {},
@@ -163,7 +164,7 @@ fun PreviewWeatherScreenUiSuccess() =
 fun PreviewWeatherScreenUiLoading() =
     WeatherScreenUi(
         weatherUi = WeatherUi.Loading,
-        connectedUi = ConnectedUi.Connected,
+        connectionUi = ConnectionUi.Connected,
         errorUi = ErrorUi.Empty,
         retry = {},
         goToChooseLocation = {},
@@ -180,7 +181,7 @@ fun PreviewWeatherScreenUiDisconnected() =
             time = "5 min ago (10-Aug-2025)",
             forecast = listOf("Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "")
         ),
-        connectedUi = ConnectedUi.Disconnected,
+        connectionUi = ConnectionUi.Disconnected,
         errorUi = ErrorUi.Empty,
         retry = {},
         goToChooseLocation = {},
@@ -191,7 +192,7 @@ fun PreviewWeatherScreenUiDisconnected() =
 fun PreviewWeatherScreenUiError() =
     WeatherScreenUi(
         weatherUi = WeatherUi.Empty,
-        connectedUi = ConnectedUi.Connected,
+        connectionUi = ConnectionUi.Connected,
         errorUi = ErrorUi.Error,
         retry = {},
         goToChooseLocation = {},

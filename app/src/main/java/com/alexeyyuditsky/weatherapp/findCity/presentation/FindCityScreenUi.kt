@@ -14,45 +14,51 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexeyyuditsky.weatherapp.R
+import com.alexeyyuditsky.weatherapp.core.presentation.ConnectionUi
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 
 @Composable
 fun FindCityScreenUi(
+    connectionUi: ConnectionUi,
     input: String,
     onValueChange: (String) -> Unit,
     foundCityUi: FoundCityUi,
     onFoundCityClick: (FoundCity) -> Unit,
     onRetryClick: () -> Unit,
     onGetLocationClick: () -> Unit,
-) = Column(
-    modifier = Modifier
-        .fillMaxSize()
-        .padding(all = 16.dp)
-) {
-    Button(
-        onClick = onGetLocationClick,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(text = stringResource(R.string.use_current_location))
-    }
-    OutlinedTextField(
-        label = { Text(text = stringResource(R.string.city)) },
-        value = input,
-        onValueChange = onValueChange,
+) = Column {
+    connectionUi.Show()
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp)
-            .testTag("outlinedTextField"),
-    )
-    foundCityUi.Show(
-        onFoundCityClick = onFoundCityClick,
-        onRetryClick = onRetryClick
-    )
+            .fillMaxSize()
+            .padding(all = 16.dp)
+    ) {
+        Button(
+            onClick = onGetLocationClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = stringResource(R.string.use_current_location))
+        }
+        OutlinedTextField(
+            label = { Text(text = stringResource(R.string.city)) },
+            value = input,
+            onValueChange = onValueChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
+                .testTag("outlinedTextField"),
+        )
+        foundCityUi.Show(
+            onFoundCityClick = onFoundCityClick,
+            onRetryClick = onRetryClick
+        )
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewFindCityScreenUiSuccess() = FindCityScreenUi(
+private fun PreviewFindCityScreenUiSuccessAndNoInternetConnection() = FindCityScreenUi(
+    connectionUi = ConnectionUi.Disconnected,
     input = "Moscow",
     onValueChange = {},
     foundCityUi = FoundCityUi.Success(
@@ -70,6 +76,7 @@ private fun PreviewFindCityScreenUiSuccess() = FindCityScreenUi(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewFindCityScreenUiLoading() = FindCityScreenUi(
+    connectionUi = ConnectionUi.Connected,
     input = "Moscow",
     onValueChange = {},
     foundCityUi = FoundCityUi.Loading,
@@ -81,6 +88,7 @@ private fun PreviewFindCityScreenUiLoading() = FindCityScreenUi(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewFindCityScreenUiEmpty() = FindCityScreenUi(
+    connectionUi = ConnectionUi.Connected,
     input = "",
     onValueChange = {},
     foundCityUi = FoundCityUi.Empty,
@@ -92,6 +100,7 @@ private fun PreviewFindCityScreenUiEmpty() = FindCityScreenUi(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewFindCityScreenUiNoConnectionError() = FindCityScreenUi(
+    connectionUi = ConnectionUi.Connected,
     input = "Moscow",
     onValueChange = {},
     foundCityUi = FoundCityUi.NoConnectionError,
@@ -103,6 +112,7 @@ private fun PreviewFindCityScreenUiNoConnectionError() = FindCityScreenUi(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewFindCityScreenUiServiceUnavailableError() = FindCityScreenUi(
+    connectionUi = ConnectionUi.Connected,
     input = "Moscow",
     onValueChange = {},
     foundCityUi = FoundCityUi.ServiceUnavailableError,

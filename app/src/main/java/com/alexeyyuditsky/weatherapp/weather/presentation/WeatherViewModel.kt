@@ -3,11 +3,14 @@ package com.alexeyyuditsky.weatherapp.weather.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.alexeyyuditsky.weatherapp.core.Connection
+import com.alexeyyuditsky.weatherapp.core.ConnectionUiMapper
 import com.alexeyyuditsky.weatherapp.core.RunAsync
+import com.alexeyyuditsky.weatherapp.core.presentation.ConnectionUi
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -17,19 +20,13 @@ class WeatherViewModel @Inject constructor(
     private val repository: WeatherRepository,
     private val runAsync: RunAsync,
     private val mapper: WeatherResult.Mapper<WeatherUi>,
-    connection: Connection,
+    connectionUiMapper: ConnectionUiMapper,
 ) : ViewModel() {
 
-    val state = savedStateHandle.getStateFlow<WeatherUi>(KEY, WeatherUi.Empty)
+    val state: StateFlow<WeatherUi> = savedStateHandle.getStateFlow(KEY, WeatherUi.Empty)
+    val connection: SharedFlow<ConnectionUi> = connectionUiMapper.state
 
-    val connectionFlow = connection.connected.map {
-        if (it)
-            ConnectedUi.Connected
-        else
-            ConnectedUi.Disconnected
-    }
-
-    val errorFlow = repository.errorFlow.map {
+    val error = repository.errorFlow.map {
         if (it)
             ErrorUi.Error
         else

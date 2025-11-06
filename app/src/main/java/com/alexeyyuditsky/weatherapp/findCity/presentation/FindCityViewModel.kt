@@ -3,12 +3,16 @@ package com.alexeyyuditsky.weatherapp.findCity.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alexeyyuditsky.weatherapp.core.ConnectionUiMapper
 import com.alexeyyuditsky.weatherapp.core.RunAsync
+import com.alexeyyuditsky.weatherapp.core.presentation.ConnectionUi
 import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
 
@@ -18,9 +22,11 @@ class FindCityViewModel @Inject constructor(
     private val repository: FindCityRepository,
     private val mapper: FoundCityResult.Mapper<FoundCityUi>,
     private val runAsync: RunAsync,
+    connectionUiMapper: ConnectionUiMapper,
 ) : ViewModel() {
 
-    val state = savedStateHandle.getStateFlow<FoundCityUi>(KEY, FoundCityUi.Empty)
+    val state: StateFlow<FoundCityUi> = savedStateHandle.getStateFlow(KEY, FoundCityUi.Empty)
+    val connection: SharedFlow<ConnectionUi> = connectionUiMapper.state
 
     private val _events = MutableSharedFlow<FindCityEvent>(extraBufferCapacity = 1)
     val events get() = _events.asSharedFlow()

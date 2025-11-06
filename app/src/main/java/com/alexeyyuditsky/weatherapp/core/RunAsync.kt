@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
 interface RunAsync {
 
@@ -46,6 +47,7 @@ interface RunAsync {
         ui: (E) -> Unit,
     )
 
+    @Singleton
     class Base @Inject constructor() : RunAsync {
 
         override fun <T, E> runFlow(

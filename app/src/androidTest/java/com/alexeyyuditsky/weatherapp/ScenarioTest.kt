@@ -188,7 +188,7 @@ class FakeFindCityRepository : FindCityRepository {
 class FakeConnection : Connection {
 
     private val mutableStateFlow = MutableStateFlow(false)
-    override val connected: StateFlow<Boolean> get() = mutableStateFlow.asStateFlow()
+    override val state: StateFlow<Boolean> get() = mutableStateFlow.asStateFlow()
 
     fun changeConnected(connected: Boolean) {
         mutableStateFlow.value = connected

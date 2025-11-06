@@ -11,16 +11,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alexeyyuditsky.weatherapp.R
+import com.alexeyyuditsky.weatherapp.core.presentation.ConnectionUi
 
 @Composable
 fun WeatherScreenUi(
     weatherUi: WeatherUi,
-    connectedUi: ConnectedUi,
+    connectionUi: ConnectionUi,
     errorUi: ErrorUi,
     retry: () -> Unit,
     goToChooseLocation: () -> Unit,
 ) = Column {
-    connectedUi.Show()
+    connectionUi.Show()
     errorUi.Show(retry)
     IconButton(onClick = goToChooseLocation) {
         Icon(
