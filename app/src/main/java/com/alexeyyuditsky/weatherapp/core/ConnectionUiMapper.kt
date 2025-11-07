@@ -23,11 +23,13 @@ interface ConnectionUiMapper {
         override val state: SharedFlow<ConnectionUi> = connection.state
             .map {
                 when (it) {
-                    Connection.Status.Connected ->
-                        ConnectionUi.Connected
+                    Connection.Status.Connected -> {
+                        ConnectionUi.Connected.also { log("ConnectionUiMapper: map: Status.Connected") }
+                    }
 
-                    Connection.Status.Disconnected ->
-                        ConnectionUi.Disconnected
+                    Connection.Status.Disconnected -> {
+                        ConnectionUi.Disconnected.also { log("ConnectionUiMapper: map: Status.Disconnected") }
+                    }
                 }
             }.shareIn(
                 scope = applicationScope,

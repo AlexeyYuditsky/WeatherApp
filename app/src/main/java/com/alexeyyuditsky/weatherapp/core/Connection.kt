@@ -29,49 +29,43 @@ interface Connection {
 
         override val state: Flow<Status> = callbackFlow {
 
-            fun currentConnection(): Status =
-                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)?.run {
-                    if (
-                        hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                        && hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-                    )
-                        Status.Connected
-                    else
-                        Status.Disconnected
-                } ?: Status.Disconnected
+            fun getCurrentNetworkStatus(networkCapabilities: NetworkCapabilities): Status =
+                if (
+                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                )
+                    Status.Connected.also { log("Connection: getCurrentNetworkStatus: Status.Connected") }
+                else
+                    Status.Disconnected.also { log("Connection: getCurrentNetworkStatus: Status.Disconnected") }
 
-            trySend(currentConnection())
+            fun getConnectionStatus(): Status =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)?.let {
+                    getCurrentNetworkStatus(it)
+                }
+                    ?: Status.Disconnected.also { log("Connection: getConnectionStatus: Status.Disconnected") }
 
             val callback = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
-                    trySend(Status.Connected)
+                    trySend(getConnectionStatus()).also { log("Connection: onAvailable") }
                 }
 
                 override fun onLost(network: Network) {
-                    trySend(Status.Disconnected)
+                    trySend(getConnectionStatus()).also { log("Connection: onLost") }
                 }
 
                 override fun onCapabilitiesChanged(
                     network: Network,
-                    caps: NetworkCapabilities,
+                    networkCapabilities: NetworkCapabilities,
                 ) {
-                    trySend(
-                        if (
-                            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-                        )
-                            Status.Connected
-                        else
-                            Status.Disconnected
-                    )
+                    trySend(getCurrentNetworkStatus(networkCapabilities).also { log("Connection: onCapabilitiesChanged") })
                 }
             }
 
             connectivityManager.registerDefaultNetworkCallback(callback)
-            awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
+            trySend(getConnectionStatus())
+            awaitClose { connectivityManager.unregisterNetworkCallback(callback).also { log("Connection: awaitClose: unregisterNetworkCallback") } }
         }
-            .distinctUntilChanged()
             .conflate()
-
+            .distinctUntilChanged()
     }
 }
