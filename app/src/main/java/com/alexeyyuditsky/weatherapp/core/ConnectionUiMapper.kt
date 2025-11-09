@@ -3,16 +3,16 @@ package com.alexeyyuditsky.weatherapp.core
 import com.alexeyyuditsky.weatherapp.core.di.ApplicationScope
 import com.alexeyyuditsky.weatherapp.core.presentation.ConnectionUi
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 import javax.inject.Singleton
 
 interface ConnectionUiMapper {
 
-    val state: SharedFlow<ConnectionUi>
+    val state: StateFlow<ConnectionUi>
 
     @Singleton
     class Base @Inject constructor(
@@ -20,21 +20,21 @@ interface ConnectionUiMapper {
         connection: Connection,
     ) : ConnectionUiMapper {
 
-        override val state: SharedFlow<ConnectionUi> = connection.state
+        override val state: StateFlow<ConnectionUi> = connection.state
             .map {
                 when (it) {
                     Connection.Status.Connected -> {
-                        ConnectionUi.Connected.also { log("ConnectionUiMapper: map: Status.Connected") }
+                        ConnectionUi.Connected.also { log("ConnectionUiMapper: map: ConnectionUi.Connected") }
                     }
 
                     Connection.Status.Disconnected -> {
-                        ConnectionUi.Disconnected.also { log("ConnectionUiMapper: map: Status.Disconnected") }
+                        ConnectionUi.Disconnected.also { log("ConnectionUiMapper: map: ConnectionUi.Disconnected") }
                     }
                 }
-            }.shareIn(
+            }.stateIn(
                 scope = applicationScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
-                replay = 1
+                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000),
+                initialValue = ConnectionUi.Connected
             )
     }
 }

@@ -9,7 +9,6 @@ import com.alexeyyuditsky.weatherapp.core.presentation.ConnectionUi
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -24,7 +23,7 @@ class WeatherViewModel @Inject constructor(
 ) : ViewModel() {
 
     val state: StateFlow<WeatherUi> = savedStateHandle.getStateFlow(KEY, WeatherUi.Empty)
-    val connection: SharedFlow<ConnectionUi> = connectionUiMapper.state
+    val connection: StateFlow<ConnectionUi> = connectionUiMapper.state
 
     val error = repository.errorFlow.map {
         if (it)

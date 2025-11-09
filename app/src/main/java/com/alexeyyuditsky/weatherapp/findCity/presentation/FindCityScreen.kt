@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.alexeyyuditsky.weatherapp.core.presentation.ConnectionUi
 
 @Composable
 fun FindCityScreen(
@@ -15,7 +14,7 @@ fun FindCityScreen(
     navigateToWeatherScreen: () -> Unit,
     onGetLocationClick: () -> Unit,
 ) {
-    val connection by viewModel.connection.collectAsStateWithLifecycle(ConnectionUi.Connected)
+    val connection by viewModel.connection.collectAsStateWithLifecycle()
     var input by rememberSaveable { mutableStateOf("") }
     val foundCityUi by viewModel.state.collectAsStateWithLifecycle()
 

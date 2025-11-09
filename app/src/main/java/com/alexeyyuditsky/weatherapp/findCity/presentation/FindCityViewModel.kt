@@ -11,7 +11,6 @@ import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
@@ -26,7 +25,7 @@ class FindCityViewModel @Inject constructor(
 ) : ViewModel() {
 
     val state: StateFlow<FoundCityUi> = savedStateHandle.getStateFlow(KEY, FoundCityUi.Empty)
-    val connection: SharedFlow<ConnectionUi> = connectionUiMapper.state
+    val connection: StateFlow<ConnectionUi> = connectionUiMapper.state
 
     private val _events = MutableSharedFlow<FindCityEvent>(extraBufferCapacity = 1)
     val events get() = _events.asSharedFlow()
