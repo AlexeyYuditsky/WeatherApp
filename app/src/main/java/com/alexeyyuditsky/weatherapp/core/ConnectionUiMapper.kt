@@ -30,6 +30,10 @@ interface ConnectionUiMapper {
                     Connection.Status.Disconnected -> {
                         ConnectionUi.Disconnected.also { log("ConnectionUiMapper: map: ConnectionUi.Disconnected") }
                     }
+
+                    Connection.Status.ConnectedAfterDisconnected -> {
+                        ConnectionUi.ConnectedAfterDisconnected.also { log("ConnectionUiMapper: map: ConnectionUi.ConnectedAfterDisconnected") }
+                    }
                 }
             }.stateIn(
                 scope = applicationScope,

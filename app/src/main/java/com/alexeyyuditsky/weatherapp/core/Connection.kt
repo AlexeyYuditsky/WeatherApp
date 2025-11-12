@@ -7,10 +7,12 @@ import android.net.NetworkCapabilities
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,7 +20,7 @@ interface Connection {
 
     val state: Flow<Status>
 
-    enum class Status { Connected, Disconnected }
+    enum class Status { Connected, ConnectedAfterDisconnected, Disconnected }
 
     @Singleton
     class Base @Inject constructor(
@@ -31,24 +33,44 @@ interface Connection {
         @OptIn(FlowPreview::class)
         override val state: Flow<Status> = callbackFlow {
 
-            fun getConnectionStatus(): Status =
-                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)?.let {
-                    if (
-                        it.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                        it.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-                    )
-                        Status.Connected
-                    else
-                        Status.Disconnected
-                } ?: Status.Disconnected
+            var previousStatus: Status? = null
+
+            fun getConnectionStatus(): Status {
+                val status =
+                    connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+                        ?.let {
+                            if (
+                                it.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                                it.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                            )
+                                Status.Connected
+                            else
+                                Status.Disconnected
+                        } ?: Status.Disconnected
+
+                previousStatus = status
+                return status
+            }
+
+            fun determineAndSend() = launch {
+                if (previousStatus == Status.Disconnected) {
+                    send(Status.ConnectedAfterDisconnected).also { log("Connection: sendStatus: Status.ConnectedAfterDisconnected") }
+                    delay(1000)
+                    send(Status.Connected).also { log("Connection: sendStatus: Status.Connected") }
+                } else {
+                    send(Status.Connected).also { log("Connection: sendStatus: Status.Connected") }
+                }
+                previousStatus = null
+            }
 
             val callback = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
-                    trySend(Status.Connected).also { log("Connection: onAvailable: Status.Connected") }
+                    determineAndSend()
                 }
 
                 override fun onLost(network: Network) {
-                    trySend(Status.Disconnected).also { log("Connection: onAvailable: Status.Disconnected") }
+                    previousStatus = Status.Disconnected
+                    trySend(Status.Disconnected).also { log("Connection: onLost: Status.Disconnected") }
                 }
             }
 

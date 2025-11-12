@@ -24,7 +24,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.alexeyyuditsky.weatherapp.R
-import com.alexeyyuditsky.weatherapp.core.presentation.ConnectionUi
 import com.alexeyyuditsky.weatherapp.core.presentation.LoadingUi
 import kotlinx.parcelize.Parcelize
 
@@ -83,8 +82,8 @@ interface WeatherUi : Parcelable {
                         text = time,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier
-                            .padding(vertical = 8.dp)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
                         textAlign = TextAlign.End
                     )
                 }
@@ -142,58 +141,25 @@ interface WeatherUi : Parcelable {
     data object Empty : WeatherUi
 }
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
-fun PreviewWeatherScreenUiSuccess() =
-    WeatherScreenUi(
-        weatherUi = WeatherUi.Success(
-            cityName = "Moscow",
-            details = "Temperature: 9.24°C\nClouds (overcast clouds)\nHumidity: 69.0%\nWind speed: 1.88 m/s\nClouds: 100%\nSunrise: 07:41\nSunset: 16:44\nAir pollution: good",
-            imageUrl = "",
-            time = "5 min ago (10-Aug-2025)",
-            forecast = listOf("Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "")
-        ),
-        connectionUi = ConnectionUi.Connected,
-        errorUi = ErrorUi.Empty,
-        retry = {},
-        goToChooseLocation = {},
+fun PreviewWeatherUiSuccess() = WeatherUi.Success(
+    cityName = "Moscow",
+    details = "Temperature: 9.24°C\nClouds (overcast clouds)\nHumidity: 69.0%\nWind speed: 1.88 m/s\nClouds: 100%\nSunrise: 07:41\nSunset: 16:44\nAir pollution: good",
+    imageUrl = "",
+    time = "5 min ago (10-Aug-2025)",
+    forecast = listOf(
+        "Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "",
+        "Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "",
+        "Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "",
+        "Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "",
     )
+).Show()
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
-fun PreviewWeatherScreenUiLoading() =
-    WeatherScreenUi(
-        weatherUi = WeatherUi.Loading,
-        connectionUi = ConnectionUi.Connected,
-        errorUi = ErrorUi.Empty,
-        retry = {},
-        goToChooseLocation = {},
-    )
+fun PreviewWeatherUiLoading() = WeatherUi.Loading.Show()
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
-fun PreviewWeatherScreenUiDisconnected() =
-    WeatherScreenUi(
-        weatherUi = WeatherUi.Success(
-            cityName = "Moscow",
-            details = "Temperature: 9.24°C\nClouds (overcast clouds)\nHumidity: 69.0%\nWind speed: 1.88 m/s\nClouds: 100%\nSunrise: 07:41\nSunset: 16:44\nAir pollution: good",
-            imageUrl = "",
-            time = "5 min ago (10-Aug-2025)",
-            forecast = listOf("Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "")
-        ),
-        connectionUi = ConnectionUi.Disconnected,
-        errorUi = ErrorUi.Empty,
-        retry = {},
-        goToChooseLocation = {},
-    )
-
-@Preview(showSystemUi = true)
-@Composable
-fun PreviewWeatherScreenUiError() =
-    WeatherScreenUi(
-        weatherUi = WeatherUi.Empty,
-        connectionUi = ConnectionUi.Connected,
-        errorUi = ErrorUi.Error,
-        retry = {},
-        goToChooseLocation = {},
-    )
+fun PreviewWeatherUiEmpty() = WeatherUi.Empty.Show()

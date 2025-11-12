@@ -1,5 +1,6 @@
 package com.alexeyyuditsky.weatherapp.core.presentation
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,31 +19,57 @@ import com.alexeyyuditsky.weatherapp.R
 interface ConnectionUi {
 
     @Composable
-    fun Show() = Unit
+    fun Show(modifier: Modifier = Modifier) = Unit
 
     data object Connected : ConnectionUi
+
+    data object ConnectedAfterDisconnected : ConnectionUi {
+
+        @Composable
+        override fun Show(modifier: Modifier) =
+            ConnectionContainer(
+                modifier = modifier.testTag("connectedAfterDisconnected"),
+                text = R.string.connection_restored,
+                color = Color.Green,
+            )
+    }
 
     data object Disconnected : ConnectionUi {
 
         @Composable
-        override fun Show() = Text(
-            text = stringResource(R.string.no_internet_connection),
-            textAlign = TextAlign.Center,
-            color = Color.White,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(color = Color.Red)
-                .padding(all = 8.dp)
-                .testTag("noInternetConnection")
-        )
+        override fun Show(modifier: Modifier) =
+            ConnectionContainer(
+                modifier = modifier.testTag("disconnected"),
+                text = R.string.no_internet_connection,
+                color = Color.Black,
+            )
     }
 }
 
-@Preview(showSystemUi = true)
+@Composable
+fun ConnectionContainer(
+    modifier: Modifier,
+    color: Color,
+    @StringRes text: Int,
+) = Text(
+    text = stringResource(text),
+    textAlign = TextAlign.Center,
+    color = Color.White,
+    style = MaterialTheme.typography.titleMedium,
+    modifier = modifier
+        .fillMaxWidth()
+        .background(color = color)
+        .padding(all = 8.dp)
+)
+
+@Preview(showBackground = true)
 @Composable
 fun ConnectedPreview() = ConnectionUi.Connected.Show()
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true)
+@Composable
+fun ConnectedAfterDisconnectedPreview() = ConnectionUi.ConnectedAfterDisconnected.Show()
+
+@Preview(showBackground = true)
 @Composable
 fun DisconnectedPreview() = ConnectionUi.Disconnected.Show()
