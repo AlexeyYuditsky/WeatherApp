@@ -42,9 +42,7 @@ interface WeatherUi : Parcelable {
     ) : WeatherUi {
 
         @Composable
-        override fun Show() = Column(
-            modifier = Modifier.padding(horizontal = 8.dp)
-        ) {
+        override fun Show() = Column(modifier = Modifier.padding(horizontal = 8.dp)) {
             Text(
                 text = cityName,
                 style = MaterialTheme.typography.titleLarge,
@@ -120,8 +118,8 @@ interface WeatherUi : Parcelable {
                             text = text,
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier
-                                .padding(vertical = 8.dp)
                                 .fillMaxWidth()
+                                .padding(vertical = 8.dp)
                                 .testTag("WeatherTemperature"),
                         )
                     }

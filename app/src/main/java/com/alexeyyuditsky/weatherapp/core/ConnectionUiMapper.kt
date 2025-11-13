@@ -20,7 +20,7 @@ interface ConnectionUiMapper {
         connection: Connection,
     ) : ConnectionUiMapper {
 
-        override val state: StateFlow<ConnectionUi> = connection.state
+        override val state = connection.statuses
             .map {
                 when (it) {
                     Connection.Status.Connected -> {
@@ -38,7 +38,10 @@ interface ConnectionUiMapper {
             }.stateIn(
                 scope = applicationScope,
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000),
-                initialValue = ConnectionUi.Connected
+                initialValue = if (connection.initialStatus == Connection.Status.Connected)
+                    ConnectionUi.Connected
+                else
+                    ConnectionUi.Disconnected
             )
     }
 }

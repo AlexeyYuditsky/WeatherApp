@@ -41,7 +41,7 @@ fun WeatherScreenUi(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewWeatherScreenUiSuccess() =
+fun PreviewWeatherUiSuccessConnectionUiDisconnectedErrorUiEmpty() =
     WeatherScreenUi(
         weatherUi = WeatherUi.Success(
             cityName = "Moscow",
@@ -55,6 +55,48 @@ fun PreviewWeatherScreenUiSuccess() =
             )
         ),
         connectionUi = ConnectionUi.Disconnected,
+        errorUi = ErrorUi.Empty,
+        retry = {},
+        goToChooseLocation = {},
+    )
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewWeatherUiSuccessConnectionUiConnectedAfterDisconnectedErrorUiEmpty() =
+    WeatherScreenUi(
+        weatherUi = WeatherUi.Success(
+            cityName = "Moscow",
+            details = "Temperature: 9.24°C\nClouds (overcast clouds)\nHumidity: 69.0%\nWind speed: 1.88 m/s\nClouds: 100%\nSunrise: 07:41\nSunset: 16:44\nAir pollution: good",
+            imageUrl = "",
+            time = "5 min ago (10-Aug-2025)",
+            forecast = listOf(
+                "Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "",
+                "Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "",
+                "Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to ""
+            )
+        ),
+        connectionUi = ConnectionUi.ConnectedAfterDisconnected,
+        errorUi = ErrorUi.Empty,
+        retry = {},
+        goToChooseLocation = {},
+    )
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewWeatherUiSuccessConnectionUiConnectedErrorUiEmpty() =
+    WeatherScreenUi(
+        weatherUi = WeatherUi.Success(
+            cityName = "Moscow",
+            details = "Temperature: 9.24°C\nClouds (overcast clouds)\nHumidity: 69.0%\nWind speed: 1.88 m/s\nClouds: 100%\nSunrise: 07:41\nSunset: 16:44\nAir pollution: good",
+            imageUrl = "",
+            time = "5 min ago (10-Aug-2025)",
+            forecast = listOf(
+                "Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "",
+                "Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "",
+                "Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to ""
+            )
+        ),
+        connectionUi = ConnectionUi.Connected,
         errorUi = ErrorUi.Empty,
         retry = {},
         goToChooseLocation = {},

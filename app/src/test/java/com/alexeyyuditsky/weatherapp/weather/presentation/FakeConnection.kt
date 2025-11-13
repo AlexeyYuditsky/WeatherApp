@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class FakeConnection : Connection {
 
     private val flow = MutableStateFlow(true)
-    override val state get() = flow.asStateFlow()
+    override val statuses get() = flow.asStateFlow()
 
     fun change(connected: Boolean) {
         flow.value = connected

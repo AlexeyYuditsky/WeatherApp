@@ -24,6 +24,6 @@ fun LoadingUi() = Column(
     )
 }
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
 fun PreviewLoading() = LoadingUi()
