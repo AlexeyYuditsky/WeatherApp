@@ -23,22 +23,22 @@ interface ConnectionUiMapper {
         override val state = connection.statuses
             .map {
                 when (it) {
-                    Connection.Status.Connected -> {
-                        ConnectionUi.Connected.also { log("ConnectionUiMapper: map: ConnectionUi.Connected") }
+                    Connection.Status.CONNECTED -> {
+                        ConnectionUi.Connected
                     }
 
-                    Connection.Status.Disconnected -> {
-                        ConnectionUi.Disconnected.also { log("ConnectionUiMapper: map: ConnectionUi.Disconnected") }
+                    Connection.Status.DISCONNECTED -> {
+                        ConnectionUi.Disconnected
                     }
 
-                    Connection.Status.ConnectedAfterDisconnected -> {
-                        ConnectionUi.ConnectedAfterDisconnected.also { log("ConnectionUiMapper: map: ConnectionUi.ConnectedAfterDisconnected") }
+                    Connection.Status.CONNECTED_AFTER_DISCONNECTED -> {
+                        ConnectionUi.ConnectedAfterDisconnected
                     }
                 }
             }.stateIn(
                 scope = applicationScope,
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000),
-                initialValue = if (connection.initialStatus == Connection.Status.Connected)
+                initialValue = if (connection.initialStatus == Connection.Status.CONNECTED)
                     ConnectionUi.Connected
                 else
                     ConnectionUi.Disconnected

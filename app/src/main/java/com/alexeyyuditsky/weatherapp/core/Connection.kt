@@ -22,7 +22,7 @@ interface Connection {
     val initialStatus: Status
     val statuses: Flow<Status>
 
-    enum class Status { Connected, ConnectedAfterDisconnected, Disconnected }
+    enum class Status { CONNECTED, CONNECTED_AFTER_DISCONNECTED, DISCONNECTED }
 
     @Singleton
     class Base @Inject constructor(@ApplicationContext context: Context) : Connection {
@@ -49,34 +49,30 @@ interface Connection {
         }
 
         override val initialStatus: Status =
-            if (isConnectedAtStart) Status.Connected else Status.Disconnected
+            if (isConnectedAtStart) Status.CONNECTED else Status.DISCONNECTED
 
         @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-        override val statuses: Flow<Status> =
-            networkStatus
-                .debounce(300)
-                .distinctUntilChanged()
-                .let { flow ->
-                    var wasDisconnected = !isConnectedAtStart
+        override val statuses: Flow<Status> = networkStatus
+            .debounce(300)
+            .distinctUntilChanged()
+            .let { flow ->
+                var wasDisconnected = !isConnectedAtStart
 
-                    flow.transformLatest { isConnected ->
-                        if (!isConnected) {
+                flow.transformLatest { isConnected ->
+                    if (isConnected) {
+                        if (wasDisconnected) {
+                            emit(Status.CONNECTED_AFTER_DISCONNECTED)
                             delay(1000)
-                            wasDisconnected = true
-                            log("Connection: emit Disconnected")
-                            emit(Status.Disconnected)
-                        } else {
-                            if (wasDisconnected) {
-                                log("Connection: emit ConnectedAfterDisconnected")
-                                emit(Status.ConnectedAfterDisconnected)
-                                delay(1000)
-                            }
-                            log("Connection: emit Connected")
-                            emit(Status.Connected)
-                            wasDisconnected = false
                         }
+                        emit(Status.CONNECTED)
+                        wasDisconnected = false
+                    } else {
+                        delay(1000)
+                        wasDisconnected = true
+                        emit(Status.DISCONNECTED)
                     }
                 }
+            }
 
         private fun isConnectedAtStart(): Boolean {
             val network = connectivityManager.activeNetwork ?: return false
