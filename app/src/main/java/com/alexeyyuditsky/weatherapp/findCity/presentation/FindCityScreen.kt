@@ -19,8 +19,8 @@ fun FindCityScreen(
     val foundCityUi by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.events.collect {
-            when (it) {
+        viewModel.events.collect { event ->
+            when (event) {
                 is FindCityEvent.NavigateToWeatherScreen -> navigateToWeatherScreen.invoke()
             }
         }

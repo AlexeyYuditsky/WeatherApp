@@ -38,10 +38,7 @@ interface ConnectionUiMapper {
             }.stateIn(
                 scope = applicationScope,
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000),
-                initialValue = if (connection.initialStatus == Connection.Status.CONNECTED)
-                    ConnectionUi.Connected
-                else
-                    ConnectionUi.Disconnected
+                initialValue = if (connection.initialStatus == Connection.Status.CONNECTED) ConnectionUi.Connected else ConnectionUi.Disconnected
             )
     }
 }

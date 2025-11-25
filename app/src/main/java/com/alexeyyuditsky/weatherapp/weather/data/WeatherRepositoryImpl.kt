@@ -9,7 +9,7 @@ import javax.inject.Inject
 class WeatherRepositoryImpl @Inject constructor(
     private val minutes: Int,
     private val cacheDataSource: WeatherCacheDataSource,
-    private val startForegroundWrapper: StartForegroundWrapper
+    private val startForegroundWrapper: StartForegroundWrapper,
 ) : WeatherRepository {
 
     override fun weather(savedWeather: WeatherParams): WeatherResult {
@@ -20,10 +20,8 @@ class WeatherRepositoryImpl @Inject constructor(
             loadWeather()
             return WeatherResult.NoDataYet
         } else {
-            val needRefresh =
-                System.currentTimeMillis() - savedWeather.time > minutes * 60 * 1000
-            if (needRefresh)
-                loadWeather()
+            val needRefresh = System.currentTimeMillis() - savedWeather.time > minutes * 60 * 1000
+            if (needRefresh) loadWeather()
             return WeatherResult.Success(
                 WeatherInCity(
                     cityName = savedWeather.city,

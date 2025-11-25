@@ -9,9 +9,7 @@ interface WeatherRepository {
 
     val errorFlow: Flow<Boolean>
 
-    fun weather(
-        savedWeather: WeatherParams,
-    ): WeatherResult
+    fun weather(savedWeather: WeatherParams): WeatherResult
 
     fun loadWeather()
 }
