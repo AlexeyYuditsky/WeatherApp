@@ -27,8 +27,8 @@ class FindCityViewModel @Inject constructor(
     val state: StateFlow<FoundCityUi> = savedStateHandle.getStateFlow(KEY, FoundCityUi.Empty)
     val connection: StateFlow<ConnectionUi> = connectionUiMapper.state
 
-    private val _events = MutableSharedFlow<FindCityEvent>(extraBufferCapacity = 1)
-    val events get() = _events.asSharedFlow()
+    private val _event = MutableSharedFlow<FindCityEvent>()
+    val event get() = _event.asSharedFlow()
 
     init {
         runAsync.debounce(
@@ -66,7 +66,7 @@ class FindCityViewModel @Inject constructor(
             repository.saveFoundCity(foundCity = foundCity)
         },
         ui = {
-            _events.tryEmit(FindCityEvent.NavigateToWeatherScreen)
+            _event.emit(FindCityEvent.NavigateToWeatherScreen)
         }
     )
 
@@ -79,7 +79,7 @@ class FindCityViewModel @Inject constructor(
             repository.saveFoundCity(latitude, longitude)
         },
         ui = {
-            _events.tryEmit(FindCityEvent.NavigateToWeatherScreen)
+            _event.emit(FindCityEvent.NavigateToWeatherScreen)
         }
     )
 

@@ -25,7 +25,7 @@ interface RunAsync {
     fun <T> runAsync(
         scope: CoroutineScope,
         background: suspend () -> T,
-        ui: () -> Unit = {},
+        ui: suspend () -> Unit = {},
     )
 
     fun debounce(
@@ -65,7 +65,7 @@ interface RunAsync {
         override fun <T> runAsync(
             scope: CoroutineScope,
             background: suspend () -> T,
-            ui: () -> Unit,
+            ui: suspend () -> Unit,
         ) {
             scope.launch {
                 withContext(Dispatchers.IO) { background.invoke() }

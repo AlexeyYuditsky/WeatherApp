@@ -35,11 +35,11 @@ interface Connection {
         private val networkStatus: Flow<Boolean> = callbackFlow {
             val callback = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
-                    trySend(true).also { log("Connection: onAvailable -> true") }
+                    trySend(true)
                 }
 
                 override fun onLost(network: Network) {
-                    trySend(false).also { log("Connection: onLost -> false") }
+                    trySend(false)
                 }
             }
 
