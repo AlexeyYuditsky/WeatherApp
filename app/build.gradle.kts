@@ -77,7 +77,6 @@ dependencies {
     androidTestImplementation(libs.androidx.room.testing)
 
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.androidx.datastore.core)
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

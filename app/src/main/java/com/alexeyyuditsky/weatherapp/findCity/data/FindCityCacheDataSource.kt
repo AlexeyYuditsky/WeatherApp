@@ -1,9 +1,7 @@
 package com.alexeyyuditsky.weatherapp.findCity.data
 
-import android.content.Context
+import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.alexeyyuditsky.weatherapp.R
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 interface FindCityCacheDataSource {
@@ -14,13 +12,8 @@ interface FindCityCacheDataSource {
     )
 
     class Base @Inject constructor(
-        @ApplicationContext context: Context,
+        private val sharedPreferences: SharedPreferences,
     ) : FindCityCacheDataSource {
-
-        private val sharedPreferences = context.getSharedPreferences(
-            context.getString(R.string.app_name),
-            Context.MODE_PRIVATE
-        )
 
         override suspend fun save(
             latitude: Float,
@@ -31,8 +24,8 @@ interface FindCityCacheDataSource {
         }
 
         private companion object {
-            const val LATITUDE = "latitudeKey"
-            const val LONGITUDE = "longitudeKey"
+            const val LATITUDE = "latitude"
+            const val LONGITUDE = "longitude"
         }
     }
 }

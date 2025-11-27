@@ -9,11 +9,7 @@ interface FindCityRepository {
     ): FoundCityResult
 
     suspend fun saveFoundCity(
-        foundCity: FoundCity,
-    )
-
-    suspend fun saveFoundCity(
-        latitude: Double,
-        longitude: Double,
+        latitude: Float,
+        longitude: Float,
     )
 }

@@ -18,7 +18,7 @@ class FindCityRepositoryImpl @Inject constructor(
         if (foundCityCloudList.isEmpty())
             FoundCityResult.Empty
         else {
-            val foundCityCloud = foundCityCloudList[0]
+            val foundCityCloud = foundCityCloudList.first()
             FoundCityResult.Success(
                 foundCity = FoundCity(
                     name = foundCityCloud.name,
@@ -32,17 +32,10 @@ class FindCityRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveFoundCity(
-        foundCity: FoundCity,
+        latitude: Float,
+        longitude: Float,
     ) = cacheDataSource.save(
-        latitude = foundCity.latitude,
-        longitude = foundCity.longitude,
-    )
-
-    override suspend fun saveFoundCity(
-        latitude: Double,
-        longitude: Double,
-    ) = cacheDataSource.save(
-        latitude = latitude.toFloat(),
-        longitude = longitude.toFloat(),
+        latitude = latitude,
+        longitude = longitude,
     )
 }

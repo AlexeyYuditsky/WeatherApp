@@ -63,7 +63,10 @@ class FindCityViewModel @Inject constructor(
     ) = runAsync.runAsync(
         scope = viewModelScope,
         background = {
-            repository.saveFoundCity(foundCity = foundCity)
+            repository.saveFoundCity(
+                latitude = foundCity.latitude,
+                longitude = foundCity.longitude
+            )
         },
         ui = {
             _event.emit(FindCityEvent.NavigateToWeatherScreen)
@@ -76,7 +79,10 @@ class FindCityViewModel @Inject constructor(
     ) = runAsync.runAsync(
         scope = viewModelScope,
         background = {
-            repository.saveFoundCity(latitude, longitude)
+            repository.saveFoundCity(
+                latitude = latitude.toFloat(),
+                longitude = longitude.toFloat()
+            )
         },
         ui = {
             _event.emit(FindCityEvent.NavigateToWeatherScreen)
