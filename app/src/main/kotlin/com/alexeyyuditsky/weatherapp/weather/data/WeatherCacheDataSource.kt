@@ -18,17 +18,17 @@ import javax.inject.Singleton
 
 interface WeatherCacheDataSource {
 
-    fun cityParams(): Pair<Float, Float>
-
     suspend fun saveWeather(params: WeatherParams)
+
+    suspend fun saveHasError(hasError: Boolean)
 
     fun savedWeather(): Flow<WeatherParams>
 
     fun weatherForWidget(): Flow<String>
 
-    suspend fun saveHasError(hasError: Boolean)
-
     fun hasError(): Flow<Boolean>
+
+    fun cityParams(): Pair<Float, Float>
 
     @Singleton
     class Base @Inject constructor(
@@ -77,10 +77,11 @@ interface WeatherCacheDataSource {
                 preferences[weatherWidget] ?: ""
             }
 
-        override fun savedWeather() = dataStore.data.map { preferences ->
-            val raw = preferences[weatherParams] ?: gson.toJson(default)
-            gson.fromJson(raw, WeatherParams::class.java)
-        }
+        override fun savedWeather(): Flow<WeatherParams> =
+            dataStore.data.map { preferences ->
+                val raw = preferences[weatherParams] ?: gson.toJson(default)
+                gson.fromJson(raw, WeatherParams::class.java)
+            }
 
         override suspend fun saveHasError(hasError: Boolean) {
             dataStore.edit { prefs ->
@@ -88,9 +89,10 @@ interface WeatherCacheDataSource {
             }
         }
 
-        override fun hasError() = dataStore.data.map { preferences ->
-            preferences[hasErrorKey] ?: false
-        }
+        override fun hasError(): Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[hasErrorKey] ?: false
+            }
 
         private companion object {
             const val LATITUDE = "latitude"
