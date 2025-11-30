@@ -20,7 +20,7 @@ interface ConnectionUiMapper {
         connection: Connection,
     ) : ConnectionUiMapper {
 
-        override val state = connection.statuses
+        override val state: StateFlow<ConnectionUi> = connection.statuses
             .map {
                 when (it) {
                     Connection.Status.CONNECTED -> {

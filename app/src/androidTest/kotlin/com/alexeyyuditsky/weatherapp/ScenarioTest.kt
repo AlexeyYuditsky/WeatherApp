@@ -51,7 +51,7 @@ class ScenarioTest {
             runAsync = fakeRunAsync
         )
         val weatherViewModel = WeatherViewModel(
-            mapper = WeatherUiMapper(TimeWrapper.Base()),
+            weatherResultMapper = WeatherUiMapper(TimeWrapper.Base()),
             savedStateHandle = SavedStateHandle(),
             repository = fakeWeatherRepository,
             runAsync = fakeRunAsync,
@@ -118,7 +118,7 @@ class FakeWeatherRepository : WeatherRepository {
     private val weatherFlow = MutableStateFlow(WeatherParams(0f, 0f, "", 0, "", ""))
     private val errorFlow = MutableStateFlow(false)
 
-    override fun weather(savedWeather: WeatherParams): WeatherResult {
+    override fun fetchWeather(savedWeather: WeatherParams): WeatherResult {
         if (shouldShowError) {
             shouldShowError = false
             return WeatherResult.NoDataYet

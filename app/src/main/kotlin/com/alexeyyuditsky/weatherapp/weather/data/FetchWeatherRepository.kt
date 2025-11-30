@@ -30,7 +30,7 @@ interface FetchWeatherRepository {
                     it.details(response.city.timezone)
                 }
             } catch (_: Exception) {
-                emptyList()//ignore forecast if error
+                emptyList() // ignore forecast if error
             }
             val now = System.currentTimeMillis()
             val (details, imageUrl) = weatherCloud.details()
@@ -47,8 +47,7 @@ interface FetchWeatherRepository {
             )
         }
 
-        override suspend fun saveException(e: DomainException) {
+        override suspend fun saveException(e: DomainException) =
             cacheDataSource.saveHasError(hasError = true)
-        }
     }
 }

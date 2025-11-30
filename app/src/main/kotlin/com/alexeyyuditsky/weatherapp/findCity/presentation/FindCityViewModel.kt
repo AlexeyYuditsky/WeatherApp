@@ -6,9 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.alexeyyuditsky.weatherapp.core.ConnectionUiMapper
 import com.alexeyyuditsky.weatherapp.core.RunAsync
 import com.alexeyyuditsky.weatherapp.core.presentation.ConnectionUi
-import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityRepository
+import com.alexeyyuditsky.weatherapp.findCity.domain.FindCityUseCase
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCity
 import com.alexeyyuditsky.weatherapp.findCity.domain.FoundCityResult
+import com.alexeyyuditsky.weatherapp.findCity.domain.SaveFoundCityUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,13 +19,15 @@ import javax.inject.Inject
 @HiltViewModel
 class FindCityViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repository: FindCityRepository,
+    private val findCityUseCase: FindCityUseCase,
+    private val saveCityUseCase: SaveFoundCityUseCase,
     private val mapper: FoundCityResult.Mapper<FoundCityUi>,
     private val runAsync: RunAsync,
     connectionUiMapper: ConnectionUiMapper,
 ) : ViewModel() {
 
     val state: StateFlow<FoundCityUi> = savedStateHandle.getStateFlow(KEY, FoundCityUi.Empty)
+
     val connection: StateFlow<ConnectionUi> = connectionUiMapper.state
 
     private val _event = MutableSharedFlow<FindCityEvent>()
@@ -40,13 +43,13 @@ class FindCityViewModel @Inject constructor(
                     FoundCityUi.Loading
             },
             background = { query ->
-                val foundCityResult = repository.findCity(query)
+                val foundCityResult = findCityUseCase.invoke(query)
                 val foundCityUi = foundCityResult.map(mapper)
                 foundCityUi
             },
             ui = { foundCityUi ->
                 savedStateHandle[KEY] = foundCityUi
-            },
+            }
         )
     }
 
@@ -63,7 +66,7 @@ class FindCityViewModel @Inject constructor(
     ) = runAsync.runAsync(
         scope = viewModelScope,
         background = {
-            repository.saveFoundCity(
+            saveCityUseCase.invoke(
                 latitude = foundCity.latitude,
                 longitude = foundCity.longitude
             )
@@ -79,7 +82,7 @@ class FindCityViewModel @Inject constructor(
     ) = runAsync.runAsync(
         scope = viewModelScope,
         background = {
-            repository.saveFoundCity(
+            saveCityUseCase.invoke(
                 latitude = latitude.toFloat(),
                 longitude = longitude.toFloat()
             )

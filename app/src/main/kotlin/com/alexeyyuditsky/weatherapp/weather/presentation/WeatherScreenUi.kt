@@ -124,7 +124,7 @@ fun PreviewWeatherScreenUiDisconnected() =
             time = "5 min ago (10-Aug-2025)",
             forecast = listOf("Temperature: 8.98°C\nClouds (overcast clouds)\nHumidity: 73.0%\nWind speed: 2.73 m/s\nClouds: 98%\nTime: 04 нояб. 21:00" to "")
         ),
-        connectionUi = ConnectionUi.Disconnected,
+        connectionUi = ConnectionUi.Connected,
         errorUi = ErrorUi.Empty,
         retry = {},
         goToChooseLocation = {},

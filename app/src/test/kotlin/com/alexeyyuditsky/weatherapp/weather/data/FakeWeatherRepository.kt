@@ -16,7 +16,7 @@ class FakeWeatherRepository(
     )
     private val errorFlow = MutableStateFlow(false)
 
-    override fun weather(savedWeather: WeatherParams): WeatherResult {
+    override fun fetchWeather(savedWeather: WeatherParams): WeatherResult {
         return if (savedWeather.latitude == -1f) {
             WeatherResult.NoDataYet
         } else {

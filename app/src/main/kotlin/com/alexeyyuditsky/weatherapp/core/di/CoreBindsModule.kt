@@ -10,14 +10,20 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class CoreBindsModule {
+interface CoreBindsModule {
 
     @Binds
-    abstract fun bindRunAsync(runAsync: RunAsync.Base): RunAsync
+    fun bindRunAsync(
+        runAsync: RunAsync.Base
+    ): RunAsync
 
     @Binds
-    abstract fun bindsConnection(connection: Connection.Base): Connection
+    fun bindsConnection(
+        connection: Connection.Base
+    ): Connection
 
     @Binds
-    abstract fun bindsConnectionUiMapper(connection: ConnectionUiMapper.Base): ConnectionUiMapper
+    fun bindsConnectionUiMapper(
+        connection: ConnectionUiMapper.Base
+    ): ConnectionUiMapper
 }

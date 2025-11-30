@@ -13,6 +13,7 @@ import retrofit2.create
 class FoundCityProvidesModule {
 
     @Provides
-    fun provideFoundCityService(retrofit: Retrofit): FindCityService =
-        retrofit.create()
+    fun provideFoundCityService(
+        retrofit: Retrofit,
+    ): FindCityService = retrofit.create()
 }

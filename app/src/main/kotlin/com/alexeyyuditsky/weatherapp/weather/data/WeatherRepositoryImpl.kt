@@ -12,18 +12,18 @@ class WeatherRepositoryImpl @Inject constructor(
     private val startForegroundWrapper: StartForegroundWrapper,
 ) : WeatherRepository {
 
-    override fun weather(savedWeather: WeatherParams): WeatherResult {
+    override fun fetchWeather(savedWeather: WeatherParams): WeatherResult {
         val (latitude, longitude) = cacheDataSource.cityParams()
-        val invalidSavedWeather =
-            savedWeather.isEmpty() || !savedWeather.same(latitude, longitude)
-        if (invalidSavedWeather) {
+        val invalidSavedWeather = savedWeather.isEmpty() || !savedWeather.same(latitude, longitude)
+        return if (invalidSavedWeather) {
             loadWeather()
-            return WeatherResult.NoDataYet
+            WeatherResult.NoDataYet
         } else {
             val needRefresh = System.currentTimeMillis() - savedWeather.time > minutes * 60 * 1000
-            if (needRefresh) loadWeather()
-            return WeatherResult.Success(
-                WeatherInCity(
+            if (needRefresh)
+                loadWeather()
+            WeatherResult.Success(
+                weatherInCity = WeatherInCity(
                     cityName = savedWeather.city,
                     details = savedWeather.details,
                     imageUrl = savedWeather.imageUrl,

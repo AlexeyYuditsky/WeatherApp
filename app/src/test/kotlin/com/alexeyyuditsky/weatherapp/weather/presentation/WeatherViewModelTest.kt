@@ -16,7 +16,7 @@ class WeatherViewModelTest {
         savedStateHandle = SavedStateHandle(),
         repository = repository,
         runAsync = fakeRunAsync,
-        mapper = WeatherUiMapper(FakeTimeWrapper()),
+        weatherResultMapper = WeatherUiMapper(FakeTimeWrapper()),
         connection = FakeConnection()
     )
 

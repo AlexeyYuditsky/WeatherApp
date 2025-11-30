@@ -28,9 +28,11 @@ class CoreProvidesModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }).build()
+        .addInterceptor(
+            HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+        ).build()
 
     @Provides
     @Singleton

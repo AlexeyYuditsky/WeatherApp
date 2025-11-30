@@ -11,7 +11,7 @@ fun WeatherScreen(
 ) {
     val weatherUi by viewModel.state.collectAsStateWithLifecycle()
     val connection by viewModel.connection.collectAsStateWithLifecycle()
-    val error by viewModel.error.collectAsStateWithLifecycle(ErrorUi.Empty)
+    val error by viewModel.error.collectAsStateWithLifecycle()
 
     WeatherScreenUi(
         connectionUi = connection,
