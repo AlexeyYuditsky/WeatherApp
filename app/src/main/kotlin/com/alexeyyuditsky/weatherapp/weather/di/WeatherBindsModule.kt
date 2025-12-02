@@ -17,31 +17,18 @@ import com.alexeyyuditsky.weatherapp.weather.presentation.WeatherUiMapper
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 interface WeatherBindsModule {
-
-    @Binds
-    fun bindWeatherCloudDataSource(
-        dataSource: WeatherCloudDataSource.Base,
-    ): WeatherCloudDataSource
-
-    @Binds
-    fun bindWeatherCacheDataSource(
-        dataSource: WeatherCacheDataSource.Base,
-    ): WeatherCacheDataSource
 
     @Binds
     fun bindWeatherRepository(
         repository: WeatherRepositoryImpl,
     ): WeatherRepository
-
-    @Binds
-    fun bindsFetchWeatherRepository(
-        repository: FetchWeatherRepository.Base,
-    ): FetchWeatherRepository
 
     @Binds
     fun bindWeatherUiMapper(
@@ -77,4 +64,25 @@ interface WeatherBindsModule {
     fun bindCachedWeatherUseCase(
         useCase: CachedWeatherUseCase.Base,
     ): CachedWeatherUseCase
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+interface WeatherSingletonBindsModule {
+
+    @Binds
+    fun bindWeatherCloudDataSource(
+        dataSource: WeatherCloudDataSource.Base,
+    ): WeatherCloudDataSource
+
+    @Binds
+    @Singleton
+    fun bindWeatherCacheDataSource(
+        dataSource: WeatherCacheDataSource.Base,
+    ): WeatherCacheDataSource
+
+    @Binds
+    fun bindsFetchWeatherRepository(
+        repository: FetchWeatherRepository.Base,
+    ): FetchWeatherRepository
 }

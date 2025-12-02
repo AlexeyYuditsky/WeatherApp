@@ -18,12 +18,12 @@ interface CoreBindsModule {
     ): RunAsync
 
     @Binds
-    fun bindsConnection(
+    fun bindConnection(
         connection: Connection.Base
     ): Connection
 
     @Binds
-    fun bindsConnectionUiMapper(
+    fun bindConnectionUiMapper(
         connection: ConnectionUiMapper.Base
     ): ConnectionUiMapper
 }

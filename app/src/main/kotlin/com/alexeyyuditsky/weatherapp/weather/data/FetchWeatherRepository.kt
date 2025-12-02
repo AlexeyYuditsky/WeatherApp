@@ -22,7 +22,7 @@ interface FetchWeatherRepository {
                 val airPollutionCloud = cloudDataSource.airPollution(latitude, longitude)
                 airPollutionCloud.list.firstOrNull()?.main?.ui() ?: ""
             } catch (_: Exception) {
-                ""//ignore air pollution if error
+                "" // ignore air pollution if error
             }
             val forecast = try {
                 val response = cloudDataSource.forecast(latitude, longitude)
