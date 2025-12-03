@@ -19,8 +19,8 @@ import javax.inject.Singleton
 
 interface Connection {
 
-    val initialStatus: Status
-    val statuses: Flow<Status>
+    val initialConnectionStatus: Status
+    val connectionStatus: Flow<Status>
 
     enum class Status { CONNECTED, CONNECTED_AFTER_DISCONNECTED, DISCONNECTED }
 
@@ -48,11 +48,11 @@ interface Connection {
             awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
         }
 
-        override val initialStatus: Status =
+        override val initialConnectionStatus: Status =
             if (isConnectedAtStart) Status.CONNECTED else Status.DISCONNECTED
 
         @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-        override val statuses: Flow<Status> = networkStatus
+        override val connectionStatus: Flow<Status> = networkStatus
             .debounce(300)
             .distinctUntilChanged()
             .let { flow ->

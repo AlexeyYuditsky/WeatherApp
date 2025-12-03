@@ -6,8 +6,10 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.alexeyyuditsky.weatherapp.findCity.domain.DomainException
-import com.alexeyyuditsky.weatherapp.weather.data.FetchWeatherRepository
+import com.alexeyyuditsky.weatherapp.weather.domain.RefreshWeatherUseCase
+import com.alexeyyuditsky.weatherapp.weather.domain.SaveWeatherExceptionUseCase
 import com.alexeyyuditsky.weatherapp.widget.WeatherWidget
+import dagger.Lazy
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -15,15 +17,16 @@ import dagger.assisted.AssistedInject
 class WeatherWorker @AssistedInject constructor(
     @Assisted applicationContext: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val fetchWeatherRepository: FetchWeatherRepository,
+    private val refreshWeatherUseCase: RefreshWeatherUseCase,
+    private val saveWeatherExceptionUseCase: Lazy<SaveWeatherExceptionUseCase>,
 ) : CoroutineWorker(applicationContext, workerParameters) {
 
     override suspend fun doWork(): Result {
         try {
-            fetchWeatherRepository.fetchWeather()
+            refreshWeatherUseCase.invoke()
             WeatherWidget().updateAll(applicationContext)
-        } catch (e: DomainException) {
-            fetchWeatherRepository.saveException(e)
+        } catch (exception: DomainException) {
+            saveWeatherExceptionUseCase.get().invoke(exception = exception)
         }
         return Result.success()
     }

@@ -22,18 +22,18 @@ interface WeatherCacheDataSource {
 
     suspend fun saveHasError(hasError: Boolean)
 
-    fun savedWeather(): Flow<WeatherParams>
+    val cityParams: Pair<Float, Float>
 
-    fun weatherForWidget(): Flow<String>
+    val cachedWeatherFlow: Flow<WeatherParams>
 
-    fun hasError(): Flow<Boolean>
+    val widgetWeatherFlow: Flow<String>
 
-    fun cityParams(): Pair<Float, Float>
+    val hasErrorFlow: Flow<Boolean>
 
     @Singleton
     class Base @Inject constructor(
         private val dataStore: DataStore<Preferences>,
-        private val sharedPreferences: SharedPreferences,
+        sharedPreferences: SharedPreferences,
     ) : WeatherCacheDataSource {
 
         private val gson = Gson()
@@ -41,23 +41,14 @@ interface WeatherCacheDataSource {
         private val weatherParams = stringPreferencesKey("weather_params")
         private val hasErrorKey = booleanPreferencesKey("weather_error")
 
-        private val default = WeatherParams(
-            latitude = 0f,
-            longitude = 0f,
-            city = "",
-            time = 0L,
-            imageUrl = "",
-            details = ""
-        )
-
         private val dateFormat = SimpleDateFormat("HH:mm\ndd-MMM", Locale.getDefault()).apply {
             timeZone = TimeZone.getDefault()
         }
 
-        override fun cityParams(): Pair<Float, Float> {
-            val latitude = sharedPreferences.getFloat(LATITUDE, 0f)
-            val longitude = sharedPreferences.getFloat(LONGITUDE, 0f)
-            return Pair(latitude, longitude)
+        override suspend fun saveHasError(hasError: Boolean) {
+            dataStore.edit { prefs ->
+                prefs[hasErrorKey] = hasError
+            }
         }
 
         override suspend fun saveWeather(params: WeatherParams) {
@@ -72,24 +63,33 @@ interface WeatherCacheDataSource {
             }
         }
 
-        override fun weatherForWidget(): Flow<String> =
+        override val cityParams: Pair<Float, Float> =
+            Pair(
+                sharedPreferences.getFloat(LATITUDE, 0f),
+                sharedPreferences.getFloat(LONGITUDE, 0f)
+            )
+
+        override val cachedWeatherFlow: Flow<WeatherParams> =
+            dataStore.data.map { preferences ->
+                val raw = preferences[weatherParams] ?: gson.toJson(
+                    WeatherParams(
+                        latitude = 0f,
+                        longitude = 0f,
+                        city = "",
+                        time = 0L,
+                        imageUrl = "",
+                        details = ""
+                    )
+                )
+                gson.fromJson(raw, WeatherParams::class.java)
+            }
+
+        override val widgetWeatherFlow: Flow<String> =
             dataStore.data.map { preferences ->
                 preferences[weatherWidget] ?: ""
             }
 
-        override fun savedWeather(): Flow<WeatherParams> =
-            dataStore.data.map { preferences ->
-                val raw = preferences[weatherParams] ?: gson.toJson(default)
-                gson.fromJson(raw, WeatherParams::class.java)
-            }
-
-        override suspend fun saveHasError(hasError: Boolean) {
-            dataStore.edit { prefs ->
-                prefs[hasErrorKey] = hasError
-            }
-        }
-
-        override fun hasError(): Flow<Boolean> =
+        override val hasErrorFlow: Flow<Boolean> =
             dataStore.data.map { preferences ->
                 preferences[hasErrorKey] ?: false
             }

@@ -4,13 +4,13 @@ import javax.inject.Inject
 
 interface FindCityUseCase {
 
-    suspend fun invoke(query: String): FoundCityResult
+    suspend operator fun invoke(query: String): FoundCityResult
 
     class Base @Inject constructor(
         private val repository: FindCityRepository,
     ) : FindCityUseCase {
 
-        override suspend fun invoke(query: String) =
+        override suspend operator fun invoke(query: String) =
             repository.findCity(query = query)
     }
 }

@@ -4,12 +4,12 @@ import javax.inject.Inject
 
 interface LoadWeatherUseCase {
 
-    fun invoke()
+    operator fun invoke()
 
     class Base @Inject constructor(
         private val repository: WeatherRepository,
     ) : LoadWeatherUseCase {
 
-        override fun invoke() = repository.loadWeather()
+        override operator fun invoke() = repository.loadWeather()
     }
 }

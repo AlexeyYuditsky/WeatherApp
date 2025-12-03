@@ -115,8 +115,8 @@ class ScenarioTest {
 class FakeWeatherRepository : WeatherRepository {
 
     private var shouldShowError = true
-    private val weatherFlow = MutableStateFlow(WeatherParams(0f, 0f, "", 0, "", ""))
-    private val errorFlow = MutableStateFlow(false)
+    private val cachedWeatherFlow = MutableStateFlow(WeatherParams(0f, 0f, "", 0, "", ""))
+    private val hasErrorFlow = MutableStateFlow(false)
 
     override fun fetchWeather(savedWeather: WeatherParams): WeatherResult {
         if (shouldShowError) {
@@ -135,15 +135,15 @@ class FakeWeatherRepository : WeatherRepository {
     }
 
     override fun weatherFlow(): Flow<WeatherParams> {
-        return weatherFlow
+        return cachedWeatherFlow
     }
 
     override fun errorFlow(): Flow<Boolean> {
-        return errorFlow
+        return hasErrorFlow
     }
 
     override fun loadWeather() {
-        weatherFlow.value = WeatherParams(5f, 5f, "moscow", 1, "", "")
+        cachedWeatherFlow.value = WeatherParams(5f, 5f, "moscow", 1, "", "")
     }
 }
 
@@ -188,7 +188,7 @@ class FakeFindCityRepository : FindCityRepository {
 class FakeConnection : Connection {
 
     private val mutableStateFlow = MutableStateFlow(false)
-    override val statuses: StateFlow<Boolean> get() = mutableStateFlow.asStateFlow()
+    override val connectionStatus: StateFlow<Boolean> get() = mutableStateFlow.asStateFlow()
 
     fun changeConnected(connected: Boolean) {
         mutableStateFlow.value = connected

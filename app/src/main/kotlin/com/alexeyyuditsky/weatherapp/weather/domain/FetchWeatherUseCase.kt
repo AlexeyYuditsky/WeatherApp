@@ -5,13 +5,13 @@ import javax.inject.Inject
 
 interface FetchWeatherUseCase {
 
-    fun invoke(savedWeather: WeatherParams): WeatherResult
+    operator fun invoke(savedWeather: WeatherParams): WeatherResult
 
     class Base @Inject constructor(
         private val repository: WeatherRepository,
     ) : FetchWeatherUseCase {
 
-        override fun invoke(savedWeather: WeatherParams): WeatherResult =
+        override operator fun invoke(savedWeather: WeatherParams): WeatherResult =
             repository.fetchWeather(savedWeather)
     }
 }

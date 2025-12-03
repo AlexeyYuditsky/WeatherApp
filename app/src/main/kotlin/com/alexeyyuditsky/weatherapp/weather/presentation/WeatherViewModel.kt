@@ -30,7 +30,7 @@ class WeatherViewModel @Inject constructor(
 
     val state: StateFlow<WeatherUi> = savedStateHandle.getStateFlow(KEY, WeatherUi.Empty)
 
-    val connection: StateFlow<ConnectionUi> = connectionUiMapper.state
+    val connection: StateFlow<ConnectionUi> = connectionUiMapper.connectionState
 
     val error: StateFlow<ErrorUi> = errorWeatherUiMapper.state.stateIn(
         scope = viewModelScope,
@@ -41,7 +41,7 @@ class WeatherViewModel @Inject constructor(
     init {
         runAsync.runFlow(
             scope = viewModelScope,
-            flow = cachedWeatherUseCase.weather,
+            flow = cachedWeatherUseCase.cachedWeatherFlow,
             background = { weatherParams ->
                 val weatherResult = fetchWeatherUseCase.invoke(savedWeather = weatherParams)
                 val weatherUi = weatherResult.map(weatherResultMapper)

@@ -2,6 +2,7 @@ package com.alexeyyuditsky.weatherapp.weather.data
 
 import com.alexeyyuditsky.weatherapp.core.data.CloudDataSource
 import javax.inject.Inject
+import javax.inject.Singleton
 
 interface WeatherCloudDataSource : CloudDataSource {
 
@@ -20,6 +21,7 @@ interface WeatherCloudDataSource : CloudDataSource {
         longitude: Float,
     ): ForecastCloud
 
+    @Singleton
     class Base @Inject constructor(
         private val service: WeatherService,
     ) : WeatherCloudDataSource {
@@ -27,22 +29,16 @@ interface WeatherCloudDataSource : CloudDataSource {
         override suspend fun weather(
             latitude: Float,
             longitude: Float,
-        ) = handle {
-            service.weather(latitude, longitude)
-        }
+        ) = handle { service.weather(latitude, longitude) }
 
         override suspend fun airPollution(
             latitude: Float,
             longitude: Float,
-        ) = handle {
-            service.airPollution(latitude, longitude)
-        }
+        ) = handle { service.airPollution(latitude, longitude) }
 
         override suspend fun forecast(
             latitude: Float,
             longitude: Float,
-        ) = handle {
-            service.forecast(latitude, longitude)
-        }
+        ) = handle { service.forecast(latitude, longitude) }
     }
 }

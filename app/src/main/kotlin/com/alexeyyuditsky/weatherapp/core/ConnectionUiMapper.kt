@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 interface ConnectionUiMapper {
 
-    val state: StateFlow<ConnectionUi>
+    val connectionState: StateFlow<ConnectionUi>
 
     @Singleton
     class Base @Inject constructor(
@@ -20,25 +20,22 @@ interface ConnectionUiMapper {
         connection: Connection,
     ) : ConnectionUiMapper {
 
-        override val state: StateFlow<ConnectionUi> = connection.statuses
+        override val connectionState: StateFlow<ConnectionUi> = connection.connectionStatus
             .map {
                 when (it) {
-                    Connection.Status.CONNECTED -> {
+                    Connection.Status.CONNECTED ->
                         ConnectionUi.Connected
-                    }
 
-                    Connection.Status.DISCONNECTED -> {
+                    Connection.Status.DISCONNECTED ->
                         ConnectionUi.Disconnected
-                    }
 
-                    Connection.Status.CONNECTED_AFTER_DISCONNECTED -> {
+                    Connection.Status.CONNECTED_AFTER_DISCONNECTED ->
                         ConnectionUi.ConnectedAfterDisconnected
-                    }
                 }
             }.stateIn(
                 scope = applicationScope,
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 2000),
-                initialValue = if (connection.initialStatus == Connection.Status.CONNECTED) ConnectionUi.Connected else ConnectionUi.Disconnected
+                initialValue = if (connection.initialConnectionStatus == Connection.Status.CONNECTED) ConnectionUi.Connected else ConnectionUi.Disconnected
             )
     }
 }

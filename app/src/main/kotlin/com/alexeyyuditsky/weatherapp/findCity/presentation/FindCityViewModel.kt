@@ -28,7 +28,7 @@ class FindCityViewModel @Inject constructor(
 
     val state: StateFlow<FoundCityUi> = savedStateHandle.getStateFlow(KEY, FoundCityUi.Empty)
 
-    val connection: StateFlow<ConnectionUi> = connectionUiMapper.state
+    val connection: StateFlow<ConnectionUi> = connectionUiMapper.connectionState
 
     private val _event = MutableSharedFlow<FindCityEvent>()
     val event get() = _event.asSharedFlow()

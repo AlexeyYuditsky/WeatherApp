@@ -1,25 +1,35 @@
 package com.alexeyyuditsky.weatherapp.weather.data
 
+import com.alexeyyuditsky.weatherapp.findCity.domain.DomainException
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherInCity
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherResult
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class WeatherRepositoryImpl @Inject constructor(
     private val minutes: Int,
     private val cacheDataSource: WeatherCacheDataSource,
+    private val cloudDataSource: WeatherCloudDataSource,
     private val startForegroundWrapper: StartForegroundWrapper,
 ) : WeatherRepository {
 
     override fun fetchWeather(savedWeather: WeatherParams): WeatherResult {
-        val (latitude, longitude) = cacheDataSource.cityParams()
+        val (latitude, longitude) = cacheDataSource.cityParams
+
         val invalidSavedWeather = savedWeather.isEmpty() || !savedWeather.same(latitude, longitude)
+
         return if (invalidSavedWeather) {
             loadWeather()
             WeatherResult.NoDataYet
         } else {
-            val needRefresh = System.currentTimeMillis() - savedWeather.time > minutes * 60 * 1000
+            val now = System.currentTimeMillis()
+            val lastUpdate = savedWeather.time
+            val refreshIntervalMs = minutes * 60 * 1000
+            val timePassed = now - lastUpdate
+            val needRefresh = timePassed > refreshIntervalMs
             if (needRefresh)
                 loadWeather()
             WeatherResult.Success(
@@ -34,9 +44,53 @@ class WeatherRepositoryImpl @Inject constructor(
         }
     }
 
-    override val weatherFlow: Flow<WeatherParams> = cacheDataSource.savedWeather()
+    override suspend fun refreshWeather() {
+        cacheDataSource.saveHasError(hasError = false)
 
-    override val errorFlow: Flow<Boolean> = cacheDataSource.hasError()
+        val (latitude, longitude) = cacheDataSource.cityParams
+        val weatherCloud = cloudDataSource.weather(latitude, longitude)
 
-    override fun loadWeather() = startForegroundWrapper.start()
+        val airPollution = try {
+            val airPollutionCloud = cloudDataSource.airPollution(latitude, longitude)
+            airPollutionCloud.list.firstOrNull()?.main?.ui() ?: ""
+        } catch (_: Exception) {
+            "" // ignore air pollution if error
+        }
+
+        val forecast = try {
+            val response = cloudDataSource.forecast(latitude, longitude)
+            response.list.map {
+                it.details(response.city.timezone)
+            }
+        } catch (_: Exception) {
+            emptyList() // ignore forecast if error
+        }
+
+        val now = System.currentTimeMillis()
+        val (details, imageUrl) = weatherCloud.details()
+
+        cacheDataSource.saveWeather(
+            WeatherParams(
+                latitude = latitude,
+                longitude = longitude,
+                city = weatherCloud.cityName,
+                time = now,
+                imageUrl = imageUrl,
+                details = details + airPollution,
+                forecast = forecast,
+            )
+        )
+    }
+
+    override suspend fun saveException(exception: DomainException) =
+        cacheDataSource.saveHasError(hasError = true)
+
+    override val cachedWeatherFlow: Flow<WeatherParams> =
+        cacheDataSource.cachedWeatherFlow
+
+    override val hasErrorFlow: Flow<Boolean> =
+        cacheDataSource.hasErrorFlow
+
+    override fun loadWeather() =
+        startForegroundWrapper.start()
 }

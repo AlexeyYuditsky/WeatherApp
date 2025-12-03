@@ -13,7 +13,7 @@ interface ErrorWeatherUiMapper {
         repository: WeatherRepository,
     ) : ErrorWeatherUiMapper {
 
-        override val state: Flow<ErrorUi> = repository.errorFlow
+        override val state: Flow<ErrorUi> = repository.hasErrorFlow
             .map { hasError ->
                 if (hasError)
                     ErrorUi.Error

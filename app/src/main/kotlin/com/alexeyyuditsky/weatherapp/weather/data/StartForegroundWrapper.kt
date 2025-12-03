@@ -10,11 +10,13 @@ import com.alexeyyuditsky.weatherapp.weather.presentation.worker.WeatherWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Singleton
 
 interface StartForegroundWrapper {
 
     fun start()
 
+    @Singleton
     class Base @Inject constructor(
         @ApplicationContext context: Context,
     ) : StartForegroundWrapper {

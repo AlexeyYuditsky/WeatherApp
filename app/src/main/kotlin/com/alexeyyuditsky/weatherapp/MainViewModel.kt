@@ -11,7 +11,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun hasAlreadyChosenLocation(): Boolean {
-        val (latitude, longitude) = weatherCacheDataSource.cityParams()
+        val (latitude, longitude) = weatherCacheDataSource.cityParams
         return latitude != 0f && longitude != 0f
     }
 }

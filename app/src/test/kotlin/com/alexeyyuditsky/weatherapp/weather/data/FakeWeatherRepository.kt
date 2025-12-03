@@ -11,10 +11,10 @@ class FakeWeatherRepository(
     private val fakeRunAsync: FakeRunAsync
 ) : WeatherRepository {
 
-    private val weatherFlow = MutableStateFlow(
+    private val cachedWeatherFlow = MutableStateFlow(
         WeatherParams(-1f, 0f, "", 0, "", "")
     )
-    private val errorFlow = MutableStateFlow(false)
+    private val hasErrorFlow = MutableStateFlow(false)
 
     override fun fetchWeather(savedWeather: WeatherParams): WeatherResult {
         return if (savedWeather.latitude == -1f) {
@@ -32,15 +32,15 @@ class FakeWeatherRepository(
     }
 
     override fun weatherFlow(): Flow<WeatherParams> {
-        return weatherFlow
+        return cachedWeatherFlow
     }
 
     override fun errorFlow(): Flow<Boolean> {
-        return errorFlow
+        return hasErrorFlow
     }
 
     fun changeError(has: Boolean) {
-        errorFlow.value = has
+        hasErrorFlow.value = has
     }
 
     fun returnWeatherParams(params: WeatherParams) {

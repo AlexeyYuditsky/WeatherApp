@@ -4,7 +4,7 @@ import javax.inject.Inject
 
 interface SaveFoundCityUseCase {
 
-    suspend fun invoke(
+    suspend operator fun invoke(
         latitude: Float,
         longitude: Float,
     )
@@ -13,7 +13,7 @@ interface SaveFoundCityUseCase {
         private val repository: FindCityRepository,
     ) : SaveFoundCityUseCase {
 
-        override suspend fun invoke(
+        override suspend operator fun invoke(
             latitude: Float,
             longitude: Float,
         ) = repository.saveFoundCity(

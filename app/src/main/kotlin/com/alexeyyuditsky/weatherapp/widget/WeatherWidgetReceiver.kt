@@ -71,7 +71,7 @@ class WeatherWidget() : GlanceAppWidget() {
 private fun WidgetUiWrapper(cacheDataSource: WeatherCacheDataSource) {
     val context = LocalContext.current
     val bitmapState: MutableState<Bitmap?> = remember { mutableStateOf(null) }
-    val weather = cacheDataSource.weatherForWidget().collectAsState("").value
+    val weather = cacheDataSource.widgetWeatherFlow.collectAsState("").value
     val ui = if (weather.isEmpty())
         WidgetWeatherUi("choose\nlocation", "")
     else {

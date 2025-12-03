@@ -1,15 +1,20 @@
 package com.alexeyyuditsky.weatherapp.weather.domain
 
+import com.alexeyyuditsky.weatherapp.findCity.domain.DomainException
 import com.alexeyyuditsky.weatherapp.weather.data.WeatherParams
 import kotlinx.coroutines.flow.Flow
 
 interface WeatherRepository {
 
-    val weatherFlow: Flow<WeatherParams>
+    val cachedWeatherFlow: Flow<WeatherParams>
 
-    val errorFlow: Flow<Boolean>
+    val hasErrorFlow: Flow<Boolean>
 
     fun fetchWeather(savedWeather: WeatherParams): WeatherResult
 
     fun loadWeather()
+
+    suspend fun refreshWeather()
+
+    suspend fun saveException(exception: DomainException)
 }

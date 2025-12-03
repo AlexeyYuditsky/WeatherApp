@@ -6,12 +6,12 @@ import javax.inject.Inject
 
 interface CachedWeatherUseCase {
 
-    val weather: Flow<WeatherParams>
+    val cachedWeatherFlow: Flow<WeatherParams>
 
     class Base @Inject constructor(
         repository: WeatherRepository,
     ) : CachedWeatherUseCase {
 
-        override val weather: Flow<WeatherParams> = repository.weatherFlow
+        override val cachedWeatherFlow: Flow<WeatherParams> = repository.cachedWeatherFlow
     }
 }
