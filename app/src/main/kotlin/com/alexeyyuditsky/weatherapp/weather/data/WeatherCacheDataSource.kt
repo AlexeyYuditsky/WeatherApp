@@ -26,14 +26,14 @@ interface WeatherCacheDataSource {
 
     val cachedWeatherFlow: Flow<WeatherParams>
 
-    val widgetWeatherFlow: Flow<String>
-
     val hasErrorFlow: Flow<Boolean>
+
+    val widgetWeatherFlow: Flow<String>
 
     @Singleton
     class Base @Inject constructor(
         private val dataStore: DataStore<Preferences>,
-        sharedPreferences: SharedPreferences,
+        private val sharedPreferences: SharedPreferences,
     ) : WeatherCacheDataSource {
 
         private val gson = Gson()
@@ -44,6 +44,29 @@ interface WeatherCacheDataSource {
         private val dateFormat = SimpleDateFormat("HH:mm\ndd-MMM", Locale.getDefault()).apply {
             timeZone = TimeZone.getDefault()
         }
+
+        override val cityParams: Pair<Float, Float>
+            get() = Pair(
+                sharedPreferences.getFloat(LATITUDE, 0f),
+                sharedPreferences.getFloat(LONGITUDE, 0f)
+            )
+
+        override val cachedWeatherFlow: Flow<WeatherParams> =
+            dataStore.data.map { preferences ->
+                preferences[weatherParams]?.let { weatherParams ->
+                    gson.fromJson(weatherParams, WeatherParams::class.java)
+                } ?: WeatherParams()
+            }
+
+        override val widgetWeatherFlow: Flow<String> =
+            dataStore.data.map { preferences ->
+                preferences[weatherWidget] ?: ""
+            }
+
+        override val hasErrorFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[hasErrorKey] ?: false
+            }
 
         override suspend fun saveHasError(hasError: Boolean) {
             dataStore.edit { prefs ->
@@ -62,37 +85,6 @@ interface WeatherCacheDataSource {
                 prefs[weatherWidget] = "${params.imageUrl};$temperature;$timeUi"
             }
         }
-
-        override val cityParams: Pair<Float, Float> =
-            Pair(
-                sharedPreferences.getFloat(LATITUDE, 0f),
-                sharedPreferences.getFloat(LONGITUDE, 0f)
-            )
-
-        override val cachedWeatherFlow: Flow<WeatherParams> =
-            dataStore.data.map { preferences ->
-                val raw = preferences[weatherParams] ?: gson.toJson(
-                    WeatherParams(
-                        latitude = 0f,
-                        longitude = 0f,
-                        city = "",
-                        time = 0L,
-                        imageUrl = "",
-                        details = ""
-                    )
-                )
-                gson.fromJson(raw, WeatherParams::class.java)
-            }
-
-        override val widgetWeatherFlow: Flow<String> =
-            dataStore.data.map { preferences ->
-                preferences[weatherWidget] ?: ""
-            }
-
-        override val hasErrorFlow: Flow<Boolean> =
-            dataStore.data.map { preferences ->
-                preferences[hasErrorKey] ?: false
-            }
 
         private companion object {
             const val LATITUDE = "latitude"

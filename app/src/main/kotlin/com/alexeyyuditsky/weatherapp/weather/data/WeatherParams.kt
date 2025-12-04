@@ -5,12 +5,12 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class WeatherParams(
-    val latitude: Float,
-    val longitude: Float,
-    val city: String,
-    val time: Long,
-    val imageUrl: String,
-    val details: String,
+    val latitude: Float = 0f,
+    val longitude: Float = 0f,
+    val city: String = "",
+    val time: Long = 0L,
+    val imageUrl: String = "",
+    val details: String = "",
     val forecast: List<Pair<String, String>> = emptyList(),
 ) : Parcelable {
 
