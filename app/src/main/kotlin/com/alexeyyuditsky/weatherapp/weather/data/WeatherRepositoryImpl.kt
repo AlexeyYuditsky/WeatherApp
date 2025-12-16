@@ -4,7 +4,10 @@ import com.alexeyyuditsky.weatherapp.findCity.domain.DomainException
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherInCity
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherRepository
 import com.alexeyyuditsky.weatherapp.weather.domain.WeatherResult
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,6 +35,7 @@ class WeatherRepositoryImpl @Inject constructor(
             val needRefresh = timePassed > refreshIntervalMs
             if (needRefresh)
                 loadWeather()
+
             WeatherResult.Success(
                 weatherInCity = WeatherInCity(
                     cityName = savedWeather.city,
@@ -44,36 +48,46 @@ class WeatherRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun refreshWeather() {
+    override suspend fun refreshWeather() = coroutineScope {
         cacheDataSource.saveHasError(hasError = false)
-
         val (latitude, longitude) = cacheDataSource.cityParams
-        val weatherCloud = cloudDataSource.weather(latitude, longitude)
 
-        val airPollution = try {
-            val airPollutionCloud = cloudDataSource.airPollution(latitude, longitude)
-            airPollutionCloud.list.firstOrNull()?.main?.ui() ?: ""
-        } catch (_: Exception) {
-            "" // ignore air pollution if error
+        val weatherDeferred = async {
+            cloudDataSource.weather(latitude, longitude)
         }
 
-        val forecast = try {
-            val response = cloudDataSource.forecast(latitude, longitude)
-            response.list.map {
-                it.details(response.city.timezone)
+        val airPollutionDeferred = async {
+            try {
+                val airPollutionCloud = cloudDataSource.airPollution(latitude, longitude)
+                airPollutionCloud.list.firstOrNull()?.main?.ui() ?: ""
+            } catch (_: IOException) {
+                "" // ignore air pollution if error
             }
-        } catch (_: Exception) {
-            emptyList() // ignore forecast if error
         }
+
+        val forecastDeferred = async {
+            try {
+                val response = cloudDataSource.forecast(latitude, longitude)
+                response.list.map {
+                    it.details(response.city.timezone)
+                }
+            } catch (_: IOException) {
+                emptyList() // ignore forecast if error
+            }
+        }
+
+        val weather = weatherDeferred.await()
+        val airPollution = airPollutionDeferred.await()
+        val forecast = forecastDeferred.await()
 
         val now = System.currentTimeMillis()
-        val (details, imageUrl) = weatherCloud.details()
+        val (details, imageUrl) = weather.details()
 
         cacheDataSource.saveWeather(
             WeatherParams(
                 latitude = latitude,
                 longitude = longitude,
-                city = weatherCloud.cityName,
+                city = weather.cityName,
                 time = now,
                 imageUrl = imageUrl,
                 details = details + airPollution,
